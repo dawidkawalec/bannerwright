@@ -54,15 +54,22 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
             </CardContent>
           </Card>
         </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle>Generations</CardTitle>
-            <CardDescription>Banners produced from briefs</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-500">Coming in Faza 2.</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={`/workspaces/${workspace.id}/generations`}
+          className="block transition-shadow hover:shadow-md"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Generations →</CardTitle>
+              <CardDescription>Banners produced from briefs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-500">
+                Brief + brand context → HTML + PNG in ~30 s.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
         <Link
           href={`/workspaces/${workspace.id}/settings`}
           className="block transition-shadow hover:shadow-md"
