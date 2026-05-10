@@ -167,11 +167,11 @@ export function GenerateFlow({
                 maxLength={2_000}
                 disabled={isWorking}
                 placeholder="Promo for our winter sale. 30% off everything until December 15. Bold, punchy, lots of contrast."
-                className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 
-            <div className="flex flex-col gap-2 text-xs text-slate-700">
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               <span>{readyKbCount} ready KB source{readyKbCount === 1 ? '' : 's'} will inform the prompt.</span>
               {!hasBrand && <span>No brand set — AI uses tasteful defaults.</span>}
             </div>
@@ -181,16 +181,16 @@ export function GenerateFlow({
             </Button>
 
             {step.kind === 'progress' && (
-              <p className="text-sm text-slate-700">{step.label}</p>
+              <p className="text-sm text-muted-foreground">{step.label}</p>
             )}
             {step.kind === 'streaming' && (
-              <p className="text-sm text-slate-700">Streaming HTML…</p>
+              <p className="text-sm text-muted-foreground">Streaming HTML…</p>
             )}
             {step.kind === 'rendering' && (
-              <p className="text-sm text-slate-700">Rendering PNG…</p>
+              <p className="text-sm text-muted-foreground">Rendering PNG…</p>
             )}
             {step.kind === 'error' && (
-              <p className="text-sm text-red-600" role="alert">
+              <p className="text-sm text-destructive" role="alert">
                 {step.message}
               </p>
             )}
@@ -215,7 +215,7 @@ export function GenerateFlow({
       </Card>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-wide text-slate-700">Live preview</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Live preview</p>
         <BannerPreview html={html} format={format} />
       </div>
     </div>

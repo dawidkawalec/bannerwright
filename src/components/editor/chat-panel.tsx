@@ -46,10 +46,10 @@ export function ChatPanel({
       <CardContent className="flex flex-col gap-3">
         <div
           ref={scrollRef}
-          className="flex max-h-64 flex-col gap-2 overflow-y-auto rounded-md bg-slate-50 p-2 text-sm"
+          className="flex max-h-64 flex-col gap-2 overflow-y-auto rounded-md bg-muted/40 p-2 text-sm"
         >
           {chat.length === 0 && (
-            <p className="px-2 py-1 text-xs text-slate-700">
+            <p className="px-2 py-1 text-xs text-muted-foreground">
               Tell the AI what to change. Each edit creates a new version.
             </p>
           )}
@@ -58,10 +58,10 @@ export function ChatPanel({
               key={m.id}
               className={
                 m.role === 'user'
-                  ? 'self-end rounded-md bg-slate-900 px-3 py-2 text-slate-50'
+                  ? 'self-end rounded-md bg-primary px-3 py-2 text-primary-foreground'
                   : m.role === 'assistant'
-                    ? 'self-start rounded-md bg-white px-3 py-2 text-slate-800 ring-1 ring-slate-200'
-                    : 'self-center rounded-md bg-slate-100 px-3 py-1 text-xs text-slate-700'
+                    ? 'self-start rounded-md bg-card px-3 py-2 text-foreground ring-1 ring-border'
+                    : 'self-center rounded-md bg-muted px-3 py-1 text-xs text-muted-foreground'
               }
             >
               {m.content}
@@ -81,10 +81,10 @@ export function ChatPanel({
           maxLength={2_000}
           disabled={disabled}
           placeholder='e.g. "make the background a deep blue gradient"'
-          className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50"
         />
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-700">⌘⏎ to send</span>
+          <span className="text-xs text-muted-foreground">⌘⏎ to send</span>
           <Button size="sm" onClick={submit} disabled={disabled || !text.trim()}>
             Send
           </Button>

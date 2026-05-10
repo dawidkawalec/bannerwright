@@ -38,7 +38,7 @@ export function AddKbUploadForm({ workspaceId }: { workspaceId: string }) {
           accept=".txt,.md,.markdown,text/plain,text/markdown,image/png,image/jpeg,image/webp"
           className="cursor-pointer"
         />
-        <p className="text-xs text-slate-700">
+        <p className="text-xs text-muted-foreground">
           TXT, MD, PNG, JPEG, WebP — up to 10 MB. PDF coming soon.
         </p>
       </div>
@@ -47,7 +47,7 @@ export function AddKbUploadForm({ workspaceId }: { workspaceId: string }) {
           {pending ? 'Uploading…' : 'Upload'}
         </Button>
         {error && (
-          <span className="text-sm text-red-600" role="alert">
+          <span className="text-sm text-destructive" role="alert">
             {error}
           </span>
         )}

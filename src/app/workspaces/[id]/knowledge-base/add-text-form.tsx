@@ -43,7 +43,7 @@ export function AddKbTextForm({ workspaceId }: { workspaceId: string }) {
           required
           maxLength={50_000}
           rows={6}
-          className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="Brand voice, product positioning, target audience…"
         />
       </div>
@@ -52,7 +52,7 @@ export function AddKbTextForm({ workspaceId }: { workspaceId: string }) {
           {pending ? 'Saving…' : 'Add notes'}
         </Button>
         {error && (
-          <span className="text-sm text-red-600" role="alert">
+          <span className="text-sm text-destructive" role="alert">
             {error}
           </span>
         )}

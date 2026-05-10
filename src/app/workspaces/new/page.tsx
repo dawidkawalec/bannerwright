@@ -9,7 +9,7 @@ export default async function NewWorkspacePage() {
   await requireUser();
   return (
     <div className="mx-auto max-w-xl">
-      <Link href="/workspaces" className="text-sm text-slate-700 hover:text-slate-900">
+      <Link href="/workspaces" className="text-sm text-muted-foreground hover:text-foreground">
         ← Back to workspaces
       </Link>
       <Card className="mt-4">

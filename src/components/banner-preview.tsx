@@ -41,7 +41,7 @@ export function BannerPreview({ html, format, className }: Props) {
     <div
       ref={containerRef}
       className={cn(
-        'relative w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50',
+        'relative w-full overflow-hidden rounded-lg border border-border bg-muted/30',
         className,
       )}
       style={{ aspectRatio: `${width} / ${height}` }}

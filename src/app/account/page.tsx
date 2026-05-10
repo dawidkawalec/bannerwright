@@ -1,0 +1,284 @@
+import {
+  Bell,
+  Cpu,
+  Key,
+  Palette,
+  Shield,
+  User as UserIcon,
+} from 'lucide-react';
+import { requireUser } from '@/lib/auth/current-user';
+import { listWorkspacesByUser } from '@/lib/db/queries/workspaces';
+import { getGlobalStats } from '@/lib/db/queries/stats';
+import { AppShell } from '@/components/layout/app-shell';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { AppearanceForm } from '@/app/workspaces/[id]/settings/appearance-form';
+
+export const metadata = { title: 'Account — Bannerwright' };
+
+export default async function AccountPage() {
+  const user = await requireUser();
+  const [workspaces, stats] = await Promise.all([
+    listWorkspacesByUser(user.id),
+    getGlobalStats(user.id),
+  ]);
+  const mini = workspaces.map((w) => ({ id: w.id, name: w.name, slug: w.slug }));
+  const handle = user.email.split('@')[0];
+  const initials = user.email.slice(0, 2).toUpperCase();
+  const memberSince = new Date(user.createdAt).toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: 'long',
+  });
+
+  return (
+    <AppShell email={user.email} workspaces={mini}>
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-16 ring-2 ring-primary/30">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-lg font-semibold text-primary-foreground">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {handle}
+              </h1>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="border-primary/30 text-primary">
+                  Owner
+                </Badge>
+                <span className="text-xs text-muted-foreground">Member since {memberSince}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <SnapStat label="Workspaces" value={stats.workspaces} />
+            <SnapStat label="Banners" value={stats.generations} />
+            <SnapStat label="Spent" value={`$${stats.totalCostUsd.toFixed(2)}`} />
+          </div>
+        </header>
+
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="profile">
+              <UserIcon className="size-3.5" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="appearance">
+              <Palette className="size-3.5" />
+              Appearance
+            </TabsTrigger>
+            <TabsTrigger value="notifications">
+              <Bell className="size-3.5" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="security">
+              <Shield className="size-3.5" />
+              Security
+            </TabsTrigger>
+            <TabsTrigger value="api">
+              <Key className="size-3.5" />
+              API & AI
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Profile</CardTitle>
+                <CardDescription>Public name and how others see you in the workshop.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Display name" defaultValue={handle} />
+                <Field label="Email" defaultValue={user.email} readOnly hint="Single-tenant install — change via .env" />
+                <Field label="Timezone" defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone} />
+                <Field label="Language" defaultValue="English" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Studio defaults</CardTitle>
+                <CardDescription>Defaults applied to new banners and workspaces.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Field label="Default format" defaultValue="square_1080" hint="Square / Story / Landscape / Portrait" />
+                <ToggleRow
+                  label="Auto-promote first AI version"
+                  description="Mark first successful generation as a template automatically."
+                  defaultChecked={false}
+                />
+                <ToggleRow
+                  label="Auto-detect brand on URL add"
+                  description="Whenever a Knowledge base URL becomes ready, run brand extraction."
+                  defaultChecked={true}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Appearance</CardTitle>
+                <CardDescription>
+                  Theme and typography for this browser. Stored in localStorage.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AppearanceForm />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Notifications</CardTitle>
+                <CardDescription>Choose what shows up in the bell menu.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ToggleRow
+                  label="Generation finished"
+                  description="When a banner finishes generating or rendering."
+                  defaultChecked
+                />
+                <ToggleRow
+                  label="Brand auto-detect ready"
+                  description="When AI finishes extracting brand from a URL."
+                  defaultChecked
+                />
+                <ToggleRow
+                  label="Daily cost summary"
+                  description="A short morning brief with yesterday’s AI spend."
+                  defaultChecked={false}
+                />
+                <ToggleRow
+                  label="Email me a copy"
+                  description="Mirror in-app notifications to email."
+                  defaultChecked={false}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Sessions</CardTitle>
+                <CardDescription>Devices currently signed into this account.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-lg border border-border bg-muted/30 p-3">
+                  <p className="text-sm font-medium text-foreground">This device</p>
+                  <p className="text-xs text-muted-foreground">Active session — sign out from the profile menu.</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Password</CardTitle>
+                <CardDescription>
+                  Single-tenant install — passwords are managed via the seed CLI.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs text-muted-foreground">
+                  pnpm tsx scripts/hash-password.ts &lt;new-password&gt;{'\n'}
+                  # update ADMIN_PASSWORD_HASH in .env, then re-run db:seed
+                </pre>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="api" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Cpu className="size-4 text-primary" />
+                  AI provider
+                </CardTitle>
+                <CardDescription>
+                  Bannerwright talks to Google Gemini directly — your key, your data.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Field
+                  label="GOOGLE_API_KEY"
+                  defaultValue="••••••••••••••••"
+                  readOnly
+                  hint="Loaded from .env. Restart to apply changes."
+                />
+                <Field label="Default model" defaultValue="gemini-3-pro" />
+                <Field label="Image model" defaultValue="nano-banana-pro" />
+                <ToggleRow
+                  label="Stream HTML to the editor"
+                  description="Show partial AI output live as it’s being written."
+                  defaultChecked
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppShell>
+  );
+}
+
+function Field({
+  label,
+  defaultValue,
+  readOnly,
+  hint,
+}: {
+  label: string;
+  defaultValue: string;
+  readOnly?: boolean;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label>{label}</Label>
+      <Input defaultValue={defaultValue} readOnly={readOnly} className={readOnly ? 'opacity-70' : ''} />
+      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+function ToggleRow({
+  label,
+  description,
+  defaultChecked,
+}: {
+  label: string;
+  description: string;
+  defaultChecked?: boolean;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-muted/20 p-3">
+      <div>
+        <Label className="text-sm">{label}</Label>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <Switch defaultChecked={defaultChecked} />
+    </div>
+  );
+}
+
+function SnapStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2 text-center">
+      <p className="text-lg font-semibold text-foreground">{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+

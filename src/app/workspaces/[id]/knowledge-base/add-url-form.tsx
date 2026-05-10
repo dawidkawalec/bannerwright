@@ -44,7 +44,7 @@ export function AddKbUrlForm({ workspaceId }: { workspaceId: string }) {
         {pending ? 'Adding…' : 'Add URL'}
       </Button>
       {error && (
-        <p className="basis-full text-sm text-red-600" role="alert">
+        <p className="basis-full text-sm text-destructive" role="alert">
           {error}
         </p>
       )}

@@ -23,11 +23,11 @@ export default async function NewGenerationPage({ params }: Props) {
     <div className="flex flex-col gap-4">
       <Link
         href={`/workspaces/${workspace.id}/generations`}
-        className="text-sm text-slate-700 hover:text-slate-900"
+        className="text-sm text-muted-foreground hover:text-foreground"
       >
         ← Generations
       </Link>
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">New banner</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">New banner</h1>
       {!hasBrand && (
         <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           No brand colour set yet. The AI will pick reasonable defaults — for branded output

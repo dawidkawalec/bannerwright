@@ -57,3 +57,6 @@ drizzle/
 # Misc
 .cache/
 .turbo/
+
+# Reference template — kept locally, never committed
+demo/

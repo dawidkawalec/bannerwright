@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Poppins, Geist_Mono } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const poppins = Poppins({
+  variable: '--font-sans',
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
@@ -16,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Bannerwright',
-  description: 'A workshop for makers of banners.',
+  description: 'AI workshop for makers of HTML banners.',
 };
 
 export default function RootLayout({
@@ -27,11 +30,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`dark ${poppins.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
-        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-        <Toaster richColors closeButton position="top-right" />
+      <body className="flex min-h-full flex-col bg-background text-foreground">
+        <ThemeProvider>
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          <Toaster richColors closeButton position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

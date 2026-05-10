@@ -40,7 +40,7 @@ export function CreateWorkspaceForm() {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="slug">Slug (optional)</Label>
         <Input id="slug" name="slug" maxLength={40} placeholder="auto from name" />
-        <p className="text-xs text-slate-700">
+        <p className="text-xs text-muted-foreground">
           Lowercase letters, digits and hyphens. Used in URLs.
         </p>
       </div>
@@ -49,7 +49,7 @@ export function CreateWorkspaceForm() {
         <Input id="description" name="description" maxLength={500} />
       </div>
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       )}

@@ -19,7 +19,7 @@ export function HelpHint({
       aria-label={text}
       title={text}
       className={cn(
-        'inline-flex h-4 w-4 shrink-0 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold text-slate-700 hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400',
+        'inline-flex h-4 w-4 shrink-0 cursor-help items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring/40',
         className,
       )}
     >

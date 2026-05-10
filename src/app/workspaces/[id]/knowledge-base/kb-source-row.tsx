@@ -57,7 +57,7 @@ export function KbSourceRow({
             href={`/api/kb/${source.id}/screenshot`}
             target="_blank"
             rel="noreferrer"
-            className="block overflow-hidden rounded-md border border-slate-200"
+            className="block overflow-hidden rounded-md border border-border"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -67,11 +67,11 @@ export function KbSourceRow({
             />
           </a>
         ) : source.contentText ? (
-          <div className="line-clamp-6 rounded-md bg-slate-50 p-3 text-xs whitespace-pre-wrap text-slate-700">
+          <div className="line-clamp-6 rounded-md bg-muted/30 p-3 text-xs whitespace-pre-wrap text-muted-foreground">
             {source.contentText}
           </div>
         ) : (
-          <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 text-center text-xs text-slate-700">
+          <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-border bg-muted/30 px-3 text-center text-xs text-muted-foreground">
             {source.status === 'failed'
               ? source.errorMessage ?? 'Processing failed'
               : source.sourceType === 'url'
@@ -85,7 +85,7 @@ export function KbSourceRow({
             href={source.url}
             target="_blank"
             rel="noreferrer"
-            className="truncate text-xs text-slate-700 hover:text-slate-900"
+            className="truncate text-xs text-muted-foreground hover:text-foreground"
           >
             {source.url}
           </a>

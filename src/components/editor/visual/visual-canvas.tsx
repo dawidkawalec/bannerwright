@@ -114,7 +114,7 @@ export function VisualCanvas({
   return (
     <div
       ref={wrapperRef}
-      className={`relative w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm ${className ?? ''}`}
+      className={`relative w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm ${className ?? ''}`}
       style={{ aspectRatio: `${width} / ${height}` }}
       onClick={(e) => {
         if (e.target === wrapperRef.current) onSelect(null);

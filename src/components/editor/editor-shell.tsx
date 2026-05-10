@@ -266,14 +266,14 @@ export function EditorShell({
         {mode === 'visual' && (
           <>
             <div className="flex min-h-[400px] flex-col gap-2 lg:col-span-1">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-700">
+              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
                 <span title="Klikaj elementy banera (nagłówek, przycisk, obrazek), żeby je edytować po prawej. Każda zmiana to nowa wersja w historii.">
                   Banner — click to edit
                 </span>
                 <a
                   href={`/api/generations/${generationId}/png`}
                   download
-                  className="text-slate-700 underline hover:text-slate-900"
+                  className="text-muted-foreground underline hover:text-foreground"
                   title="Pobierz aktualną wersję jako PNG."
                 >
                   Download PNG
@@ -305,15 +305,15 @@ export function EditorShell({
 
         {mode === 'code' && (
           <>
-            <div className="flex min-h-[400px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-xs text-slate-300">
+            <div className="flex min-h-[400px] flex-col overflow-hidden rounded-lg border border-border bg-[oklch(0.12_0.005_250)]">
+              <div className="flex items-center justify-between border-b border-border/40 px-3 py-2 text-xs text-muted-foreground">
                 <span title="Edytor kodu HTML banera. Każda zmiana renderuje się live po prawej.">
                   HTML {isDirty && <em className="not-italic text-amber-400">· unsaved</em>}
                 </span>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 text-slate-200 hover:bg-slate-800 hover:text-white"
+                  className="h-7 text-foreground hover:bg-muted hover:text-foreground"
                   onClick={onManualSave}
                   disabled={!isDirty || isWorking}
                   title="Zapisz ręczną edycję jako nową wersję (skrót: ⌘S)"
@@ -329,12 +329,12 @@ export function EditorShell({
               />
             </div>
             <div className="flex min-h-[400px] flex-col gap-2">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-700">
+              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
                 <span>Live preview</span>
                 <a
                   href={`/api/generations/${generationId}/png`}
                   download
-                  className="text-slate-700 underline hover:text-slate-900"
+                  className="text-muted-foreground underline hover:text-foreground"
                 >
                   Download PNG
                 </a>
@@ -347,12 +347,12 @@ export function EditorShell({
 
         {mode === 'chat' && (
           <div className="flex min-h-[400px] flex-col gap-2 lg:col-span-2">
-            <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-700">
+            <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
               <span>Banner preview</span>
               <a
                 href={`/api/generations/${generationId}/png`}
                 download
-                className="text-slate-700 underline hover:text-slate-900"
+                className="text-muted-foreground underline hover:text-foreground"
               >
                 Download PNG
               </a>
@@ -422,10 +422,10 @@ function StatusLine({ status }: { status: Status }) {
   if (status.kind === 'idle') return null;
   const tone =
     status.kind === 'error'
-      ? 'text-red-600'
+      ? 'text-destructive'
       : status.kind === 'ok'
-        ? 'text-emerald-600'
-        : 'text-slate-700';
+        ? 'text-emerald-400'
+        : 'text-muted-foreground';
   const text =
     status.kind === 'error'
       ? status.message

@@ -42,11 +42,11 @@ export function VersionsPanel({
           {versions.map((v, idx) => (
             <li
               key={v.id}
-              className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2"
+              className="flex items-center justify-between rounded-md bg-muted/40 px-3 py-2"
             >
               <span className="flex flex-col">
-                <span className="font-medium text-slate-800">v{v.versionNumber}</span>
-                <span className="text-xs uppercase tracking-wide text-slate-700">
+                <span className="font-medium text-foreground">v{v.versionNumber}</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">
                   {TRIGGER_LABELS[v.triggeredBy]}
                 </span>
               </span>
@@ -62,7 +62,7 @@ export function VersionsPanel({
                 </Button>
               )}
               {idx === 0 && (
-                <span className="text-xs text-slate-500">current</span>
+                <span className="text-xs font-medium text-primary">current</span>
               )}
             </li>
           ))}

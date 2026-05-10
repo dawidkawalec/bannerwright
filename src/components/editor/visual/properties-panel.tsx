@@ -86,7 +86,7 @@ export function PropertiesPanel({
           <CardTitle className="text-sm">Properties</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-muted-foreground">
             Click any element on the banner — text, button, image — to edit it here.
           </p>
         </CardContent>
@@ -148,7 +148,7 @@ export function PropertiesPanel({
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-sm">
           <span>Properties</span>
-          <code className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">
+          <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
             {describeElement(selectedElement)}
           </code>
         </CardTitle>
@@ -163,7 +163,7 @@ export function PropertiesPanel({
             onChange={(e) => update('text', e.target.value)}
             disabled={disabled}
             placeholder="(no text)"
-            className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
 
@@ -177,7 +177,7 @@ export function PropertiesPanel({
                 value={fields.color}
                 onChange={(e) => update('color', e.target.value)}
                 disabled={disabled}
-                className="h-9 w-10 cursor-pointer rounded-md border border-slate-200"
+                className="h-9 w-10 cursor-pointer rounded-md border border-border"
               />
               <Input
                 id="bw-color"
@@ -197,7 +197,7 @@ export function PropertiesPanel({
                 value={fields.backgroundColor}
                 onChange={(e) => update('backgroundColor', e.target.value)}
                 disabled={disabled}
-                className="h-9 w-10 cursor-pointer rounded-md border border-slate-200"
+                className="h-9 w-10 cursor-pointer rounded-md border border-border"
               />
               <Input
                 id="bw-bg"
@@ -230,7 +230,7 @@ export function PropertiesPanel({
               value={fields.fontWeight}
               onChange={(e) => update('fontWeight', e.target.value)}
               disabled={disabled}
-              className="h-9 rounded-md border border-slate-200 bg-white px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:opacity-50"
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
             >
               {['300', '400', '500', '600', '700', '800', '900'].map((w) => (
                 <option key={w} value={w}>
@@ -248,7 +248,7 @@ export function PropertiesPanel({
             value={fields.fontFamily}
             onChange={(e) => update('fontFamily', e.target.value)}
             disabled={disabled}
-            className="h-9 rounded-md border border-slate-200 bg-white px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:opacity-50"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
           >
             {COMMON_FONTS.map((f) => (
               <option key={f} value={f}>
@@ -256,7 +256,7 @@ export function PropertiesPanel({
               </option>
             ))}
           </select>
-          <p className="text-[10px] text-slate-700">
+          <p className="text-[10px] text-muted-foreground">
             Loaded as Google Font when used. Add @import in code mode for niche faces.
           </p>
         </div>

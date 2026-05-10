@@ -36,7 +36,7 @@ export function UseTemplateButton({
         {pending ? 'Creating…' : 'Use template'}
       </Button>
       {error && (
-        <span className="text-xs text-red-600" role="alert">
+        <span className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}

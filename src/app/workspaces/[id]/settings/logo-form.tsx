@@ -52,12 +52,12 @@ export function LogoForm({
   return (
     <div className="flex flex-col gap-4">
       {hasLogo && (
-        <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-slate-50 p-3">
+        <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/api/workspaces/${workspaceId}/logo?v=${version}`}
             alt="Workspace logo"
-            className="h-12 w-12 rounded-md bg-white object-contain p-1 ring-1 ring-slate-200"
+            className="h-12 w-12 rounded-md bg-background object-contain p-1 ring-1 ring-border"
           />
           <Button variant="ghost" size="sm" onClick={onRemove} disabled={pending}>
             Remove
@@ -77,7 +77,7 @@ export function LogoForm({
             required
             className="cursor-pointer"
           />
-          <p className="text-xs text-slate-700">PNG, JPEG, WebP or SVG, up to 2 MB.</p>
+          <p className="text-xs text-muted-foreground">PNG, JPEG, WebP or SVG, up to 2 MB.</p>
         </div>
         <Button type="submit" disabled={pending}>
           {pending ? 'Uploading…' : 'Upload'}
@@ -85,7 +85,7 @@ export function LogoForm({
       </form>
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       )}

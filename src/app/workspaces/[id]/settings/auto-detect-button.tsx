@@ -44,21 +44,21 @@ export function AutoDetectButton({ workspaceId }: { workspaceId: string }) {
         {pending ? `Analysing… ${elapsed}s` : 'Auto-detect brand'}
       </Button>
       {pending && (
-        <p className="text-xs text-slate-700">
+        <p className="text-xs text-muted-foreground">
           Gemini 3.1 Pro is reading the screenshot + page text. Typical: 15–30 s.
         </p>
       )}
       {success && (
-        <p className="text-sm text-emerald-700">
+        <p className="text-sm text-emerald-400">
           Brand detected and saved. Scroll down to review the values.
         </p>
       )}
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       )}
-      <p className="text-xs text-slate-700">
+      <p className="text-xs text-muted-foreground">
         Costs ≈ $0.01–$0.15 per run depending on knowledge-base size.
       </p>
     </div>

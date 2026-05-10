@@ -1,15 +1,14 @@
 import { requireUser } from '@/lib/auth/current-user';
 import { listWorkspacesByUser } from '@/lib/db/queries/workspaces';
-import { AppNav } from '@/components/app-nav';
+import { AppShell } from '@/components/layout/app-shell';
 
 export default async function WorkspacesLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const workspaces = await listWorkspacesByUser(user.id);
-
+  const mini = workspaces.map((w) => ({ id: w.id, name: w.name, slug: w.slug }));
   return (
-    <div className="bw-app-bg min-h-screen">
-      <AppNav email={user.email} workspaces={workspaces} />
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
-    </div>
+    <AppShell email={user.email} workspaces={mini}>
+      {children}
+    </AppShell>
   );
 }

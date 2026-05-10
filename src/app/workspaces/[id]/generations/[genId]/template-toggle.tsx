@@ -31,7 +31,7 @@ export function TemplateToggle({
     return (
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
             Template{templateName ? ` · ${templateName}` : ''}
           </span>
           <Button
@@ -51,7 +51,7 @@ export function TemplateToggle({
           </Button>
         </div>
         {error && (
-          <span className="text-xs text-red-600" role="alert">
+          <span className="text-xs text-destructive" role="alert">
             {error}
           </span>
         )}
@@ -102,7 +102,7 @@ export function TemplateToggle({
         </Button>
       </div>
       {error && (
-        <span className="text-xs text-red-600" role="alert">
+        <span className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}

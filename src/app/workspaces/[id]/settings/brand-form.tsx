@@ -69,7 +69,7 @@ export function BrandForm({ workspaceId, initial }: { workspaceId: string; initi
               <input
                 type="color"
                 aria-label={`${label} colour picker`}
-                className="h-9 w-12 cursor-pointer rounded-md border border-slate-200"
+                className="h-9 w-12 cursor-pointer rounded-md border border-border"
                 value={values[key] || '#ffffff'}
                 onChange={(e) => update(key, e.target.value)}
               />
@@ -113,9 +113,9 @@ export function BrandForm({ workspaceId, initial }: { workspaceId: string; initi
         <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : 'Save brand'}
         </Button>
-        {saved && <span className="text-sm text-emerald-600">Saved.</span>}
+        {saved && <span className="text-sm text-emerald-400">Saved.</span>}
         {error && (
-          <span className="text-sm text-red-600" role="alert">
+          <span className="text-sm text-destructive" role="alert">
             {error}
           </span>
         )}
