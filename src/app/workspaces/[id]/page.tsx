@@ -63,15 +63,22 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
             <p className="text-sm text-slate-500">Coming in Faza 2.</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Settings</CardTitle>
-            <CardDescription>Brand colours, fonts, logo</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-500">Coming in Faza 1.</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={`/workspaces/${workspace.id}/settings`}
+          className="block transition-shadow hover:shadow-md"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Settings →</CardTitle>
+              <CardDescription>Brand colours, fonts, auto-detect</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-500">
+                Tune the brand the AI uses when generating banners.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );
