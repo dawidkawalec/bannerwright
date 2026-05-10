@@ -173,7 +173,12 @@ export const generations = pgTable(
 // ============================================================================
 // GENERATION VERSIONS (history snapshots)
 // ============================================================================
-export type VersionTrigger = 'initial_generation' | 'manual_edit' | 'ai_edit' | 'restore';
+export type VersionTrigger =
+  | 'initial_generation'
+  | 'manual_edit'
+  | 'ai_edit'
+  | 'restore'
+  | 'visual_edit';
 
 export const generationVersions = pgTable(
   'generation_versions',

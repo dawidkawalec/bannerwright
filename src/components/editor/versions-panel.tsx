@@ -14,8 +14,9 @@ export type VersionRow = {
 
 const TRIGGER_LABELS: Record<VersionTrigger, string> = {
   initial_generation: 'initial',
-  manual_edit: 'manual',
-  ai_edit: 'AI',
+  manual_edit: 'code',
+  ai_edit: 'AI chat',
+  visual_edit: 'visual',
   restore: 'restore',
 };
 

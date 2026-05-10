@@ -21,10 +21,11 @@ import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
 import type { ActionResult } from './workspaces';
 
-export async function saveManualEdit(
+async function persistEditAsVersion(
   workspaceId: string,
   id: string,
   html: string,
+  triggeredBy: 'manual_edit' | 'visual_edit',
 ): Promise<ActionResult<{ versionNumber: number; versionId: string }>> {
   if (typeof html !== 'string' || html.length === 0) {
     return { ok: false, error: 'HTML is empty' };
@@ -48,7 +49,7 @@ export async function saveManualEdit(
       generationId: generation.id,
       versionNumber,
       html,
-      triggeredBy: 'manual_edit',
+      triggeredBy,
     });
 
     let pngKey: string | undefined;
@@ -60,16 +61,32 @@ export async function saveManualEdit(
       });
       pngKey = rendered.pngKey;
     } catch (err) {
-      logger.warn({ err, generationId: id }, 'PNG render failed during manual save');
+      logger.warn({ err, generationId: id, triggeredBy }, 'PNG render failed during save');
     }
 
     await updateGenerationCurrentHtml(generation.id, html, pngKey);
     revalidatePath(`/workspaces/${workspace.id}/generations/${id}`);
     return { ok: true, data: { versionNumber, versionId: version.id } };
   } catch (err) {
-    logger.error({ err, generationId: id }, 'saveManualEdit failed');
+    logger.error({ err, generationId: id, triggeredBy }, 'persistEditAsVersion failed');
     return { ok: false, error: 'Could not save' };
   }
+}
+
+export async function saveManualEdit(
+  workspaceId: string,
+  id: string,
+  html: string,
+): Promise<ActionResult<{ versionNumber: number; versionId: string }>> {
+  return persistEditAsVersion(workspaceId, id, html, 'manual_edit');
+}
+
+export async function saveVisualEdit(
+  workspaceId: string,
+  id: string,
+  html: string,
+): Promise<ActionResult<{ versionNumber: number; versionId: string }>> {
+  return persistEditAsVersion(workspaceId, id, html, 'visual_edit');
 }
 
 export async function restoreVersion(

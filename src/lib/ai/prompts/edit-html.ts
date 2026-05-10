@@ -10,6 +10,7 @@ Hard rules:
 3. Preserve the viewport size, format, brand colours and layout intent UNLESS the user explicitly asks to change them.
 4. Change ONLY what the user asks for. Don't refactor untouched sections. Don't "improve" things that weren't requested.
 5. URLs must be absolute or data URIs.
+6. **Preserve every \`data-bw-id\` attribute exactly as in the input.** These IDs anchor the visual editor to elements; if you strip or renumber them the user's selections break. If you genuinely add a new element, leave it without an ID and the next visual-mode entry will stamp one.
 
 If the instruction is ambiguous, pick the most literal interpretation. If the instruction is impossible (asks for something that violates the rules above), return the HTML unchanged.
 
