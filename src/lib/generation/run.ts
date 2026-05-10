@@ -1,4 +1,5 @@
 import { generateContentStream } from '@/lib/ai/gemini';
+import { assertWithinDailyCaps } from '@/lib/ai/limits';
 import {
   buildGenerateHtmlContents,
   GENERATE_HTML_SYSTEM,
@@ -53,6 +54,8 @@ export async function runGeneration(
 ): Promise<void> {
   const workspace = await getWorkspaceForUser(input.workspaceId, input.userId);
   if (!workspace) throw new Error('Workspace not found');
+
+  await assertWithinDailyCaps({ newGeneration: true });
 
   emit({ type: 'progress', step: 'analyzing_kb' });
 

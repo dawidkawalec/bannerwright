@@ -1,4 +1,5 @@
 import { generateImage } from '@/lib/ai/gemini';
+import { assertWithinDailyCaps } from '@/lib/ai/limits';
 import {
   getGenerationForWorkspace,
   insertGenerationVersion,
@@ -30,6 +31,8 @@ export async function generateBannerBackground(
 ): Promise<BackgroundResult> {
   const generation = await getGenerationForWorkspace(input.generationId, input.workspaceId);
   if (!generation) throw new Error('Generation not found');
+
+  await assertWithinDailyCaps();
 
   const { bytes, mimeType, costUsd } = await generateImage({
     model: 'gemini-3-pro-image-preview',

@@ -10,6 +10,41 @@ function client() {
   return (_client ??= new GoogleGenAI({ apiKey: env.GEMINI_API_KEY }));
 }
 
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 1_000;
+
+function isRetryable(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const msg = err.message.toLowerCase();
+  return (
+    msg.includes('429') ||
+    msg.includes('rate') ||
+    msg.includes('quota') ||
+    msg.includes('503') ||
+    msg.includes('overloaded') ||
+    msg.includes('500') ||
+    msg.includes('etimedout')
+  );
+}
+
+async function withRetry<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  let attempt = 0;
+  let lastErr: unknown;
+  while (attempt < MAX_RETRIES) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!isRetryable(err) || attempt === MAX_RETRIES - 1) throw err;
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 250;
+      logger.warn({ err, label, attempt, delay }, 'gemini retrying');
+      await new Promise((r) => setTimeout(r, delay));
+      attempt++;
+    }
+  }
+  throw lastErr;
+}
+
 function buildConfig(input: GenerateInput) {
   const config: Record<string, unknown> = {};
   if (input.systemInstruction) config.systemInstruction = input.systemInstruction;
@@ -46,11 +81,13 @@ export type GenerateResult = {
 export async function generateContent(input: GenerateInput): Promise<GenerateResult> {
   const started = Date.now();
   try {
-    const response = await client().models.generateContent({
-      model: input.model,
-      contents: input.contents,
-      config: buildConfig(input),
-    });
+    const response = await withRetry('generateContent', () =>
+      client().models.generateContent({
+        model: input.model,
+        contents: input.contents,
+        config: buildConfig(input),
+      }),
+    );
 
     const inputTokens = response.usageMetadata?.promptTokenCount ?? 0;
     const outputTokens = response.usageMetadata?.candidatesTokenCount ?? 0;
@@ -78,11 +115,13 @@ export async function* generateContentStream(
 ): AsyncGenerator<string, GenerateResult, void> {
   const started = Date.now();
   try {
-    const stream = await client().models.generateContentStream({
-      model: input.model,
-      contents: input.contents,
-      config: buildConfig(input),
-    });
+    const stream = await withRetry('generateContentStream', () =>
+      client().models.generateContentStream({
+        model: input.model,
+        contents: input.contents,
+        config: buildConfig(input),
+      }),
+    );
 
     let full = '';
     let last: GenerateContentResponse | undefined;
@@ -170,10 +209,12 @@ export type GenerateImageResult = {
 export async function generateImage(input: GenerateImageInput): Promise<GenerateImageResult> {
   const started = Date.now();
   try {
-    const response = await client().models.generateContent({
-      model: input.model,
-      contents: [{ role: 'user', parts: [{ text: input.prompt }] }],
-    });
+    const response = await withRetry('generateImage', () =>
+      client().models.generateContent({
+        model: input.model,
+        contents: [{ role: 'user', parts: [{ text: input.prompt }] }],
+      }),
+    );
 
     const part = response.candidates
       ?.flatMap((c) => c.content?.parts ?? [])

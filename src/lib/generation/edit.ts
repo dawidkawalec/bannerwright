@@ -1,4 +1,5 @@
 import { generateContentStream } from '@/lib/ai/gemini';
+import { assertWithinDailyCaps } from '@/lib/ai/limits';
 import {
   buildEditHtmlContents,
   EDIT_HTML_SYSTEM,
@@ -41,6 +42,8 @@ export async function runEdit(
 ): Promise<void> {
   const generation = await getGenerationForWorkspace(input.generationId, input.workspaceId);
   if (!generation) throw new Error('Generation not found');
+
+  await assertWithinDailyCaps();
 
   emit({ type: 'progress', step: 'preparing' });
   const history = await listChatMessages(generation.id);
