@@ -6,9 +6,12 @@
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 RUN corepack enable
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+# pnpm 10+ errors on ignored postinstall scripts in CI mode.
+# All native deps we use (argon2, sharp, esbuild) ship prebuilt napi binaries
+# so --ignore-scripts is safe and avoids the strict approval prompt.
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --prod=false
+    pnpm install --frozen-lockfile --prod=false --ignore-scripts
 
 # ============================================================================
 # Stage 2 — build Next.js
