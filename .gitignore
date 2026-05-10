@@ -1,12 +1,21 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # Build output
 .next/
 out/
 build/
 dist/
+*.tsbuildinfo
+next-env.d.ts
 
 # Environment
 .env
@@ -24,12 +33,14 @@ storage/
 .idea/
 *.swp
 *.swo
+*.pem
 
 # Logs
 *.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 
 # Testing
 coverage/
@@ -39,6 +50,9 @@ test-results/
 
 # Drizzle
 drizzle/
+
+# Vercel
+.vercel
 
 # Misc
 .cache/
