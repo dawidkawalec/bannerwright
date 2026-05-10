@@ -1,9 +1,10 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, max } from 'drizzle-orm';
 import { db } from '../client';
 import {
   chatMessages,
   generations,
   generationVersions,
+  type ChatMessage,
   type Generation,
   type GenerationVersion,
   type NewGeneration,
@@ -81,6 +82,29 @@ export async function updateGenerationCurrentHtml(
     .update(generations)
     .set({ currentHtml: html, currentPngPath: pngPath, updatedAt: new Date() })
     .where(eq(generations.id, id));
+}
+
+export async function listChatMessages(
+  generationId: string,
+): Promise<ChatMessage[]> {
+  return db
+    .select()
+    .from(chatMessages)
+    .where(eq(chatMessages.generationId, generationId))
+    .orderBy(asc(chatMessages.createdAt));
+}
+
+export async function nextVersionNumber(generationId: string): Promise<number> {
+  const [row] = await db
+    .select({ max: max(generationVersions.versionNumber) })
+    .from(generationVersions)
+    .where(eq(generationVersions.generationId, generationId));
+  return (row?.max ?? 0) + 1;
+}
+
+export async function getVersion(id: string): Promise<GenerationVersion | null> {
+  const [row] = await db.select().from(generationVersions).where(eq(generationVersions.id, id));
+  return row ?? null;
 }
 
 export async function deleteGenerationById(
