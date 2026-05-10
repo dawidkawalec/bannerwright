@@ -9,7 +9,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      # Override locally with DB_PORT in .env if 5432 collides with a host postgres.
+      - '${DB_PORT:-5432}:5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U bannerwright -d bannerwright']
       interval: 5s
