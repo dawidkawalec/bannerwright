@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { BannerPreview } from '@/components/banner-preview';
 import { MonacoHtmlEditor } from './monaco-editor';
-import { ChatPanel, type ChatRow } from './chat-panel';
+import { ChatPanel, type ChatRow, type ChatStage } from './chat-panel';
 import { VersionsPanel, type VersionRow } from './versions-panel';
 import { BackgroundButton } from './background-button';
 import { VisualCanvas } from './visual/visual-canvas';
@@ -39,6 +40,7 @@ type Mode = 'visual' | 'code' | 'chat';
 type Status =
   | { kind: 'idle' }
   | { kind: 'saving' }
+  | { kind: 'sending' }
   | { kind: 'streaming' }
   | { kind: 'rendering' }
   | { kind: 'restoring' }
@@ -99,9 +101,29 @@ export function EditorShell({
   const isDirty = editorHtml !== savedHtml;
   const isWorking =
     status.kind === 'saving' ||
+    status.kind === 'sending' ||
     status.kind === 'streaming' ||
     status.kind === 'rendering' ||
     status.kind === 'restoring';
+
+  const chatStage: ChatStage =
+    status.kind === 'sending'
+      ? 'sending'
+      : status.kind === 'streaming'
+        ? 'streaming'
+        : status.kind === 'rendering'
+          ? 'rendering'
+          : 'idle';
+
+  const previewBusy = chatStage !== 'idle';
+  const previewLabel =
+    chatStage === 'sending'
+      ? 'Asking AI…'
+      : chatStage === 'streaming'
+        ? 'AI is writing HTML…'
+        : chatStage === 'rendering'
+          ? 'Rendering PNG…'
+          : '';
 
   async function onManualSave() {
     if (!isDirty || isWorking) return;
@@ -148,7 +170,7 @@ export function EditorShell({
   }
 
   async function onChatSend(instruction: string, attachmentKeys: string[] = []) {
-    setStatus({ kind: 'streaming' });
+    setStatus({ kind: 'sending' });
     setChat((prev) => [
       ...prev,
       {
@@ -198,13 +220,16 @@ export function EditorShell({
 
         if (event.type === 'partial_html') {
           streamingHtml = event.html;
+          // Promote to streaming the moment we have first bytes
+          setStatus((prev) => (prev.kind === 'streaming' ? prev : { kind: 'streaming' }));
           const now = Date.now();
           if (now - lastEmit > STREAM_DEBOUNCE_MS) {
             setPreviewHtml(streamingHtml);
             lastEmit = now;
           }
         } else if (event.type === 'progress') {
-          if (event.step === 'rendering_png') setStatus({ kind: 'rendering' });
+          if (event.step === 'generating_html') setStatus({ kind: 'streaming' });
+          else if (event.step === 'rendering_png') setStatus({ kind: 'rendering' });
         } else if (event.type === 'done') {
           setSavedHtml(event.htmlFinal);
           setEditorHtml(event.htmlFinal);
@@ -266,7 +291,10 @@ export function EditorShell({
 
   return (
     <div className="flex flex-col gap-4">
-      <ModeTabs mode={mode} onChange={setMode} disabled={isWorking} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ModeTabs mode={mode} onChange={setMode} disabled={isWorking} />
+        <GlobalStatusPill status={status} />
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] lg:h-[calc(100vh-220px)]">
         {mode === 'visual' && (
@@ -293,6 +321,8 @@ export function EditorShell({
                 refreshKey={canvasRefreshKey}
                 onShadowReady={(s) => setShadow(s)}
                 className="flex-1"
+                busy={previewBusy}
+                busyLabel={previewLabel}
               />
               <StatusLine status={status} />
             </div>
@@ -345,7 +375,13 @@ export function EditorShell({
                   Download PNG
                 </a>
               </div>
-              <BannerPreview html={previewHtml} format={format} className="flex-1" />
+              <BannerPreview
+                html={previewHtml}
+                format={format}
+                className="flex-1"
+                busy={previewBusy}
+                busyLabel={previewLabel}
+              />
               <StatusLine status={status} />
             </div>
           </>
@@ -374,6 +410,7 @@ export function EditorShell({
             onSend={onChatSend}
             disabled={isWorking}
             workspaceId={workspaceId}
+            stage={chatStage}
           />
           <BackgroundButton
             workspaceId={workspaceId}
@@ -444,12 +481,69 @@ function StatusLine({ status }: { status: Status }) {
         ? status.message
         : status.kind === 'saving'
           ? 'Saving…'
-          : status.kind === 'streaming'
-            ? 'AI is rewriting HTML…'
-            : status.kind === 'rendering'
-              ? 'Rendering PNG…'
-              : 'Restoring…';
+          : status.kind === 'sending'
+            ? 'Asking AI…'
+            : status.kind === 'streaming'
+              ? 'AI is rewriting HTML…'
+              : status.kind === 'rendering'
+                ? 'Rendering PNG…'
+                : 'Restoring…';
   return <p className={`text-xs ${tone}`}>{text}</p>;
+}
+
+/**
+ * Persistent status badge shown next to the mode tabs. Stays out of `idle`
+ * so the user always sees what the editor is doing — sending, streaming,
+ * rendering, saving, success, error.
+ */
+function GlobalStatusPill({ status }: { status: Status }) {
+  if (status.kind === 'idle') return null;
+  const busy =
+    status.kind === 'sending' ||
+    status.kind === 'streaming' ||
+    status.kind === 'rendering' ||
+    status.kind === 'saving' ||
+    status.kind === 'restoring';
+  const label =
+    status.kind === 'sending'
+      ? 'Asking AI…'
+      : status.kind === 'streaming'
+        ? 'AI is writing HTML…'
+        : status.kind === 'rendering'
+          ? 'Rendering PNG…'
+          : status.kind === 'saving'
+            ? 'Saving…'
+            : status.kind === 'restoring'
+              ? 'Restoring…'
+              : status.kind === 'ok'
+                ? status.message
+                : status.message;
+
+  const tone =
+    status.kind === 'error'
+      ? 'border-destructive/40 bg-destructive/10 text-destructive'
+      : status.kind === 'ok'
+        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+        : 'border-primary/40 bg-primary/10 text-primary';
+
+  return (
+    <div
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium shadow-sm ${tone} ${
+        busy ? 'animate-pulse' : ''
+      }`}
+      role="status"
+      aria-live="polite"
+    >
+      {busy ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : status.kind === 'error' ? (
+        <XCircle className="size-3.5" />
+      ) : (
+        <CheckCircle2 className="size-3.5" />
+      )}
+      {label}
+    </div>
+  );
 }
 
 type StreamEvent =

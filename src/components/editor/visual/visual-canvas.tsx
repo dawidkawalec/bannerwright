@@ -39,6 +39,9 @@ type Props = {
   refreshKey?: number;
   onShadowReady?: (shadow: ShadowRoot) => void;
   className?: string;
+  /** When true, renders an "AI working" overlay on top of the canvas. */
+  busy?: boolean;
+  busyLabel?: string;
 };
 
 export function VisualCanvas({
@@ -49,6 +52,8 @@ export function VisualCanvas({
   refreshKey = 0,
   onShadowReady,
   className,
+  busy,
+  busyLabel,
 }: Props) {
   const { width, height } = useMemo(() => dimensionsFor(format), [format]);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -114,7 +119,9 @@ export function VisualCanvas({
   return (
     <div
       ref={wrapperRef}
-      className={`relative w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm ${className ?? ''}`}
+      className={`relative w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow ${
+        busy ? 'animate-[bw-pulse_1.6s_ease-in-out_infinite]' : ''
+      } ${className ?? ''}`}
       style={{ aspectRatio: `${width} / ${height}` }}
       onClick={(e) => {
         if (e.target === wrapperRef.current) onSelect(null);
@@ -129,6 +136,14 @@ export function VisualCanvas({
           transform: `scale(${scale})`,
         }}
       />
+      {busy && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/55 backdrop-blur-[2px]">
+          <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-card/90 px-4 py-2 shadow-lg ring-1 ring-primary/40">
+            <span className="size-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-xs font-medium text-foreground">{busyLabel ?? 'AI is working…'}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

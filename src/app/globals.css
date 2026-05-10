@@ -176,3 +176,13 @@ body {
     @apply font-sans;
   }
 }
+
+/* AI-busy pulsing ring around the banner preview */
+@keyframes bw-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px var(--color-primary), 0 0 0 0 oklch(from var(--color-primary) l c h / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--color-primary), 0 0 0 12px oklch(from var(--color-primary) l c h / 0);
+  }
+}
