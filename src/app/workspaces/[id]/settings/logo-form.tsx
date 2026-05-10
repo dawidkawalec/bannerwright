@@ -77,7 +77,7 @@ export function LogoForm({
             required
             className="cursor-pointer"
           />
-          <p className="text-xs text-slate-500">PNG, JPEG, WebP or SVG, up to 2 MB.</p>
+          <p className="text-xs text-slate-600">PNG, JPEG, WebP or SVG, up to 2 MB.</p>
         </div>
         <Button type="submit" disabled={pending}>
           {pending ? 'Uploading…' : 'Upload'}

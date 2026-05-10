@@ -157,11 +157,11 @@ export function GenerateFlow({
                 maxLength={2_000}
                 disabled={isWorking}
                 placeholder="Promo for our winter sale. 30% off everything until December 15. Bold, punchy, lots of contrast."
-                className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 
-            <div className="flex flex-col gap-2 text-xs text-slate-500">
+            <div className="flex flex-col gap-2 text-xs text-slate-600">
               <span>{readyKbCount} ready KB source{readyKbCount === 1 ? '' : 's'} will inform the prompt.</span>
               {!hasBrand && <span>No brand set — AI uses tasteful defaults.</span>}
             </div>
@@ -171,13 +171,13 @@ export function GenerateFlow({
             </Button>
 
             {step.kind === 'progress' && (
-              <p className="text-sm text-slate-500">{step.label}</p>
+              <p className="text-sm text-slate-600">{step.label}</p>
             )}
             {step.kind === 'streaming' && (
-              <p className="text-sm text-slate-500">Streaming HTML…</p>
+              <p className="text-sm text-slate-600">Streaming HTML…</p>
             )}
             {step.kind === 'rendering' && (
-              <p className="text-sm text-slate-500">Rendering PNG…</p>
+              <p className="text-sm text-slate-600">Rendering PNG…</p>
             )}
             {step.kind === 'error' && (
               <p className="text-sm text-red-600" role="alert">
@@ -205,7 +205,7 @@ export function GenerateFlow({
       </Card>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-wide text-slate-500">Live preview</p>
+        <p className="text-xs uppercase tracking-wide text-slate-600">Live preview</p>
         <BannerPreview html={html} format={format} />
       </div>
     </div>

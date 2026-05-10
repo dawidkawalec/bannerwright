@@ -26,7 +26,7 @@ export default async function SettingsPage({ params }: Props) {
       <header>
         <Link
           href={`/workspaces/${workspace.id}`}
-          className="text-sm text-slate-500 hover:text-slate-900"
+          className="text-sm text-slate-600 hover:text-slate-900"
         >
           ← {workspace.name}
         </Link>
@@ -46,7 +46,7 @@ export default async function SettingsPage({ params }: Props) {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {readyCount === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               Add at least one URL in the{' '}
               <Link
                 href={`/workspaces/${workspace.id}/knowledge-base`}
@@ -58,7 +58,7 @@ export default async function SettingsPage({ params }: Props) {
             </p>
           ) : (
             <>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-600">
                 {readyCount} ready source{readyCount === 1 ? '' : 's'} will be analysed.
               </p>
               <AutoDetectButton workspaceId={workspace.id} />
@@ -85,6 +85,9 @@ export default async function SettingsPage({ params }: Props) {
         <CardContent>
           <BrandForm
             workspaceId={workspace.id}
+            // Remount when server values change (e.g. after auto-detect refresh)
+            // so the form reflects the new initial values without a useEffect.
+            key={workspace.updatedAt.toISOString()}
             initial={{
               primary: workspace.brandColors?.primary ?? '',
               secondary: workspace.brandColors?.secondary ?? '',

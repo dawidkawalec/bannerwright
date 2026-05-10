@@ -6,6 +6,7 @@ import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddKbUrlForm } from './add-url-form';
 import { AddKbTextForm } from './add-text-form';
+import { AddKbUploadForm } from './add-upload-form';
 import { KbSourceRow } from './kb-source-row';
 
 type Props = { params: Promise<{ id: string }> };
@@ -24,7 +25,7 @@ export default async function KnowledgeBasePage({ params }: Props) {
       <header>
         <Link
           href={`/workspaces/${workspace.id}`}
-          className="text-sm text-slate-500 hover:text-slate-900"
+          className="text-sm text-slate-600 hover:text-slate-900"
         >
           ← {workspace.name}
         </Link>
@@ -37,7 +38,7 @@ export default async function KnowledgeBasePage({ params }: Props) {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Add URL</CardTitle>
@@ -45,6 +46,15 @@ export default async function KnowledgeBasePage({ params }: Props) {
           </CardHeader>
           <CardContent>
             <AddKbUrlForm workspaceId={workspace.id} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload file</CardTitle>
+            <CardDescription>TXT, MD, PNG, JPEG, WebP. PDF coming soon.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AddKbUploadForm workspaceId={workspace.id} />
           </CardContent>
         </Card>
         <Card>
@@ -61,7 +71,7 @@ export default async function KnowledgeBasePage({ params }: Props) {
       {sources.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-sm text-slate-500">No sources yet.</p>
+            <p className="text-sm text-slate-600">No sources yet.</p>
           </CardContent>
         </Card>
       ) : (

@@ -205,7 +205,7 @@ export function EditorShell({
       </div>
 
       <div className="flex min-h-[400px] flex-col gap-2">
-        <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-500">
+        <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-600">
           <span>Live preview</span>
           <a
             href={`/api/generations/${generationId}/png`}
@@ -239,7 +239,7 @@ function StatusLine({ status }: { status: Status }) {
       ? 'text-red-600'
       : status.kind === 'ok'
         ? 'text-emerald-600'
-        : 'text-slate-500';
+        : 'text-slate-600';
   const text =
     status.kind === 'error'
       ? status.message

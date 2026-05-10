@@ -62,6 +62,37 @@ export async function insertKbSourceText(
   return row!;
 }
 
+export type KbUploadKind = 'text' | 'image';
+
+export async function insertKbSourceUpload(
+  workspaceId: string,
+  args: {
+    title: string;
+    filePath: string;
+    kind: KbUploadKind;
+    contentText?: string;
+    /** For images, store the storage key here so the existing thumbnail UI shows it. */
+    screenshotPath?: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<KbSource> {
+  const [row] = await db
+    .insert(kbSources)
+    .values({
+      workspaceId,
+      sourceType: 'upload',
+      title: args.title,
+      filePath: args.filePath,
+      contentText: args.contentText,
+      screenshotPath: args.screenshotPath,
+      metadata: args.metadata as never,
+      status: 'ready',
+      processedAt: new Date(),
+    })
+    .returning();
+  return row!;
+}
+
 export type KbStatusUpdate = {
   status: 'processing' | 'ready' | 'failed';
   contentText?: string;

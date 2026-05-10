@@ -18,7 +18,7 @@ export default async function LoginPage({
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Bannerwright</h1>
-          <p className="mt-1 text-sm text-slate-500">A workshop for makers of banners.</p>
+          <p className="mt-1 text-sm text-slate-600">A workshop for makers of banners.</p>
         </div>
         <LoginForm next={next} />
       </div>

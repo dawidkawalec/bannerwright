@@ -61,10 +61,10 @@ export function BackgroundButton({
           rows={3}
           maxLength={1_000}
           placeholder='e.g. "warm sunset over a coffee shop interior, depth of field, soft bokeh, top-down composition"'
-          className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={pending}
         />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-600">
           Uses Nano Banana Pro · ≈ $0.04 per image · creates a new version.
         </p>
         <div className="flex items-center justify-end gap-2">

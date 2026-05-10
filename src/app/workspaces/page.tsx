@@ -16,7 +16,7 @@ export default async function WorkspacesPage() {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Workspaces</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             Each workspace is one brand client.
           </p>
         </div>
@@ -28,7 +28,7 @@ export default async function WorkspacesPage() {
       {workspaces.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-sm text-slate-500">No workspaces yet.</p>
+            <p className="text-sm text-slate-600">No workspaces yet.</p>
             <Link
               href="/workspaces/new"
               className={cn(buttonVariants({ size: 'sm' }), 'mt-4')}

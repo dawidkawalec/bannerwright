@@ -42,14 +42,14 @@ export default async function GenerationEditorPage({ params }: Props) {
         <div>
           <Link
             href={`/workspaces/${workspace.id}/generations`}
-            className="text-sm text-slate-500 hover:text-slate-900"
+            className="text-sm text-slate-600 hover:text-slate-900"
           >
             ← Generations
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
             {generation.title}
           </h1>
-          <p className="text-sm text-slate-500">{formatLabels[generation.format]}</p>
+          <p className="text-sm text-slate-600">{formatLabels[generation.format]}</p>
         </div>
         <div className="flex flex-wrap items-start gap-3">
           <TemplateToggle

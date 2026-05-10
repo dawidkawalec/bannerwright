@@ -41,7 +41,7 @@ export function VersionsPanel({
             >
               <span className="flex flex-col">
                 <span className="font-medium text-slate-800">v{v.versionNumber}</span>
-                <span className="text-xs uppercase tracking-wide text-slate-500">
+                <span className="text-xs uppercase tracking-wide text-slate-600">
                   {TRIGGER_LABELS[v.triggeredBy]}
                 </span>
               </span>
@@ -57,7 +57,7 @@ export function VersionsPanel({
                 </Button>
               )}
               {idx === 0 && (
-                <span className="text-xs text-slate-400">current</span>
+                <span className="text-xs text-slate-500">current</span>
               )}
             </li>
           ))}

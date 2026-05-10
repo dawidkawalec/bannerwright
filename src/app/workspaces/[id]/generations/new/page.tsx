@@ -23,7 +23,7 @@ export default async function NewGenerationPage({ params }: Props) {
     <div className="flex flex-col gap-4">
       <Link
         href={`/workspaces/${workspace.id}/generations`}
-        className="text-sm text-slate-500 hover:text-slate-900"
+        className="text-sm text-slate-600 hover:text-slate-900"
       >
         ← Generations
       </Link>

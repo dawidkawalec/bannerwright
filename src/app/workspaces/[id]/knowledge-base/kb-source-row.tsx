@@ -45,31 +45,31 @@ export function KbSourceRow({
         </span>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
-        {source.sourceType === 'url' ? (
-          source.screenshotPath ? (
-            <a
-              href={`/api/kb/${source.id}/screenshot`}
-              target="_blank"
-              rel="noreferrer"
-              className="block overflow-hidden rounded-md border border-slate-200"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/api/kb/${source.id}/screenshot`}
-                alt={source.title}
-                className="h-32 w-full object-cover object-top"
-              />
-            </a>
-          ) : (
-            <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 text-center text-xs text-slate-500">
-              {source.status === 'failed'
-                ? source.errorMessage ?? 'Processing failed'
-                : 'No screenshot yet'}
-            </div>
-          )
-        ) : (
+        {source.screenshotPath ? (
+          <a
+            href={`/api/kb/${source.id}/screenshot`}
+            target="_blank"
+            rel="noreferrer"
+            className="block overflow-hidden rounded-md border border-slate-200"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/kb/${source.id}/screenshot`}
+              alt={source.title}
+              className="h-32 w-full object-cover object-top"
+            />
+          </a>
+        ) : source.contentText ? (
           <div className="line-clamp-6 rounded-md bg-slate-50 p-3 text-xs whitespace-pre-wrap text-slate-700">
-            {source.contentText ?? '(empty)'}
+            {source.contentText}
+          </div>
+        ) : (
+          <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 text-center text-xs text-slate-600">
+            {source.status === 'failed'
+              ? source.errorMessage ?? 'Processing failed'
+              : source.sourceType === 'url'
+                ? 'No screenshot yet'
+                : 'No preview available'}
           </div>
         )}
 
@@ -78,7 +78,7 @@ export function KbSourceRow({
             href={source.url}
             target="_blank"
             rel="noreferrer"
-            className="truncate text-xs text-slate-500 hover:text-slate-900"
+            className="truncate text-xs text-slate-600 hover:text-slate-900"
           >
             {source.url}
           </a>

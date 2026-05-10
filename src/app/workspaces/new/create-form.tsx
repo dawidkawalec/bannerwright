@@ -40,7 +40,7 @@ export function CreateWorkspaceForm() {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="slug">Slug (optional)</Label>
         <Input id="slug" name="slug" maxLength={40} placeholder="auto from name" />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-600">
           Lowercase letters, digits and hyphens. Used in URLs.
         </p>
       </div>
