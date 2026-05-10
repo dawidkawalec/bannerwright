@@ -15,6 +15,7 @@ import {
   updateGenerationCurrentHtml,
 } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
+import { generateBannerBackground } from '@/lib/generation/background';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
@@ -202,6 +203,37 @@ export async function duplicateGeneration(
   } catch (err) {
     logger.error({ err }, 'duplicateGeneration failed');
     return { ok: false, error: 'Could not duplicate' };
+  }
+}
+
+export async function generateBackgroundAction(
+  workspaceId: string,
+  generationId: string,
+  prompt: string,
+): Promise<ActionResult<{ versionNumber: number; costUsd: number }>> {
+  const trimmed = prompt.trim();
+  if (trimmed.length < 3 || trimmed.length > 1_000) {
+    return { ok: false, error: 'Background description must be 3–1000 characters' };
+  }
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+
+  try {
+    const result = await generateBannerBackground({
+      workspaceId: workspace.id,
+      generationId,
+      prompt: trimmed,
+    });
+    revalidatePath(`/workspaces/${workspace.id}/generations/${generationId}`);
+    return {
+      ok: true,
+      data: { versionNumber: result.versionNumber, costUsd: result.costUsd },
+    };
+  } catch (err) {
+    logger.error({ err, generationId }, 'generateBackgroundAction failed');
+    const msg = err instanceof Error ? err.message : 'Background generation failed';
+    return { ok: false, error: msg };
   }
 }
 

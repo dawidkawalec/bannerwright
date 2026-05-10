@@ -7,6 +7,7 @@ import { BannerPreview } from '@/components/banner-preview';
 import { MonacoHtmlEditor } from './monaco-editor';
 import { ChatPanel, type ChatRow } from './chat-panel';
 import { VersionsPanel, type VersionRow } from './versions-panel';
+import { BackgroundButton } from './background-button';
 import {
   restoreVersion,
   saveManualEdit,
@@ -220,6 +221,11 @@ export function EditorShell({
 
       <div className="flex flex-col gap-4">
         <ChatPanel chat={chat} onSend={onChatSend} disabled={isWorking} />
+        <BackgroundButton
+          workspaceId={workspaceId}
+          generationId={generationId}
+          disabled={isWorking}
+        />
         <VersionsPanel versions={versions} onRestore={onRestore} disabled={isWorking} />
       </div>
     </div>

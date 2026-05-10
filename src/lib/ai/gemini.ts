@@ -143,3 +143,68 @@ async function logUsage(args: {
     logger.error({ err }, 'failed to insert llm_usage row');
   }
 }
+
+export type GenerateImageInput = {
+  model: Extract<
+    ModelId,
+    'gemini-3-pro-image-preview' | 'gemini-3.1-flash-image-preview'
+  >;
+  operation: LlmOperation;
+  workspaceId?: string;
+  generationId?: string;
+  /** Free-form description of the image to generate. */
+  prompt: string;
+};
+
+export type GenerateImageResult = {
+  bytes: Buffer;
+  mimeType: string;
+  costUsd: number;
+};
+
+/**
+ * Generate a single image via Nano Banana (Gemini 3 Pro Image Preview).
+ * The SDK returns inline image bytes inside the `candidates[0].content.parts`
+ * structure; we extract the first inlineData part.
+ */
+export async function generateImage(input: GenerateImageInput): Promise<GenerateImageResult> {
+  const started = Date.now();
+  try {
+    const response = await client().models.generateContent({
+      model: input.model,
+      contents: [{ role: 'user', parts: [{ text: input.prompt }] }],
+    });
+
+    const part = response.candidates
+      ?.flatMap((c) => c.content?.parts ?? [])
+      .find((p) => p.inlineData?.data);
+
+    if (!part?.inlineData?.data) {
+      throw new Error('Image model returned no inline data');
+    }
+
+    const bytes = Buffer.from(part.inlineData.data, 'base64');
+    const mimeType = part.inlineData.mimeType ?? 'image/png';
+    const costUsd = computeCostUsd(input.model, 0, 0, 1);
+
+    await logUsage({
+      model: input.model,
+      operation: input.operation,
+      workspaceId: input.workspaceId,
+      generationId: input.generationId,
+      inputTokens: 0,
+      outputTokens: 0,
+      costUsd,
+    });
+
+    logger.debug(
+      { model: input.model, operation: input.operation, bytes: bytes.length, costUsd, ms: Date.now() - started },
+      'gemini.generateImage',
+    );
+
+    return { bytes, mimeType, costUsd };
+  } catch (err) {
+    logger.error({ err, model: input.model, operation: input.operation }, 'gemini.generateImage failed');
+    throw err;
+  }
+}
