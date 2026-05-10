@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { HelpHint } from '@/components/ui/help-hint';
 import type { VersionTrigger } from '@/lib/db/schema';
 
 export type VersionRow = {
@@ -30,7 +31,10 @@ export function VersionsPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Versions</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-sm">
+          Versions
+          <HelpHint text='Każda zmiana (manualna, przez AI, "Generate background", restore) tworzy nową wersję. Klik "Restore" tworzy KOLEJNĄ wersję z HTML wybranej historycznej — historia nigdy nie ginie.' />
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ol className="flex max-h-64 flex-col gap-2 overflow-y-auto text-sm">
@@ -41,7 +45,7 @@ export function VersionsPanel({
             >
               <span className="flex flex-col">
                 <span className="font-medium text-slate-800">v{v.versionNumber}</span>
-                <span className="text-xs uppercase tracking-wide text-slate-600">
+                <span className="text-xs uppercase tracking-wide text-slate-700">
                   {TRIGGER_LABELS[v.triggeredBy]}
                 </span>
               </span>

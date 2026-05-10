@@ -4,6 +4,7 @@ import { requireUser } from '@/lib/auth/current-user';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { HelpHint } from '@/components/ui/help-hint';
 import { AddKbUrlForm } from './add-url-form';
 import { AddKbTextForm } from './add-text-form';
 import { AddKbUploadForm } from './add-upload-form';
@@ -25,14 +26,14 @@ export default async function KnowledgeBasePage({ params }: Props) {
       <header>
         <Link
           href={`/workspaces/${workspace.id}`}
-          className="text-sm text-slate-600 hover:text-slate-900"
+          className="text-sm text-slate-700 hover:text-slate-900"
         >
           ← {workspace.name}
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
           Knowledge base
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-slate-600">
+        <p className="mt-1 max-w-2xl text-sm text-slate-700">
           Add the client&apos;s website. Bannerwright opens it in a real browser, screenshots
           the page, and extracts the text. The AI uses this context when generating banners.
         </p>
@@ -41,7 +42,10 @@ export default async function KnowledgeBasePage({ params }: Props) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Add URL</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Add URL
+              <HelpHint text="Wkleja link do strony klienta. Bannerwright otwiera ją w prawdziwej przeglądarce, robi pełnostronicowy screenshot i wyciąga tekst — AI używa tego jako kontekstu brandowego." />
+            </CardTitle>
             <CardDescription>Public http(s) URL — scraped + screenshotted.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -50,7 +54,10 @@ export default async function KnowledgeBasePage({ params }: Props) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Upload file</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Upload file
+              <HelpHint text="Tekst (TXT/MD) jest wczytywany do bazy wiedzy bezpośrednio. Obrazy (PNG/JPEG/WebP) są zapisywane jako załączniki i automatycznie dołączane do promptów multimodalnych. PDF wkrótce." />
+            </CardTitle>
             <CardDescription>TXT, MD, PNG, JPEG, WebP. PDF coming soon.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -59,7 +66,10 @@ export default async function KnowledgeBasePage({ params }: Props) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Add notes</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Add notes
+              <HelpHint text="Krótkie notatki tekstowe — ton brandu, persona klienta, kluczowe komunikaty. AI ma to w prompcie przy każdej generacji." />
+            </CardTitle>
             <CardDescription>Free-form brand voice, audience, positioning.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -71,7 +81,7 @@ export default async function KnowledgeBasePage({ params }: Props) {
       {sources.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-sm text-slate-600">No sources yet.</p>
+            <p className="text-sm text-slate-700">No sources yet.</p>
           </CardContent>
         </Card>
       ) : (

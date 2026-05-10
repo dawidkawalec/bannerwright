@@ -4,6 +4,7 @@ import { requireUser } from '@/lib/auth/current-user';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { HelpHint } from '@/components/ui/help-hint';
 import { BrandForm } from './brand-form';
 import { AutoDetectButton } from './auto-detect-button';
 import { LogoForm } from './logo-form';
@@ -26,19 +27,22 @@ export default async function SettingsPage({ params }: Props) {
       <header>
         <Link
           href={`/workspaces/${workspace.id}`}
-          className="text-sm text-slate-600 hover:text-slate-900"
+          className="text-sm text-slate-700 hover:text-slate-900"
         >
           ← {workspace.name}
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Settings</h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-slate-700">
           Brand colours, fonts and AI auto-detection.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Auto-detect brand</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Auto-detect brand
+            <HelpHint text="Wysyła screenshoty + treść strony klienta do Gemini 3.1 Pro. Model wyciąga kolory, fonty i ton komunikacji, zapisuje je w workspace. Trwa ~15–30 s, koszt ~$0.01–$0.15." />
+          </CardTitle>
           <CardDescription>
             Use Gemini 3.1 Pro to extract brand colours, fonts and tone from your knowledge
             base.
@@ -46,7 +50,7 @@ export default async function SettingsPage({ params }: Props) {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {readyCount === 0 ? (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-700">
               Add at least one URL in the{' '}
               <Link
                 href={`/workspaces/${workspace.id}/knowledge-base`}
@@ -58,7 +62,7 @@ export default async function SettingsPage({ params }: Props) {
             </p>
           ) : (
             <>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-700">
                 {readyCount} ready source{readyCount === 1 ? '' : 's'} will be analysed.
               </p>
               <AutoDetectButton workspaceId={workspace.id} />
@@ -79,7 +83,10 @@ export default async function SettingsPage({ params }: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Brand</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Brand
+            <HelpHint text="Te wartości lecą do każdej generacji jako kontekst (kolor primary jako akcent dominujący, fonty jako Google Fonts). Manualne wpisy nadpisują auto-detect. Pozostaw puste, by AI wybrał neutralne defaulty." />
+          </CardTitle>
           <CardDescription>Manual values override auto-detection.</CardDescription>
         </CardHeader>
         <CardContent>

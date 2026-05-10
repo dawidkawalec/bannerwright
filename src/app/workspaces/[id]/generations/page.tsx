@@ -25,14 +25,14 @@ export default async function GenerationsPage({ params }: Props) {
         <div>
           <Link
             href={`/workspaces/${workspace.id}`}
-            className="text-sm text-slate-600 hover:text-slate-900"
+            className="text-sm text-slate-700 hover:text-slate-900"
           >
             ← {workspace.name}
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
             Generations
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-700">
             Banners produced from briefs.
           </p>
         </div>
@@ -55,7 +55,7 @@ export default async function GenerationsPage({ params }: Props) {
       {generations.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-700">
               No generations yet — create the first banner.
             </p>
             <Link

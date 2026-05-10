@@ -23,19 +23,19 @@ export default async function TemplatesPage({ params }: Props) {
       <header>
         <Link
           href={`/workspaces/${workspace.id}`}
-          className="text-sm text-slate-600 hover:text-slate-900"
+          className="text-sm text-slate-700 hover:text-slate-900"
         >
           ← {workspace.name}
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">Templates</h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-slate-700">
           Banners promoted as reusable starting points.
         </p>
       </header>
 
       {templates.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-sm text-slate-600">
+          <CardContent className="py-12 text-center text-sm text-slate-700">
             No templates yet. Open any generation and click &quot;Promote to template&quot;.
           </CardContent>
         </Card>
@@ -71,7 +71,7 @@ export default async function TemplatesPage({ params }: Props) {
               <CardContent className="mt-auto flex items-center justify-between gap-2 pt-0">
                 <Link
                   href={`/workspaces/${workspace.id}/generations/${t.id}`}
-                  className="text-xs text-slate-600 underline hover:text-slate-900"
+                  className="text-xs text-slate-700 underline hover:text-slate-900"
                 >
                   Open
                 </Link>

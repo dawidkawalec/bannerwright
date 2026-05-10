@@ -38,7 +38,7 @@ export function AddKbUploadForm({ workspaceId }: { workspaceId: string }) {
           accept=".txt,.md,.markdown,text/plain,text/markdown,image/png,image/jpeg,image/webp"
           className="cursor-pointer"
         />
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-slate-700">
           TXT, MD, PNG, JPEG, WebP — up to 10 MB. PDF coming soon.
         </p>
       </div>

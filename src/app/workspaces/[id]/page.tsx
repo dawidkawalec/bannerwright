@@ -24,14 +24,14 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
     <div className="flex flex-col gap-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <Link href="/workspaces" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href="/workspaces" className="text-sm text-slate-700 hover:text-slate-900">
             ← All workspaces
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
             {workspace.name}
           </h1>
           {workspace.description && (
-            <p className="mt-1 max-w-2xl text-sm text-slate-600">{workspace.description}</p>
+            <p className="mt-1 max-w-2xl text-sm text-slate-700">{workspace.description}</p>
           )}
         </div>
         <DeleteWorkspaceButton id={workspace.id} name={workspace.name} />
@@ -48,7 +48,7 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
               <CardDescription>URLs, uploads, brand context</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-700">
                 Add the client&apos;s site so the AI knows the brand.
               </p>
             </CardContent>
@@ -64,7 +64,7 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
               <CardDescription>Banners produced from briefs</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-700">
                 Brief + brand context → HTML + PNG in ~30 s.
               </p>
             </CardContent>
@@ -80,7 +80,7 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
               <CardDescription>Brand colours, fonts, auto-detect</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-700">
                 Tune the brand the AI uses when generating banners.
               </p>
             </CardContent>

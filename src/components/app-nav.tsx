@@ -38,7 +38,7 @@ export function AppNav({
               {workspaces.length > 5 && (
                 <Link
                   href="/workspaces"
-                  className="rounded-md px-2 py-1 text-sm text-slate-600 hover:bg-slate-100"
+                  className="rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-100"
                 >
                   +{workspaces.length - 5} more
                 </Link>
@@ -46,7 +46,7 @@ export function AppNav({
             </nav>
           )}
         </div>
-        <div className="flex items-center gap-3 text-sm text-slate-600">
+        <div className="flex items-center gap-3 text-sm text-slate-700">
           <span>{email}</span>
           <Link
             href="/workspaces/new"

@@ -183,7 +183,9 @@ export function EditorShell({
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_320px] lg:h-[calc(100vh-180px)]">
       <div className="flex min-h-[400px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-slate-900">
         <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-xs text-slate-300">
-          <span>HTML {isDirty && <em className="not-italic text-amber-400">· unsaved</em>}</span>
+          <span title="Edytor kodu HTML banera. Każda zmiana renderuje się live po prawej.">
+            HTML {isDirty && <em className="not-italic text-amber-400">· unsaved</em>}
+          </span>
           <div className="flex items-center gap-2">
             <Button
               size="sm"
@@ -191,6 +193,7 @@ export function EditorShell({
               className="h-7 text-slate-200 hover:bg-slate-800 hover:text-white"
               onClick={onManualSave}
               disabled={!isDirty || isWorking}
+              title="Zapisz ręczną edycję jako nową wersję (skrót: ⌘S)"
             >
               {status.kind === 'saving' ? 'Saving…' : 'Save (⌘S)'}
             </Button>
@@ -205,12 +208,15 @@ export function EditorShell({
       </div>
 
       <div className="flex min-h-[400px] flex-col gap-2">
-        <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-600">
-          <span>Live preview</span>
+        <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-700">
+          <span title="Sandboxowany iframe — pokazuje baner w prawdziwych wymiarach, zeskalowany do okna.">
+            Live preview
+          </span>
           <a
             href={`/api/generations/${generationId}/png`}
             download
             className="text-slate-700 underline hover:text-slate-900"
+            title="Pobierz aktualną wersję jako PNG. Renderowane przez Playwright, pixel-perfect."
           >
             Download PNG
           </a>
@@ -239,7 +245,7 @@ function StatusLine({ status }: { status: Status }) {
       ? 'text-red-600'
       : status.kind === 'ok'
         ? 'text-emerald-600'
-        : 'text-slate-600';
+        : 'text-slate-700';
   const text =
     status.kind === 'error'
       ? status.message

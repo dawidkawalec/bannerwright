@@ -64,7 +64,7 @@ export function KbSourceRow({
             {source.contentText}
           </div>
         ) : (
-          <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 text-center text-xs text-slate-600">
+          <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 text-center text-xs text-slate-700">
             {source.status === 'failed'
               ? source.errorMessage ?? 'Processing failed'
               : source.sourceType === 'url'
@@ -78,7 +78,7 @@ export function KbSourceRow({
             href={source.url}
             target="_blank"
             rel="noreferrer"
-            className="truncate text-xs text-slate-600 hover:text-slate-900"
+            className="truncate text-xs text-slate-700 hover:text-slate-900"
           >
             {source.url}
           </a>

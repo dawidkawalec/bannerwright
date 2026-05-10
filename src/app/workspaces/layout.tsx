@@ -7,7 +7,7 @@ export default async function WorkspacesLayout({ children }: { children: React.R
   const workspaces = await listWorkspacesByUser(user.id);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="bw-app-bg min-h-screen">
       <AppNav email={user.email} workspaces={workspaces} />
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
     </div>
