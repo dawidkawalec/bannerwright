@@ -1,0 +1,357 @@
+---
+description: Bannerwright — non-negotiable rules for AI agents working on this codebase
+alwaysApply: true
+---
+
+# Bannerwright — Agent Instructions
+
+You are working on **Bannerwright**, an open-source self-hosted AI graphics generator for social media. Stack: **Next.js 15 (App Router) + TypeScript + Postgres 16 + Drizzle ORM + Playwright + Gemini 3.1 Pro + Nano Banana Pro**.
+
+**A wright is a maker.** Bannerwright is a workshop, not a platform. It produces HTML banners that users (and AI agents) can read, edit, and own. PNG is just the export. Every edit is versioned. Self-hosting is the default architecture, not a feature. Keep these principles in mind when making implementation decisions — they explain *why* the constraints below exist.
+
+This document is the contract. Read it before writing code. If something here conflicts with what the user asks, raise the conflict — don't silently break the rules.
+
+---
+
+## 1. Non-negotiables
+
+### 1.1 Stack lockdown
+- **Framework:** Next.js 15 with App Router. **No Pages Router.** Use Server Components by default; mark Client Components explicitly with `'use client'`.
+- **Mutations:** Server Actions for UI-driven mutations. Route Handlers only for: streaming (SSE), file uploads/downloads, internal services.
+- **Database:** PostgreSQL 16 with `pgvector`, `pg_trgm`, `uuid-ossp` extensions. **Drizzle ORM only.** No Prisma, no raw SQL except in migrations.
+- **Auth:** Lucia Auth v3. Single-user. Credentials from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`). **Do not add registration, OAuth, or password reset flows.**
+- **AI:** Google `@google/genai` SDK. Models locked: `gemini-3.1-pro-preview`, `gemini-3.1-flash-preview`, `gemini-3-pro-image-preview` (Nano Banana Pro), `gemini-3.1-flash-image-preview` (Nano Banana 2). **Do not use OpenAI, Anthropic, or any other provider** without explicit user approval.
+- **Browser automation:** Playwright (chromium only). Singleton browser instance from `lib/renderer/playwright.ts`.
+- **Styling:** Tailwind CSS 4 + shadcn/ui (owned components in `components/ui/`).
+- **Storage:** Local filesystem via `lib/storage/` adapter. Path: `./storage/`. Mounted as Docker volume.
+- **Validation:** Zod for all input validation (forms, API, AI structured output). Schemas live in `lib/schemas/`.
+
+### 1.2 Architectural rules
+- **Single-tenant.** Code can assume one user per instance. **Do not** add `tenant_id` columns or row-level security.
+- **`lib/renderer/` is a self-contained module.** It must not import from `app/`, `components/`, or any other module. Only `lib/storage/`, `lib/db/`, and `lib/ai/` are allowed dependencies. **Reason:** in v2 it gets extracted into a separate Fastify service.
+- **`lib/storage/` is an adapter.** All file operations go through it. **Never** call `fs.writeFile`, `fs.readFile`, or `path.join('./storage/...')` directly from app code. **Reason:** SaaS layer swaps it for S3.
+- **`lib/ai/` wraps the SDK.** Every Gemini call MUST go through `lib/ai/gemini.ts` and MUST log to `llm_usage` table. **Never** import `@google/genai` directly from a Server Action or Route Handler.
+- **No background job queue (BullMQ, Redis) in MVP.** Use fire-and-forget async pattern with status updates in DB. If you think you need a queue, raise it with the user first.
+
+### 1.3 Forbidden in MVP
+- Multi-user / multi-tenancy logic
+- Billing / Stripe / subscriptions
+- OAuth providers (Google, GitHub, etc.)
+- WYSIWYG editor (drag-and-drop visual editing of graphics)
+- Email sending (transactional, marketing)
+- Direct publishing to social platforms (Meta API, LinkedIn API, etc.)
+- Mobile-specific UI (we're web-only)
+- RAG embeddings logic (schema is ready; **do not implement** retrieval/chunking/HNSW search until user explicitly enables this milestone)
+- Tool/function-calling-based AI editing (we use full HTML rewrite — see §5)
+
+If the user asks for any of the above, **stop and confirm** that they want to deviate from MVP scope.
+
+---
+
+## 2. Project structure
+
+```
+.
+├── app/
+│   ├── (auth)/
+│   │   └── login/page.tsx
+│   ├── (app)/                           # Authenticated layout
+│   │   ├── layout.tsx                    # Nav, workspace switcher
+│   │   ├── workspaces/
+│   │   │   ├── page.tsx                  # List
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx              # Workspace dashboard
+│   │   │       ├── knowledge-base/
+│   │   │       ├── generations/
+│   │   │       │   ├── page.tsx          # List
+│   │   │       │   └── [genId]/
+│   │   │       │       └── page.tsx      # Editor (Monaco + iframe + chat)
+│   │   │       └── settings/
+│   │   └── templates/page.tsx
+│   ├── api/
+│   │   ├── auth/
+│   │   ├── generations/[id]/edit/route.ts        # SSE streaming
+│   │   ├── generations/route.ts                  # POST = create (SSE)
+│   │   ├── generations/[id]/png/route.ts         # GET PNG
+│   │   ├── kb/[id]/screenshot/route.ts
+│   │   ├── internal/render/route.ts              # Render service (internal-only)
+│   │   └── health/route.ts
+│   └── actions/                          # Server Actions
+│       ├── workspaces.ts
+│       ├── kb.ts
+│       └── generations.ts
+├── components/
+│   ├── ui/                               # shadcn/ui
+│   ├── editor/                           # Monaco, iframe preview, chat panel
+│   ├── kb/
+│   └── workspaces/
+├── lib/
+│   ├── ai/
+│   │   ├── gemini.ts                     # SDK wrapper, usage logging
+│   │   ├── prompts/                      # System prompts as separate files
+│   │   │   ├── generate-html.ts
+│   │   │   ├── edit-html.ts
+│   │   │   └── extract-brand.ts
+│   │   └── schemas.ts                    # Zod for structured output
+│   ├── renderer/
+│   │   ├── playwright.ts                 # Singleton browser, contexts pool
+│   │   ├── render-png.ts                 # HTML → PNG
+│   │   └── scrape-url.ts                 # URL → screenshot + content
+│   ├── storage/
+│   │   ├── index.ts                      # Adapter interface
+│   │   └── local.ts                      # Local FS implementation
+│   ├── db/
+│   │   ├── schema.ts                     # Drizzle schema
+│   │   ├── client.ts
+│   │   └── migrations/
+│   ├── auth/
+│   │   ├── lucia.ts
+│   │   └── middleware.ts
+│   ├── schemas/                          # Zod input schemas
+│   └── utils/
+├── public/
+├── storage/                              # Local FS storage (gitignored, mounted)
+│   ├── workspaces/{id}/
+│   │   ├── uploads/
+│   │   ├── screenshots/
+│   │   ├── generated/                    # Nano Banana outputs
+│   │   └── fonts/
+│   └── generations/                      # Final PNGs
+├── docker/
+│   ├── Dockerfile
+│   └── playwright.Dockerfile             # If we split renderer in v2
+├── docker-compose.yml
+├── .env.example
+└── package.json
+```
+
+**Rules for adding new files:**
+- New AI prompt? → `lib/ai/prompts/{name}.ts`, exported as a function returning `{ system, user }` or `Content[]`.
+- New DB query? → If reused, put in `lib/db/queries/{entity}.ts`. One-off queries can stay in Server Actions.
+- New UI primitive? → `components/ui/` (shadcn-style). Domain UI → `components/{domain}/`.
+- New storage operation? → `lib/storage/index.ts` interface, `lib/storage/local.ts` implementation. Never bypass.
+
+---
+
+## 3. Database & migrations
+
+- **Drizzle schema** lives in `lib/db/schema.ts`. **Never** edit this file without also generating a migration.
+- **Migrations:** `drizzle-kit generate` then commit BOTH the schema change and the SQL migration file.
+- **No destructive migrations** without explicit user approval (drops, renames of tables/columns with data).
+- **UUIDs everywhere.** No serial integers as primary keys.
+- **Timestamps:** `TIMESTAMPTZ` always. Default `NOW()`. Always include `created_at`. Add `updated_at` for mutable rows + DB trigger.
+- **Soft deletes:** **Don't add** `deleted_at` columns unless user asks. Hard deletes with cascading FKs are the default.
+- **JSONB columns:** Always Zod-validate before insert. Type the column with TypeScript types matching the Zod schema.
+- **Indexes:** Add explicitly in schema, not as ad-hoc migrations. Foreign keys get indexes automatically? No — Postgres does NOT auto-index FKs. Add them.
+
+---
+
+## 4. AI / LLM patterns
+
+### 4.1 Always use the wrapper
+```ts
+// ❌ WRONG
+import { GoogleGenAI } from '@google/genai';
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// ✅ CORRECT
+import { generateContent } from '@/lib/ai/gemini';
+const result = await generateContent({
+  model: 'gemini-3.1-pro-preview',
+  operation: 'generate_html',          // logged to llm_usage
+  workspaceId,
+  generationId,
+  contents: [...],
+});
+```
+
+### 4.2 Streaming
+- All user-facing AI operations (generation, edit) MUST stream via SSE.
+- SSE event format:
+  ```
+  data: {"type":"progress","step":"analyzing_kb"}\n\n
+  data: {"type":"partial_html","html":"<div..."}\n\n
+  data: {"type":"done","generationId":"...","versionId":"...","htmlFinal":"...","pngUrl":"..."}\n\n
+  ```
+- Use `ReadableStream` API in Route Handlers. Don't use 3rd-party SSE libs.
+
+### 4.3 Prompts
+- System prompts live in `lib/ai/prompts/`. Each prompt exports a pure function: `(input) => Content[]`.
+- **Few-shot examples mandatory** for `generate-html` and `edit-html`. Maintain 3-5 hand-crafted "gold" examples in `lib/ai/prompts/examples/`.
+- **Never inline a long prompt in a Server Action or Route Handler.** Always import from `lib/ai/prompts/`.
+- **Locked output constraints** in the generate-html prompt:
+  - Single self-contained HTML document
+  - Inline CSS only (or `<style>` tag in `<head>`)
+  - Google Fonts via `@import` allowed
+  - No external JS, no `<script>` tags
+  - Exact viewport dimensions per format
+  - No relative URLs (must be absolute or data URIs)
+
+### 4.4 Cost tracking
+- Every call to `lib/ai/gemini.ts` MUST insert into `llm_usage`. The wrapper handles this — don't bypass it.
+- Pricing constants live in `lib/ai/pricing.ts`. Update when Google changes prices.
+
+### 4.5 Editing AI = full HTML rewrite (MVP)
+- **Do not** implement diff/patch or tool-calling editing. The AI receives current HTML + instruction, returns new full HTML.
+- Each successful edit creates a new row in `generation_versions` with `triggered_by='ai_edit'`.
+- The chat history (last 10 messages) goes into the prompt for context continuity.
+
+---
+
+## 5. Playwright / rendering
+
+- **Singleton browser** in `lib/renderer/playwright.ts`. Lazy-loaded on first use. Auto-restart every 100 renders or on crash.
+- **Context pool:** max 3 concurrent contexts. Queue beyond that.
+- **HTML → PNG:** always use `page.setViewportSize({ width, height })` matching the format BEFORE `setContent`. Wait for `networkidle`. Use `page.screenshot({ type: 'png' })`.
+- **URL ingestion:** for KB sources, `goto(url, { waitUntil: 'networkidle', timeout: 30000 })`, then full-page screenshot + extract `document.body.innerText` (truncate to 50k chars).
+- **Sandbox iframes** in the editor preview with `sandbox="allow-same-origin"` (NO `allow-scripts`).
+- **CSP for rendered HTML:** in `internal/render` and KB scrape, sanitize HTML with DOMPurify before passing to `setContent` to prevent XSS in our own renderer.
+
+---
+
+## 6. UI / UX rules
+
+- **Editor page** (`generations/[genId]/page.tsx`) is the heaviest UI: split-view with Monaco (left) + iframe preview (right) + chat panel (bottom or right rail).
+- **Iframe re-render strategy:** debounce manual edits at 500ms. For AI streaming, re-render on partial chunks if last chunk arrived >200ms ago, OR on completion.
+- **Versions sidebar:** list versions descending, click to view, "Restore this version" button creates a NEW version (don't overwrite history).
+- **Loading states:** every async operation has a loading state. Use Suspense + skeletons for Server Components, `useTransition` for Server Actions.
+- **Errors:** show user-friendly errors. Log full error to `pino`. **Never** leak stack traces to users.
+- **Keyboard shortcuts** in editor: `Cmd+S` saves manually edited HTML, `Cmd+Z` undoes manual edit (Monaco built-in), `Cmd+Enter` in chat input sends message.
+
+---
+
+## 7. Coding conventions
+
+### 7.1 TypeScript
+- `strict: true`. No `any` without `// eslint-disable-next-line` and a comment explaining why.
+- Prefer `type` over `interface` (consistency).
+- Zod schemas first; derive TypeScript types via `z.infer<>`.
+
+### 7.2 Naming
+- Files: `kebab-case.ts` for everything except React components which use `PascalCase.tsx`.
+- DB tables: `snake_case`, plural (`workspaces`, `generation_versions`).
+- DB columns: `snake_case`. Drizzle automatically maps to camelCase in TS.
+- React components: `PascalCase`.
+- Server Actions: `camelCase` verb-first (`createWorkspace`, `deleteGeneration`).
+- Constants: `SCREAMING_SNAKE_CASE`.
+
+### 7.3 Imports
+- Path alias `@/*` for `./src/*` (or root if no `src/`). **Never** use deep relative paths (`../../../`).
+- Order: external → `@/` aliases → relative.
+- No barrel exports (`index.ts` re-exporting everything) — they bloat bundles and break tree-shaking.
+
+### 7.4 Error handling
+- Server Actions return `{ ok: true, data } | { ok: false, error }`. Never throw to UI.
+- Route Handlers return `NextResponse.json({ error })` with proper status codes.
+- All AI calls and Playwright calls wrapped in try/catch with structured logging via `pino`.
+
+### 7.5 Comments
+- Comment **why**, not **what**. Code shows what.
+- TODO comments must reference issue or be assigned to user: `// TODO(dawid): switch to RAG when KB > 500k tokens`.
+
+---
+
+## 8. Environment variables
+
+All env vars MUST be:
+1. Documented in `.env.example` with comment explaining what they do
+2. Validated at startup via `lib/env.ts` (Zod schema, fail-fast on missing)
+3. Typed (`process.env.X` is `string | undefined` — never trust)
+
+Required `.env`:
+```
+# Database
+DATABASE_URL=postgresql://bannerwright:bannerwright@db:5432/bannerwright
+
+# Auth (single user)
+ADMIN_EMAIL=
+ADMIN_PASSWORD_HASH=             # argon2 hash
+SESSION_SECRET=                  # 32+ random chars
+
+# AI
+GEMINI_API_KEY=
+
+# Storage
+STORAGE_DRIVER=local             # 'local' | 's3' (s3 in v2)
+STORAGE_PATH=./storage
+
+# Optional: Sentry (off by default)
+SENTRY_DSN=
+
+# Limits
+MAX_GENERATIONS_PER_DAY=100      # hard cap to prevent runaway costs
+MAX_LLM_COST_USD_PER_DAY=10
+```
+
+---
+
+## 9. Testing
+
+- **Vitest** for unit tests. Co-locate as `{file}.test.ts`.
+- **Playwright** for E2E. `e2e/` directory at root.
+- **Required tests** for MVP:
+  - `lib/ai/gemini.ts` wrapper logs to `llm_usage` correctly
+  - `lib/renderer/render-png.ts` produces PNG of correct dimensions
+  - `lib/storage/local.ts` adapter contract
+  - Auth middleware redirects unauthenticated requests
+  - One E2E happy path: login → create workspace → generate → see PNG
+
+**Don't write speculative tests.** Test behaviors that have failed in dev, public APIs, and critical user flows.
+
+---
+
+## 10. Workflow expectations
+
+### When implementing a feature:
+1. Read the relevant section of `PRD.md` first.
+2. If schema changes: update `lib/db/schema.ts` AND generate migration in same commit.
+3. Add Zod schemas before implementation.
+4. Server Action / Route Handler with `try/catch` and proper return type.
+5. UI consumes via Server Action / Route Handler. No direct DB access from Client Components.
+6. Add minimum required test for the happy path.
+
+### When the user reports a bug:
+1. Reproduce locally via the smallest possible scenario.
+2. Add a test that fails with current code.
+3. Fix.
+4. Test passes. Commit.
+
+### When unsure:
+- **Ask, don't guess.** This codebase has explicit constraints (single-user, Gemini-only, etc.). Defaulting to "common Next.js patterns" can violate them.
+- If you're about to add a dependency, **stop and ask first.** We're keeping the dep tree minimal for self-hosters.
+
+### Do not (without explicit approval):
+- Add new npm dependencies
+- Change AI providers / models
+- Add multi-tenancy code
+- Refactor large modules "for cleanliness"
+- Skip migration generation
+- Bypass `lib/storage/`, `lib/ai/`, `lib/renderer/` adapters
+
+---
+
+## 11. Self-hosting compatibility
+
+Every change must work for someone running `docker compose up` on a fresh VPS.
+
+**Checklist before merging:**
+- [ ] `.env.example` updated if new env vars
+- [ ] `docker-compose.yml` updated if new services
+- [ ] `Dockerfile` builds clean
+- [ ] No hardcoded paths outside `STORAGE_PATH`
+- [ ] No localhost-only assumptions (use `process.env.PORT`, etc.)
+- [ ] No external service dependencies (Sentry, S3, etc.) required for happy path
+- [ ] README updated if new setup step
+
+---
+
+## 12. Open source manners
+
+- **MIT License.** Don't change without explicit user approval.
+- All public-facing strings (errors, UI) in English.
+- README must be self-contained: `git clone` → `cp .env.example .env` → fill 3 values → `docker compose up` → works.
+- No telemetry without opt-in. If we add usage analytics later, it's `ANALYTICS_OPT_IN=true` in `.env`, default off.
+
+---
+
+**End of agent instructions.** Re-read §1 (Non-negotiables) before every non-trivial change.
