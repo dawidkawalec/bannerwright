@@ -68,9 +68,14 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@google/genai",
+      "@node-rs/argon2",
       "esbuild",
       "protobufjs",
-      "@node-rs/argon2"
+      "sharp",
+      "unrs-resolver"
+    ],
+    "ignoredBuiltDependencies": [
+      "msw"
     ]
   }
 }
