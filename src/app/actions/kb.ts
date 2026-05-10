@@ -6,11 +6,12 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import {
   deleteKbSourceById,
   getKbSourceForWorkspace,
+  insertKbSourceText,
   insertKbSourceUrl,
 } from '@/lib/db/queries/kb';
 import { processKbUrl } from '@/lib/kb/process-url';
 import { logger } from '@/lib/logger';
-import { addKbUrlSchema } from '@/lib/schemas/kb';
+import { addKbTextSchema, addKbUrlSchema } from '@/lib/schemas/kb';
 import { getStorage } from '@/lib/storage';
 import type { ActionResult } from './workspaces';
 
@@ -39,6 +40,28 @@ export async function addKbSourceUrl(
   } catch (err) {
     logger.error({ err }, 'addKbSourceUrl failed');
     return { ok: false, error: 'Could not add KB source' };
+  }
+}
+
+export async function addKbSourceText(
+  workspaceId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  const parsed = addKbTextSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+
+  try {
+    const source = await insertKbSourceText(workspace.id, parsed.data.title, parsed.data.text);
+    revalidatePath(`/workspaces/${workspace.id}/knowledge-base`);
+    return { ok: true, data: { id: source.id } };
+  } catch (err) {
+    logger.error({ err }, 'addKbSourceText failed');
+    return { ok: false, error: 'Could not add text source' };
   }
 }
 

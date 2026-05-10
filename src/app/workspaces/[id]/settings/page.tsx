@@ -6,6 +6,7 @@ import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BrandForm } from './brand-form';
 import { AutoDetectButton } from './auto-detect-button';
+import { LogoForm } from './logo-form';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -63,6 +64,16 @@ export default async function SettingsPage({ params }: Props) {
               <AutoDetectButton workspaceId={workspace.id} />
             </>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Logo</CardTitle>
+          <CardDescription>Used in generated banners and the app nav.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LogoForm workspaceId={workspace.id} hasLogo={Boolean(workspace.logoUrl)} />
         </CardContent>
       </Card>
 

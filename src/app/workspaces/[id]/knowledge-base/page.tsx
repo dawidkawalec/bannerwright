@@ -5,6 +5,7 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddKbUrlForm } from './add-url-form';
+import { AddKbTextForm } from './add-text-form';
 import { KbSourceRow } from './kb-source-row';
 
 type Props = { params: Promise<{ id: string }> };
@@ -36,15 +37,26 @@ export default async function KnowledgeBasePage({ params }: Props) {
         </p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Add URL</CardTitle>
-          <CardDescription>Public, http(s) URL.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AddKbUrlForm workspaceId={workspace.id} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add URL</CardTitle>
+            <CardDescription>Public http(s) URL — scraped + screenshotted.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AddKbUrlForm workspaceId={workspace.id} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Add notes</CardTitle>
+            <CardDescription>Free-form brand voice, audience, positioning.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AddKbTextForm workspaceId={workspace.id} />
+          </CardContent>
+        </Card>
+      </div>
 
       {sources.length === 0 ? (
         <Card>

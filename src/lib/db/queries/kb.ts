@@ -43,6 +43,25 @@ export async function insertKbSourceUrl(
   return row!;
 }
 
+export async function insertKbSourceText(
+  workspaceId: string,
+  title: string,
+  text: string,
+): Promise<KbSource> {
+  const [row] = await db
+    .insert(kbSources)
+    .values({
+      workspaceId,
+      sourceType: 'text',
+      title,
+      contentText: text,
+      status: 'ready',
+      processedAt: new Date(),
+    })
+    .returning();
+  return row!;
+}
+
 export type KbStatusUpdate = {
   status: 'processing' | 'ready' | 'failed';
   contentText?: string;

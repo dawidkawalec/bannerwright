@@ -14,10 +14,15 @@ import { extractAndSaveBrand } from '@/lib/kb/extract-brand';
 import { logger } from '@/lib/logger';
 import { brandSettingsSchema } from '@/lib/schemas/brand';
 import {
+  ALLOWED_LOGO_TYPES,
+  MAX_LOGO_BYTES,
+} from '@/lib/schemas/kb';
+import {
   autoSlug,
   createWorkspaceSchema,
   updateWorkspaceSchema,
 } from '@/lib/schemas/workspaces';
+import { getStorage, storageKeys } from '@/lib/storage';
 
 export type ActionResult<T = unknown> =
   | { ok: true; data: T }
@@ -92,6 +97,53 @@ export async function updateBrand(
     brandFonts: { headline: headlineFont, body: bodyFont },
   });
   if (!updated) return { ok: false, error: 'Could not update brand' };
+  revalidatePath(`/workspaces/${workspaceId}/settings`);
+  revalidatePath(`/workspaces/${workspaceId}`);
+  return { ok: true, data: true };
+}
+
+export async function uploadLogo(
+  workspaceId: string,
+  formData: FormData,
+): Promise<ActionResult<{ logoUrl: string }>> {
+  const user = await requireUser();
+  const ws = await getWorkspaceForUser(workspaceId, user.id);
+  if (!ws) return { ok: false, error: 'Workspace not found' };
+
+  const file = formData.get('logo');
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: 'No file uploaded' };
+  }
+  if (file.size > MAX_LOGO_BYTES) {
+    return { ok: false, error: `Logo must be under ${MAX_LOGO_BYTES / 1024 / 1024} MB` };
+  }
+  if (!ALLOWED_LOGO_TYPES.includes(file.type as (typeof ALLOWED_LOGO_TYPES)[number])) {
+    return { ok: false, error: 'Logo must be PNG, JPEG, WebP or SVG' };
+  }
+
+  const ext = file.type === 'image/svg+xml' ? 'svg' : file.type.split('/')[1];
+  const key = storageKeys.workspaceLogo(workspaceId, ext ?? 'png');
+  const buf = Buffer.from(await file.arrayBuffer());
+  await getStorage().put(key, buf, file.type);
+
+  await updateWorkspaceById(workspaceId, user.id, { logoUrl: key });
+  revalidatePath(`/workspaces/${workspaceId}/settings`);
+  revalidatePath(`/workspaces/${workspaceId}`);
+  return { ok: true, data: { logoUrl: key } };
+}
+
+export async function removeLogo(
+  workspaceId: string,
+): Promise<ActionResult<true>> {
+  const user = await requireUser();
+  const ws = await getWorkspaceForUser(workspaceId, user.id);
+  if (!ws) return { ok: false, error: 'Workspace not found' };
+  if (ws.logoUrl) {
+    await getStorage()
+      .delete(ws.logoUrl)
+      .catch((err) => logger.warn({ err, key: ws.logoUrl }, 'logo delete failed'));
+  }
+  await updateWorkspaceById(workspaceId, user.id, { logoUrl: null });
   revalidatePath(`/workspaces/${workspaceId}/settings`);
   revalidatePath(`/workspaces/${workspaceId}`);
   return { ok: true, data: true };
