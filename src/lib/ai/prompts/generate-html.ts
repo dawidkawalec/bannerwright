@@ -39,6 +39,10 @@ export type BuildPromptInput = {
   kb: Array<Pick<KbSource, 'title' | 'url' | 'contentText'>>;
   /** Optional inline screenshot bytes (PNG) from the most relevant KB sources. */
   screenshots?: Array<{ mimeType: string; bytes: Buffer }>;
+  /** User-provided inspiration images attached to the brief (mood boards,
+   *  reference banners, screenshots). Treated as visual reference, not as
+   *  literal content to copy. */
+  inspirations?: Array<{ mimeType: string; bytes: Buffer }>;
 };
 
 const MAX_KB_CHARS_PER_SOURCE = 8_000;
@@ -79,6 +83,25 @@ export function buildGenerateHtmlContents(input: BuildPromptInput): Content[] {
     parts.push({
       inlineData: { mimeType: shot.mimeType, data: shot.bytes.toString('base64') },
     });
+  }
+
+  if ((input.inspirations ?? []).length > 0) {
+    parts.push({
+      text: [
+        '--- USER INSPIRATION IMAGES ---',
+        `The user attached ${input.inspirations!.length} reference image${
+          input.inspirations!.length === 1 ? '' : 's'
+        } below. Treat them as visual moodboard cues — composition, palette,`,
+        'typography vibe, decorative motifs. DO NOT copy them literally and DO NOT',
+        'embed them in the output (no data URIs from these). Use them to inform',
+        'the visual style of the banner you produce.',
+      ].join('\n'),
+    });
+    for (const ref of input.inspirations!) {
+      parts.push({
+        inlineData: { mimeType: ref.mimeType, data: ref.bytes.toString('base64') },
+      });
+    }
   }
 
   parts.push({

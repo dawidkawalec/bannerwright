@@ -46,6 +46,7 @@ export async function POST(req: Request) {
             format: parsed.data.format,
             brief: parsed.data.brief,
             title: parsed.data.title,
+            attachmentKeys: parsed.data.attachmentKeys,
           },
           send,
         );

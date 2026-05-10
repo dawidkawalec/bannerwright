@@ -16,6 +16,7 @@ import type { GenerationFormat } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
+import { loadAttachments } from '@/lib/storage/attachments';
 
 export type RunInput = {
   userId: string;
@@ -23,6 +24,8 @@ export type RunInput = {
   format: GenerationFormat;
   brief: string;
   title?: string;
+  /** Storage keys of inspiration images attached to the brief. */
+  attachmentKeys?: string[];
 };
 
 export type StreamEvent =
@@ -77,6 +80,9 @@ export async function runGeneration(
     }
   }
 
+  // User-provided inspiration images (optional, max 5)
+  const inspirations = await loadAttachments(workspace.id, input.attachmentKeys);
+
   emit({ type: 'progress', step: 'generating_html' });
 
   const stream = generateContentStream({
@@ -91,6 +97,7 @@ export async function runGeneration(
       brandFonts: workspace.brandFonts,
       kb: ready.map((s) => ({ title: s.title, url: s.url, contentText: s.contentText })),
       screenshots,
+      inspirations,
     }),
   });
 

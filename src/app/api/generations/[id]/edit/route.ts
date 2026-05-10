@@ -12,6 +12,7 @@ export const maxDuration = 120;
 
 const inputSchema = z.object({
   instruction: z.string().min(1).max(2_000),
+  attachmentKeys: z.array(z.string().max(300)).max(5).optional(),
 });
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -56,6 +57,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
             workspaceId: workspace.id,
             generationId: id,
             instruction: parsed.data.instruction,
+            attachmentKeys: parsed.data.attachmentKeys,
           },
           send,
         );

@@ -147,14 +147,17 @@ export function EditorShell({
     startTransition(() => router.refresh());
   }
 
-  async function onChatSend(instruction: string) {
+  async function onChatSend(instruction: string, attachmentKeys: string[] = []) {
     setStatus({ kind: 'streaming' });
     setChat((prev) => [
       ...prev,
       {
         id: `local-${Date.now()}`,
         role: 'user',
-        content: instruction,
+        content:
+          attachmentKeys.length > 0
+            ? `${instruction}\n[+${attachmentKeys.length} image${attachmentKeys.length === 1 ? '' : 's'}]`
+            : instruction,
         createdAt: new Date().toISOString(),
       },
     ]);
@@ -163,7 +166,10 @@ export function EditorShell({
     const res = await fetch(`/api/generations/${generationId}/edit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ instruction }),
+      body: JSON.stringify({
+        instruction,
+        attachmentKeys: attachmentKeys.length > 0 ? attachmentKeys : undefined,
+      }),
     });
 
     if (!res.ok || !res.body) {
@@ -363,7 +369,12 @@ export function EditorShell({
         )}
 
         <div className="flex flex-col gap-4">
-          <ChatPanel chat={chat} onSend={onChatSend} disabled={isWorking} />
+          <ChatPanel
+            chat={chat}
+            onSend={onChatSend}
+            disabled={isWorking}
+            workspaceId={workspaceId}
+          />
           <BackgroundButton
             workspaceId={workspaceId}
             generationId={generationId}

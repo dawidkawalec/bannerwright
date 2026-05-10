@@ -21,6 +21,8 @@ export type EditPromptInput = {
   currentHtml: string;
   chatHistory: ChatMessage[];
   instruction: string;
+  /** Optional inspiration images attached to this instruction. */
+  inspirations?: Array<{ mimeType: string; bytes: Buffer }>;
 };
 
 const MAX_HISTORY = 10;
@@ -51,7 +53,28 @@ export function buildEditHtmlContents(input: EditPromptInput): Content[] {
   }
 
   parts.push({
-    text: `New instruction: ${input.instruction}\n\nReturn the full updated HTML now.`,
+    text: `New instruction: ${input.instruction}`,
+  });
+
+  if ((input.inspirations ?? []).length > 0) {
+    parts.push({
+      text: [
+        `The user attached ${input.inspirations!.length} reference image${
+          input.inspirations!.length === 1 ? '' : 's'
+        } with this instruction. Use them as visual moodboard cues for what to`,
+        'change — palette, layout, type vibe. DO NOT embed these images in the',
+        'output (no data URIs from them) unless the instruction explicitly says so.',
+      ].join('\n'),
+    });
+    for (const ref of input.inspirations!) {
+      parts.push({
+        inlineData: { mimeType: ref.mimeType, data: ref.bytes.toString('base64') },
+      });
+    }
+  }
+
+  parts.push({
+    text: 'Return the full updated HTML now.',
   });
 
   return [{ role: 'user', parts }];

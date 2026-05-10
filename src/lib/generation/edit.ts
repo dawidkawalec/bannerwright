@@ -14,12 +14,15 @@ import {
 } from '@/lib/db/queries/generations';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
+import { loadAttachments } from '@/lib/storage/attachments';
 
 export type EditInput = {
   userId: string;
   workspaceId: string;
   generationId: string;
   instruction: string;
+  /** Storage keys of inspiration images attached to this instruction. */
+  attachmentKeys?: string[];
 };
 
 export type EditEvent =
@@ -46,7 +49,10 @@ export async function runEdit(
   await assertWithinDailyCaps();
 
   emit({ type: 'progress', step: 'preparing' });
-  const history = await listChatMessages(generation.id);
+  const [history, inspirations] = await Promise.all([
+    listChatMessages(generation.id),
+    loadAttachments(generation.workspaceId, input.attachmentKeys),
+  ]);
 
   emit({ type: 'progress', step: 'generating_html' });
   const stream = generateContentStream({
@@ -60,6 +66,7 @@ export async function runEdit(
       currentHtml: generation.currentHtml,
       chatHistory: history,
       instruction: input.instruction,
+      inspirations,
     }),
   });
 

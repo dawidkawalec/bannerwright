@@ -19,6 +19,8 @@ export const generateBriefSchema = z.object({
   format: z.enum(formats),
   brief: z.string().min(3).max(2_000).trim(),
   title: z.string().max(120).optional(),
+  /** Storage keys of inspiration images already uploaded via /api/workspaces/[id]/attachments. */
+  attachmentKeys: z.array(z.string().max(300)).max(5).optional(),
 });
 
 export type GenerateBriefInput = z.infer<typeof generateBriefSchema>;

@@ -16,6 +16,7 @@ import {
 import { BannerPreview } from '@/components/banner-preview';
 import { formats, formatLabels } from '@/lib/schemas/generations';
 import type { GenerationFormat } from '@/lib/db/schema';
+import { AttachmentDropzone, type Attachment } from '@/components/ai/attachment-dropzone';
 
 type Step =
   | { kind: 'idle' }
@@ -44,6 +45,7 @@ export function GenerateFlow({
   const [format, setFormat] = useState<GenerationFormat>('square_1080');
   const [brief, setBrief] = useState('');
   const [title, setTitle] = useState('');
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [step, setStep] = useState<Step>({ kind: 'idle' });
   const [html, setHtml] = useState<string>('');
   const [generationId, setGenerationId] = useState<string | null>(null);
@@ -62,7 +64,13 @@ export function GenerateFlow({
     const res = await fetch('/api/generations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workspaceId, format, brief, title: title || undefined }),
+      body: JSON.stringify({
+        workspaceId,
+        format,
+        brief,
+        title: title || undefined,
+        attachmentKeys: attachments.length > 0 ? attachments.map((a) => a.key) : undefined,
+      }),
     });
 
     if (!res.ok || !res.body) {
@@ -171,9 +179,23 @@ export function GenerateFlow({
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <Label>Inspiration images (optional)</Label>
+              <AttachmentDropzone
+                workspaceId={workspaceId}
+                attachments={attachments}
+                onChange={setAttachments}
+                disabled={isWorking}
+                helper="Drag, paste (⌘V) or click. Mood boards, screenshots, reference banners — used as visual cues for the AI."
+              />
+            </div>
+
             <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               <span>{readyKbCount} ready KB source{readyKbCount === 1 ? '' : 's'} will inform the prompt.</span>
               {!hasBrand && <span>No brand set — AI uses tasteful defaults.</span>}
+              {attachments.length > 0 && (
+                <span>{attachments.length} inspiration image{attachments.length === 1 ? '' : 's'} attached.</span>
+              )}
             </div>
 
             <Button type="submit" disabled={isWorking || brief.trim().length < 3}>
