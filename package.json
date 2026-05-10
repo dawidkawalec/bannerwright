@@ -18,7 +18,8 @@
     "db:seed": "tsx --env-file=.env src/lib/db/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "deploy:vps": "bash scripts/deploy-vps.sh"
   },
   "dependencies": {
     "@google/genai": "^2.0.1",
