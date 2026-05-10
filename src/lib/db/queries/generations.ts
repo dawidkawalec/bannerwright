@@ -20,6 +20,34 @@ export async function listGenerationsByWorkspace(
     .orderBy(desc(generations.updatedAt));
 }
 
+export async function listTemplatesByWorkspace(
+  workspaceId: string,
+): Promise<Generation[]> {
+  return db
+    .select()
+    .from(generations)
+    .where(and(eq(generations.workspaceId, workspaceId), eq(generations.isTemplate, true)))
+    .orderBy(desc(generations.updatedAt));
+}
+
+export async function setTemplateFlag(
+  id: string,
+  workspaceId: string,
+  isTemplate: boolean,
+  templateName?: string | null,
+): Promise<Generation | null> {
+  const [row] = await db
+    .update(generations)
+    .set({
+      isTemplate,
+      templateName: isTemplate ? (templateName ?? null) : null,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(generations.id, id), eq(generations.workspaceId, workspaceId)))
+    .returning();
+  return row ?? null;
+}
+
 export async function getGeneration(id: string): Promise<Generation | null> {
   const [row] = await db.select().from(generations).where(eq(generations.id, id));
   return row ?? null;

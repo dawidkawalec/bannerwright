@@ -36,12 +36,20 @@ export default async function GenerationsPage({ params }: Props) {
             Banners produced from briefs.
           </p>
         </div>
-        <Link
-          href={`/workspaces/${workspace.id}/generations/new`}
-          className={cn(buttonVariants({ size: 'sm' }))}
-        >
-          New banner
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/workspaces/${workspace.id}/templates`}
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+          >
+            Templates
+          </Link>
+          <Link
+            href={`/workspaces/${workspace.id}/generations/new`}
+            className={cn(buttonVariants({ size: 'sm' }))}
+          >
+            New banner
+          </Link>
+        </div>
       </header>
 
       {generations.length === 0 ? (
@@ -82,7 +90,14 @@ export default async function GenerationsPage({ params }: Props) {
                   )}
                 </div>
                 <CardHeader>
-                  <CardTitle className="line-clamp-2 text-sm">{g.title}</CardTitle>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="line-clamp-2 text-sm">{g.title}</CardTitle>
+                    {g.isTemplate && (
+                      <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                        Template
+                      </span>
+                    )}
+                  </div>
                   <CardDescription className="text-xs">
                     {formatLabels[g.format]}
                   </CardDescription>

@@ -7,9 +7,11 @@ import {
   deleteGenerationById,
   getGenerationForWorkspace,
   getVersion,
+  insertGeneration,
   insertGenerationVersion,
   nextVersionNumber,
   recordChatMessage,
+  setTemplateFlag,
   updateGenerationCurrentHtml,
 } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
@@ -117,6 +119,89 @@ export async function restoreVersion(
   } catch (err) {
     logger.error({ err, generationId }, 'restoreVersion failed');
     return { ok: false, error: 'Could not restore' };
+  }
+}
+
+export async function promoteToTemplate(
+  workspaceId: string,
+  id: string,
+  templateName: string,
+): Promise<ActionResult<true>> {
+  const trimmed = templateName.trim();
+  if (trimmed.length < 1 || trimmed.length > 80) {
+    return { ok: false, error: 'Template name must be 1–80 characters' };
+  }
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+  const updated = await setTemplateFlag(id, workspace.id, true, trimmed);
+  if (!updated) return { ok: false, error: 'Generation not found' };
+  revalidatePath(`/workspaces/${workspace.id}/generations/${id}`);
+  revalidatePath(`/workspaces/${workspace.id}/templates`);
+  revalidatePath(`/workspaces/${workspace.id}/generations`);
+  return { ok: true, data: true };
+}
+
+export async function unpromoteTemplate(
+  workspaceId: string,
+  id: string,
+): Promise<ActionResult<true>> {
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+  const updated = await setTemplateFlag(id, workspace.id, false);
+  if (!updated) return { ok: false, error: 'Generation not found' };
+  revalidatePath(`/workspaces/${workspace.id}/generations/${id}`);
+  revalidatePath(`/workspaces/${workspace.id}/templates`);
+  revalidatePath(`/workspaces/${workspace.id}/generations`);
+  return { ok: true, data: true };
+}
+
+export async function duplicateGeneration(
+  workspaceId: string,
+  sourceId: string,
+  title?: string,
+): Promise<ActionResult<{ id: string }>> {
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+  const source = await getGenerationForWorkspace(sourceId, workspace.id);
+  if (!source) return { ok: false, error: 'Source generation not found' };
+
+  try {
+    const newGeneration = await insertGeneration({
+      workspaceId: workspace.id,
+      parentGenerationId: source.id,
+      title: (title?.trim() || `Copy of ${source.title}`).slice(0, 120),
+      format: source.format,
+      currentHtml: source.currentHtml,
+      brief: source.brief,
+    });
+    await insertGenerationVersion({
+      generationId: newGeneration.id,
+      versionNumber: 1,
+      html: source.currentHtml,
+      triggeredBy: 'initial_generation',
+    });
+
+    // Try to render PNG; non-fatal if it fails.
+    try {
+      const rendered = await renderHtmlToPng({
+        html: source.currentHtml,
+        format: source.format,
+        generationId: newGeneration.id,
+      });
+      await updateGenerationCurrentHtml(newGeneration.id, source.currentHtml, rendered.pngKey);
+    } catch (err) {
+      logger.warn({ err, newId: newGeneration.id }, 'duplicate render failed');
+    }
+
+    revalidatePath(`/workspaces/${workspace.id}/generations`);
+    revalidatePath(`/workspaces/${workspace.id}/templates`);
+    return { ok: true, data: { id: newGeneration.id } };
+  } catch (err) {
+    logger.error({ err }, 'duplicateGeneration failed');
+    return { ok: false, error: 'Could not duplicate' };
   }
 }
 

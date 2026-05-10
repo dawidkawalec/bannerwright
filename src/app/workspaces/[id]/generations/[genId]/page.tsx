@@ -10,6 +10,7 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { EditorShell } from '@/components/editor/editor-shell';
 import { formatLabels } from '@/lib/schemas/generations';
 import { DeleteGenerationButton } from './delete-button';
+import { TemplateToggle } from './template-toggle';
 
 type Props = { params: Promise<{ id: string; genId: string }> };
 
@@ -50,7 +51,16 @@ export default async function GenerationEditorPage({ params }: Props) {
           </h1>
           <p className="text-sm text-slate-500">{formatLabels[generation.format]}</p>
         </div>
-        <DeleteGenerationButton workspaceId={workspace.id} id={generation.id} />
+        <div className="flex flex-wrap items-start gap-3">
+          <TemplateToggle
+            workspaceId={workspace.id}
+            generationId={generation.id}
+            isTemplate={generation.isTemplate}
+            templateName={generation.templateName}
+            defaultName={generation.title}
+          />
+          <DeleteGenerationButton workspaceId={workspace.id} id={generation.id} />
+        </div>
       </header>
 
       <EditorShell
