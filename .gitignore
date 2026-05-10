@@ -24,8 +24,9 @@ next-env.d.ts
 !.env.example
 
 # Storage (self-hosted runtime data — never commit user content)
-storage/
-!storage/.gitkeep
+# Anchored to repo root so we don't shadow src/lib/storage/ source code.
+/storage/
+!/storage/.gitkeep
 
 # IDE / OS
 .DS_Store
