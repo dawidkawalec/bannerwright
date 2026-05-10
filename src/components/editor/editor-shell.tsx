@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 import { BannerPreview } from '@/components/banner-preview';
 import { MonacoHtmlEditor } from './monaco-editor';
 import { ChatPanel, type ChatRow } from './chat-panel';
@@ -18,7 +21,6 @@ import {
 import type { GenerationFormat } from '@/lib/db/schema';
 import { stampHtml } from '@/lib/wysiwyg/stamp';
 import { applyOps, type VisualOp } from '@/lib/wysiwyg/patch';
-import { cn } from '@/lib/utils';
 
 const PREVIEW_DEBOUNCE_MS = 500;
 const STREAM_DEBOUNCE_MS = 200;
@@ -107,10 +109,12 @@ export function EditorShell({
     const res = await saveManualEdit(workspaceId, generationId, editorHtml);
     if (!res.ok) {
       setStatus({ kind: 'error', message: res.error });
+      toast.error(res.error);
       return;
     }
     setSavedHtml(editorHtml);
     setStatus({ kind: 'ok', message: `Saved as v${res.data.versionNumber}` });
+    toast.success(`Saved as v${res.data.versionNumber}`);
     startTransition(() => router.refresh());
   }
 
@@ -124,6 +128,7 @@ export function EditorShell({
     const res = await saveVisualEdit(workspaceId, generationId, next);
     if (!res.ok) {
       setStatus({ kind: 'error', message: res.error });
+      toast.error(res.error);
       return;
     }
     setSavedHtml(next);
@@ -137,6 +142,7 @@ export function EditorShell({
       ...prev,
     ]);
     setStatus({ kind: 'ok', message: `Saved as v${res.data.versionNumber}` });
+    toast.success(`Saved as v${res.data.versionNumber}`);
     setSelectedId(null);
     startTransition(() => router.refresh());
   }
@@ -234,10 +240,12 @@ export function EditorShell({
     const res = await restoreVersion(workspaceId, generationId, versionId);
     if (!res.ok) {
       setStatus({ kind: 'error', message: res.error });
+      toast.error(res.error);
       return;
     }
     startTransition(() => router.refresh());
     setStatus({ kind: 'ok', message: `Restored as v${res.data.versionNumber}` });
+    toast.success(`Restored as v${res.data.versionNumber}`);
   }
 
   // Look up the currently-selected element in the live shadow tree. Depend on
@@ -383,11 +391,7 @@ function ModeTabs({
       label: 'Visual',
       help: 'Klikaj elementy banera i edytuj tekst/kolory/fonty bez kodu — dla nietechnicznych.',
     },
-    {
-      id: 'code',
-      label: 'Code',
-      help: 'Pełna kontrola nad HTML/CSS w Monaco. Dla techniczych.',
-    },
+    { id: 'code', label: 'Code', help: 'Pełna kontrola nad HTML/CSS w Monaco. Dla technicznych.' },
     {
       id: 'chat',
       label: 'Chat',
@@ -395,25 +399,22 @@ function ModeTabs({
     },
   ];
   return (
-    <div className="flex items-center gap-1 self-start rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
-      {tabs.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          disabled={disabled}
-          title={t.help}
-          onClick={() => onChange(t.id)}
-          className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-            mode === t.id
-              ? 'bg-slate-900 text-slate-50'
-              : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900',
-          )}
-        >
-          {t.label}
-        </button>
-      ))}
-    </div>
+    <Tabs value={mode} onValueChange={(v) => onChange(v as Mode)} className="self-start">
+      <TabsList>
+        {tabs.map((t) => (
+          <Tooltip key={t.id}>
+            <TooltipTrigger asChild>
+              <TabsTrigger value={t.id} disabled={disabled}>
+                {t.label}
+              </TabsTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">{t.help}</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }
 

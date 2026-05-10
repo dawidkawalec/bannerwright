@@ -1,8 +1,10 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { ConfirmActionButton } from '@/components/confirm-action-button';
 import { deleteGeneration } from '@/app/actions/generations';
 
 export function DeleteGenerationButton({
@@ -14,34 +16,34 @@ export function DeleteGenerationButton({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <Button
-        variant="destructive"
-        size="sm"
-        disabled={pending}
-        onClick={() => {
-          if (!confirm('Delete this banner? This cannot be undone.')) return;
-          setError(null);
+    <ConfirmActionButton
+      destructive
+      pending={pending}
+      title="Delete this banner?"
+      description="The banner, its versions, chat history and PNG cache will be removed. The action cannot be undone."
+      confirmLabel="Delete banner"
+      trigger={
+        <Button variant="destructive" size="sm" disabled={pending}>
+          {pending ? 'Deleting…' : 'Delete'}
+        </Button>
+      }
+      onConfirm={() =>
+        new Promise<void>((resolve) => {
           startTransition(async () => {
             const res = await deleteGeneration(workspaceId, id);
             if (res && !res.ok) {
-              setError(res.error);
+              toast.error(res.error);
+              resolve();
               return;
             }
+            toast.success('Banner deleted');
             router.refresh();
+            resolve();
           });
-        }}
-      >
-        {pending ? 'Deleting…' : 'Delete'}
-      </Button>
-      {error && (
-        <span className="text-xs text-red-600" role="alert">
-          {error}
-        </span>
-      )}
-    </div>
+        })
+      }
+    />
   );
 }

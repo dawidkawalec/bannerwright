@@ -2,16 +2,29 @@
 
 import { useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ConfirmActionButton } from '@/components/confirm-action-button';
 import { deleteKbSource, reprocessKbSource } from '@/app/actions/kb';
 import type { KbSource } from '@/lib/db/schema';
 
-const STATUS_STYLES: Record<KbSource['status'], string> = {
-  pending: 'bg-slate-100 text-slate-700',
-  processing: 'bg-blue-100 text-blue-700',
-  ready: 'bg-emerald-100 text-emerald-700',
-  failed: 'bg-red-100 text-red-700',
+const STATUS_VARIANTS: Record<
+  KbSource['status'],
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
+  pending: 'outline',
+  processing: 'secondary',
+  ready: 'default',
+  failed: 'destructive',
+};
+
+const STATUS_LABELS: Record<KbSource['status'], string> = {
+  pending: 'Pending',
+  processing: 'Processing',
+  ready: 'Ready',
+  failed: 'Failed',
 };
 
 export function KbSourceRow({
@@ -35,14 +48,8 @@ export function KbSourceRow({
   return (
     <Card className="flex flex-col">
       <CardHeader className="flex-row items-start justify-between gap-2">
-        <CardTitle className="line-clamp-2 break-all text-sm">
-          {source.title}
-        </CardTitle>
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[source.status]}`}
-        >
-          {source.status}
-        </span>
+        <CardTitle className="line-clamp-2 break-all text-sm">{source.title}</CardTitle>
+        <Badge variant={STATUS_VARIANTS[source.status]}>{STATUS_LABELS[source.status]}</Badge>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
         {source.screenshotPath ? (
@@ -92,7 +99,9 @@ export function KbSourceRow({
               disabled={pending || isWorking}
               onClick={() =>
                 startTransition(async () => {
-                  await reprocessKbSource(workspaceId, source.id);
+                  const res = await reprocessKbSource(workspaceId, source.id);
+                  if (res && !res.ok) toast.error(res.error);
+                  else toast.info('Reprocessing started');
                   router.refresh();
                 })
               }
@@ -100,20 +109,29 @@ export function KbSourceRow({
               {isWorking ? 'Working…' : 'Reprocess'}
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={pending}
-            onClick={() => {
-              if (!confirm('Remove this source?')) return;
-              startTransition(async () => {
-                await deleteKbSource(workspaceId, source.id);
-                router.refresh();
-              });
-            }}
-          >
-            Remove
-          </Button>
+          <ConfirmActionButton
+            destructive
+            pending={pending}
+            title="Remove this source?"
+            description={`"${source.title}" will be removed from the knowledge base. The action cannot be undone.`}
+            confirmLabel="Remove"
+            trigger={
+              <Button variant="ghost" size="sm" disabled={pending}>
+                Remove
+              </Button>
+            }
+            onConfirm={() =>
+              new Promise<void>((resolve) => {
+                startTransition(async () => {
+                  const res = await deleteKbSource(workspaceId, source.id);
+                  if (res && !res.ok) toast.error(res.error);
+                  else toast.success('Source removed');
+                  router.refresh();
+                  resolve();
+                });
+              })
+            }
+          />
         </div>
       </CardContent>
     </Card>
