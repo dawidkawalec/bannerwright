@@ -9,23 +9,28 @@ import {
 import { requireUser } from '@/lib/auth/current-user';
 import { listWorkspacesByUser } from '@/lib/db/queries/workspaces';
 import { getGlobalStats } from '@/lib/db/queries/stats';
+import { getHeaderNotifications } from '@/lib/db/queries/notifications';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { AppearanceForm } from '@/app/workspaces/[id]/settings/appearance-form';
+import {
+  ApiForm,
+  NotificationsForm,
+  ProfileForm,
+  StudioForm,
+} from './account-forms';
 
 export const metadata = { title: 'Account — Bannerwright' };
 
 export default async function AccountPage() {
   const user = await requireUser();
-  const [workspaces, stats] = await Promise.all([
+  const [workspaces, stats, notifications] = await Promise.all([
     listWorkspacesByUser(user.id),
     getGlobalStats(user.id),
+    getHeaderNotifications(user.id),
   ]);
   const mini = workspaces.map((w) => ({ id: w.id, name: w.name, slug: w.slug }));
   const handle = user.email.split('@')[0];
@@ -35,8 +40,14 @@ export default async function AccountPage() {
     month: 'long',
   });
 
+  const seed = {
+    email: user.email,
+    defaultDisplayName: handle,
+    defaultTimezone: 'UTC',
+  };
+
   return (
-    <AppShell email={user.email} workspaces={mini}>
+    <AppShell email={user.email} workspaces={mini} notifications={notifications}>
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
@@ -46,9 +57,7 @@ export default async function AccountPage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                {handle}
-              </h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">{handle}</h1>
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="border-primary/30 text-primary">
@@ -93,13 +102,10 @@ export default async function AccountPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Profile</CardTitle>
-                <CardDescription>Public name and how others see you in the workshop.</CardDescription>
+                <CardDescription>Your handle and locale used across the workshop.</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Display name" defaultValue={handle} />
-                <Field label="Email" defaultValue={user.email} readOnly hint="Single-tenant install — change via .env" />
-                <Field label="Timezone" defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone} />
-                <Field label="Language" defaultValue="English" />
+              <CardContent>
+                <ProfileForm seed={seed} />
               </CardContent>
             </Card>
 
@@ -108,18 +114,8 @@ export default async function AccountPage() {
                 <CardTitle className="text-base">Studio defaults</CardTitle>
                 <CardDescription>Defaults applied to new banners and workspaces.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Field label="Default format" defaultValue="square_1080" hint="Square / Story / Landscape / Portrait" />
-                <ToggleRow
-                  label="Auto-promote first AI version"
-                  description="Mark first successful generation as a template automatically."
-                  defaultChecked={false}
-                />
-                <ToggleRow
-                  label="Auto-detect brand on URL add"
-                  description="Whenever a Knowledge base URL becomes ready, run brand extraction."
-                  defaultChecked={true}
-                />
+              <CardContent>
+                <StudioForm seed={seed} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -129,7 +125,7 @@ export default async function AccountPage() {
               <CardHeader>
                 <CardTitle className="text-base">Appearance</CardTitle>
                 <CardDescription>
-                  Theme and typography for this browser. Stored in localStorage.
+                  Theme is forced dark for now. Pick a font and density that suit you.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -141,30 +137,16 @@ export default async function AccountPage() {
           <TabsContent value="notifications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Notifications</CardTitle>
-                <CardDescription>Choose what shows up in the bell menu.</CardDescription>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Cpu className="size-4 text-primary" />
+                  Notification triggers
+                </CardTitle>
+                <CardDescription>
+                  Choose what shows up in the bell menu and when to mirror to email.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ToggleRow
-                  label="Generation finished"
-                  description="When a banner finishes generating or rendering."
-                  defaultChecked
-                />
-                <ToggleRow
-                  label="Brand auto-detect ready"
-                  description="When AI finishes extracting brand from a URL."
-                  defaultChecked
-                />
-                <ToggleRow
-                  label="Daily cost summary"
-                  description="A short morning brief with yesterday’s AI spend."
-                  defaultChecked={false}
-                />
-                <ToggleRow
-                  label="Email me a copy"
-                  description="Mirror in-app notifications to email."
-                  defaultChecked={false}
-                />
+              <CardContent>
+                <NotificationsForm seed={seed} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -178,7 +160,9 @@ export default async function AccountPage() {
               <CardContent>
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
                   <p className="text-sm font-medium text-foreground">This device</p>
-                  <p className="text-xs text-muted-foreground">Active session — sign out from the profile menu.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Active session — sign out from the profile menu.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -210,66 +194,14 @@ export default async function AccountPage() {
                   Bannerwright talks to Google Gemini directly — your key, your data.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Field
-                  label="GOOGLE_API_KEY"
-                  defaultValue="••••••••••••••••"
-                  readOnly
-                  hint="Loaded from .env. Restart to apply changes."
-                />
-                <Field label="Default model" defaultValue="gemini-3-pro" />
-                <Field label="Image model" defaultValue="nano-banana-pro" />
-                <ToggleRow
-                  label="Stream HTML to the editor"
-                  description="Show partial AI output live as it’s being written."
-                  defaultChecked
-                />
+              <CardContent>
+                <ApiForm seed={seed} />
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
     </AppShell>
-  );
-}
-
-function Field({
-  label,
-  defaultValue,
-  readOnly,
-  hint,
-}: {
-  label: string;
-  defaultValue: string;
-  readOnly?: boolean;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label>{label}</Label>
-      <Input defaultValue={defaultValue} readOnly={readOnly} className={readOnly ? 'opacity-70' : ''} />
-      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-    </div>
-  );
-}
-
-function ToggleRow({
-  label,
-  description,
-  defaultChecked,
-}: {
-  label: string;
-  description: string;
-  defaultChecked?: boolean;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-muted/20 p-3">
-      <div>
-        <Label className="text-sm">{label}</Label>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-      <Switch defaultChecked={defaultChecked} />
-    </div>
   );
 }
 
@@ -281,4 +213,3 @@ function SnapStat({ label, value }: { label: string; value: string | number }) {
     </div>
   );
 }
-

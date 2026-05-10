@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTheme } from 'next-themes';
 import { useTransition } from 'react';
-import { Bell, Menu, Moon, Plus, Search, Sun } from 'lucide-react';
+import { Bell, Menu, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -17,13 +16,27 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Logo } from '@/components/layout/logo';
+import { cn } from '@/lib/utils';
+
+export type HeaderNotification = {
+  id: string;
+  title: string;
+  body: string;
+  href?: string;
+  tone: 'info' | 'success' | 'warning' | 'pending';
+  createdAt: string;
+};
 
 export function AppHeader({
   email,
   onOpenMobile,
+  onOpenPalette,
+  notifications,
 }: {
   email: string;
   onOpenMobile: () => void;
+  onOpenPalette: () => void;
+  notifications: HeaderNotification[];
 }) {
   const initials = email.slice(0, 2).toUpperCase();
 
@@ -42,21 +55,31 @@ export function AppHeader({
         <Logo showText={false} />
       </div>
 
-      {/* Search (placeholder) */}
-      <div className="ml-auto hidden flex-1 max-w-sm items-center md:flex">
-        <div className="relative w-full">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder="Search workspaces, banners…"
-            className="h-9 w-full rounded-lg border border-border bg-muted/40 pl-9 pr-3 text-sm outline-none transition focus:bg-background focus:ring-2 focus:ring-ring/30"
-          />
-        </div>
-      </div>
+      {/* Search button -> opens command palette */}
+      <button
+        onClick={onOpenPalette}
+        className="ml-auto hidden h-9 max-w-sm flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground md:flex"
+      >
+        <Search className="size-4" />
+        <span className="flex-1 truncate text-left">Search workspaces, banners…</span>
+        <kbd className="rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px]">
+          ⌘K
+        </kbd>
+      </button>
 
-      <div className="ml-auto flex items-center gap-2 md:ml-2">
-        <ThemeToggle />
-        <NotificationsMenu />
+      {/* Mobile palette icon */}
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="ml-auto md:hidden"
+        onClick={onOpenPalette}
+        aria-label="Search"
+      >
+        <Search className="size-4" />
+      </Button>
+
+      <div className="flex items-center gap-2 md:ml-2">
+        <NotificationsMenu notifications={notifications} />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button asChild variant="default" size="sm" className="hidden sm:inline-flex">
@@ -74,27 +97,10 @@ export function AppHeader({
   );
 }
 
-function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const isDark = (theme === 'system' ? resolvedTheme : theme) === 'dark';
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Toggle theme"
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        >
-          {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{isDark ? 'Light mode' : 'Dark mode'}</TooltipContent>
-    </Tooltip>
-  );
-}
+function NotificationsMenu({ notifications }: { notifications: HeaderNotification[] }) {
+  const unread = notifications.length;
+  const dot = unread > 0;
 
-function NotificationsMenu() {
   return (
     <DropdownMenu>
       <Tooltip>
@@ -102,29 +108,72 @@ function NotificationsMenu() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" aria-label="Notifications" className="relative">
               <Bell className="size-4" />
-              <span className="absolute right-1 top-1 size-1.5 rounded-full bg-primary" />
+              {dot && (
+                <span className="absolute right-1 top-1 grid size-3.5 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                  {Math.min(unread, 9)}
+                </span>
+              )}
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent>Notifications</TooltipContent>
+        <TooltipContent>{unread > 0 ? `${unread} update${unread === 1 ? '' : 's'}` : 'No new updates'}</TooltipContent>
       </Tooltip>
-      <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel>Recent activity</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-80">
+        <DropdownMenuLabel className="flex items-center justify-between">
+          <span>Activity</span>
+          {unread > 0 && (
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              {unread} new
+            </span>
+          )}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex flex-col items-start gap-0.5">
-          <p className="text-sm font-medium">Welcome to Bannerwright</p>
-          <p className="text-xs text-muted-foreground">
-            Create your first workspace to get started.
-          </p>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="flex flex-col items-start gap-0.5">
-          <p className="text-sm font-medium">Tip: connect a brand site</p>
-          <p className="text-xs text-muted-foreground">
-            Add the client&apos;s URL in Knowledge base for richer banners.
-          </p>
-        </DropdownMenuItem>
+        {notifications.length === 0 ? (
+          <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+            All caught up — no recent activity.
+          </div>
+        ) : (
+          notifications.map((n) => (
+            <DropdownMenuItem
+              key={n.id}
+              asChild={Boolean(n.href)}
+              className="flex flex-col items-start gap-0.5"
+            >
+              {n.href ? (
+                <Link href={n.href}>
+                  <NotificationContent n={n} />
+                </Link>
+              ) : (
+                <div className="flex w-full flex-col items-start">
+                  <NotificationContent n={n} />
+                </div>
+              )}
+            </DropdownMenuItem>
+          ))
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function NotificationContent({ n }: { n: HeaderNotification }) {
+  return (
+    <>
+      <div className="flex w-full items-center gap-2">
+        <span
+          className={cn(
+            'size-2 shrink-0 rounded-full',
+            n.tone === 'success' && 'bg-emerald-400',
+            n.tone === 'warning' && 'bg-amber-400',
+            n.tone === 'info' && 'bg-primary',
+            n.tone === 'pending' && 'bg-blue-400 animate-pulse',
+          )}
+        />
+        <p className="flex-1 truncate text-sm font-medium text-foreground">{n.title}</p>
+        <span className="text-[10px] text-muted-foreground">{n.createdAt}</span>
+      </div>
+      <p className="line-clamp-2 pl-4 text-xs text-muted-foreground">{n.body}</p>
+    </>
   );
 }
 
