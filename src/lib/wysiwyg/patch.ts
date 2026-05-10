@@ -22,7 +22,7 @@ export function applyOps(html: string, ops: VisualOp[]): string {
       | null;
     if (!el) continue;
     if (op.kind === 'text') {
-      el.textContent = op.text;
+      setTextWithLineBreaks(el, op.text);
     } else if (op.kind === 'style') {
       if (op.value === '' || op.value == null) {
         el.style.removeProperty(op.prop);
@@ -33,6 +33,23 @@ export function applyOps(html: string, ops: VisualOp[]): string {
   }
 
   return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+}
+
+/**
+ * Replace an element's inline content with the given text, preserving newlines
+ * as <br> tags. Children that were not text nodes / <br> (e.g. nested spans)
+ * are removed since the visual text editor only deals with the inline text of
+ * the selected element. We use the element's owner document so this works
+ * inside both the visual canvas (DOMParser doc) and the live preview.
+ */
+function setTextWithLineBreaks(el: HTMLElement, text: string): void {
+  while (el.firstChild) el.removeChild(el.firstChild);
+  const lines = text.split('\n');
+  const doc = el.ownerDocument;
+  lines.forEach((line, i) => {
+    if (i > 0) el.appendChild(doc.createElement('br'));
+    if (line.length > 0) el.appendChild(doc.createTextNode(line));
+  });
 }
 
 function cssEscape(s: string): string {

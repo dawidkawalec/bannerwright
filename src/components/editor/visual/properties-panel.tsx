@@ -283,11 +283,16 @@ export function PropertiesPanel({
 
 function collapseText(el: HTMLElement): string {
   // Show inline text only (no nested element text). Good for headlines/paragraphs.
+  // <br> tags become \n so multi-line content round-trips through the textarea.
   let s = '';
   el.childNodes.forEach((n) => {
-    if (n.nodeType === Node.TEXT_NODE) s += n.textContent ?? '';
+    if (n.nodeType === Node.TEXT_NODE) {
+      s += n.textContent ?? '';
+    } else if (n.nodeType === Node.ELEMENT_NODE && (n as HTMLElement).tagName === 'BR') {
+      s += '\n';
+    }
   });
-  return s.trim() || el.textContent?.trim() || '';
+  return s.replace(/^\n+|\n+$/g, '') || el.textContent?.trim() || '';
 }
 
 function parsePxToString(value: string): string {
