@@ -38,15 +38,22 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
       </header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Knowledge base</CardTitle>
-            <CardDescription>URLs, uploads, brand context</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-500">Coming in Faza 1.</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={`/workspaces/${workspace.id}/knowledge-base`}
+          className="block transition-shadow hover:shadow-md"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Knowledge base →</CardTitle>
+              <CardDescription>URLs, uploads, brand context</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-500">
+                Add the client&apos;s site so the AI knows the brand.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
         <Card>
           <CardHeader>
             <CardTitle>Generations</CardTitle>

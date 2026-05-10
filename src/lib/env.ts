@@ -23,13 +23,33 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().url().optional().or(z.literal('')),
 });
 
-const parsed = envSchema.safeParse(process.env);
+function loadEnv(): z.infer<typeof envSchema> {
+  if (process.env.SKIP_ENV_VALIDATION === '1') {
+    // Build-time / static analysis path. Values are not actually used at runtime
+    // because pages that import env.* are dynamic.
+    return envSchema.parse({
+      NODE_ENV: process.env.NODE_ENV ?? 'development',
+      LOG_LEVEL: process.env.LOG_LEVEL ?? 'info',
+      DATABASE_URL: 'postgresql://x:x@localhost:5432/x',
+      ADMIN_EMAIL: 'placeholder@example.com',
+      ADMIN_PASSWORD_HASH: 'placeholder',
+      SESSION_SECRET: '0'.repeat(32),
+      GEMINI_API_KEY: 'placeholder',
+      STORAGE_DRIVER: 'local',
+      STORAGE_PATH: process.env.STORAGE_PATH ?? './storage',
+      MAX_GENERATIONS_PER_DAY: process.env.MAX_GENERATIONS_PER_DAY ?? '100',
+      MAX_LLM_COST_USD_PER_DAY: process.env.MAX_LLM_COST_USD_PER_DAY ?? '10',
+    });
+  }
 
-if (!parsed.success) {
-  console.error('❌ Invalid environment variables:');
-  console.error(z.treeifyError(parsed.error));
-  throw new Error('Invalid environment configuration. See errors above.');
+  const parsed = envSchema.safeParse(process.env);
+  if (!parsed.success) {
+    console.error('❌ Invalid environment variables:');
+    console.error(z.treeifyError(parsed.error));
+    throw new Error('Invalid environment configuration. See errors above.');
+  }
+  return parsed.data;
 }
 
-export const env = parsed.data;
+export const env = loadEnv();
 export type Env = z.infer<typeof envSchema>;
