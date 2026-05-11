@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth/current-user';
 import { getGeneration } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { runEdit, type EditEvent } from '@/lib/generation/edit';
+import { runTreeEdit, type EditTreeEvent } from '@/lib/generation/edit-tree';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -40,10 +41,11 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     );
   }
 
+  const useTreePath = !!generation.currentTree;
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (event: EditEvent) => {
+      const send = (event: EditEvent | EditTreeEvent) => {
         try {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
         } catch {
@@ -51,16 +53,29 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
         }
       };
       try {
-        await runEdit(
-          {
-            userId: user.id,
-            workspaceId: workspace.id,
-            generationId: id,
-            instruction: parsed.data.instruction,
-            attachmentKeys: parsed.data.attachmentKeys,
-          },
-          send,
-        );
+        if (useTreePath) {
+          await runTreeEdit(
+            {
+              userId: user.id,
+              workspaceId: workspace.id,
+              generationId: id,
+              instruction: parsed.data.instruction,
+              attachmentKeys: parsed.data.attachmentKeys,
+            },
+            send,
+          );
+        } else {
+          await runEdit(
+            {
+              userId: user.id,
+              workspaceId: workspace.id,
+              generationId: id,
+              instruction: parsed.data.instruction,
+              attachmentKeys: parsed.data.attachmentKeys,
+            },
+            send,
+          );
+        }
       } catch (err) {
         logger.error({ err, generationId: id }, 'edit failed');
         send({

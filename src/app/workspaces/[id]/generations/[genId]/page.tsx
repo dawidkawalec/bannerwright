@@ -86,6 +86,12 @@ export default async function GenerationEditorPage({ params }: Props) {
           workspaceId={workspace.id}
           generationId={generation.id}
           initialTree={generation.currentTree}
+          initialChat={chat.map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            createdAt: m.createdAt.toISOString(),
+          }))}
         />
       ) : (
         <EditorShell
