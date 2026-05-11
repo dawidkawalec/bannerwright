@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/current-user';
-import { runGeneration, type StreamEvent } from '@/lib/generation/run';
+import { runTreeGeneration, type RunTreeEvent } from '@/lib/generation/run-tree';
 import { logger } from '@/lib/logger';
 import { generateBriefSchema } from '@/lib/schemas/generations';
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (event: StreamEvent) => {
+      const send = (event: RunTreeEvent) => {
         try {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
         } catch {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       };
 
       try {
-        await runGeneration(
+        await runTreeGeneration(
           {
             userId: user.id,
             workspaceId: parsed.data.workspaceId,

@@ -29,6 +29,7 @@ type Step =
 const STEP_LABELS: Record<string, string> = {
   analyzing_kb: 'Analysing knowledge base…',
   generating_html: 'Drafting HTML…',
+  generating_tree: 'Designing layout…',
   rendering_png: 'Rendering PNG…',
 };
 
@@ -104,7 +105,8 @@ export function GenerateFlow({
     switch (event.type) {
       case 'progress':
         if (event.step === 'rendering_png') setStep({ kind: 'rendering' });
-        else if (event.step === 'generating_html') setStep({ kind: 'streaming' });
+        else if (event.step === 'generating_html' || event.step === 'generating_tree')
+          setStep({ kind: 'streaming' });
         else setStep({ kind: 'progress', label: STEP_LABELS[event.step] ?? event.step });
         break;
       case 'partial_html':

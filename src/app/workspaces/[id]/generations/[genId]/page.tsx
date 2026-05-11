@@ -9,6 +9,7 @@ import {
 } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { EditorShell } from '@/components/editor/editor-shell';
+import { TreeEditorShell } from '@/components/editor/tree-editor/tree-editor-shell';
 import { Badge } from '@/components/ui/badge';
 import { formatLabels } from '@/lib/schemas/generations';
 import { DeleteGenerationButton } from './delete-button';
@@ -80,24 +81,32 @@ export default async function GenerationEditorPage({ params }: Props) {
         </div>
       </header>
 
-      <EditorShell
-        workspaceId={workspace.id}
-        generationId={generation.id}
-        format={generation.format}
-        initialHtml={generation.currentHtml ?? ''}
-        initialChat={chat.map((m) => ({
-          id: m.id,
-          role: m.role,
-          content: m.content,
-          createdAt: m.createdAt.toISOString(),
-        }))}
-        initialVersions={versions.map((v) => ({
-          id: v.id,
-          versionNumber: v.versionNumber,
-          triggeredBy: v.triggeredBy,
-          createdAt: v.createdAt.toISOString(),
-        }))}
-      />
+      {generation.currentTree ? (
+        <TreeEditorShell
+          workspaceId={workspace.id}
+          generationId={generation.id}
+          initialTree={generation.currentTree}
+        />
+      ) : (
+        <EditorShell
+          workspaceId={workspace.id}
+          generationId={generation.id}
+          format={generation.format}
+          initialHtml={generation.currentHtml ?? ''}
+          initialChat={chat.map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            createdAt: m.createdAt.toISOString(),
+          }))}
+          initialVersions={versions.map((v) => ({
+            id: v.id,
+            versionNumber: v.versionNumber,
+            triggeredBy: v.triggeredBy,
+            createdAt: v.createdAt.toISOString(),
+          }))}
+        />
+      )}
     </div>
   );
 }

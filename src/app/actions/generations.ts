@@ -13,12 +13,16 @@ import {
   recordChatMessage,
   setTemplateFlag,
   updateGenerationCurrentHtml,
+  updateGenerationCurrentTree,
 } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { generateBannerBackground } from '@/lib/generation/background';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
+import { bannerTreeSchema } from '@/lib/tree/schema';
+import { renderTreeToHtml } from '@/lib/tree/render-html';
+import type { BannerTree } from '@/lib/tree/types';
 import type { ActionResult } from './workspaces';
 
 async function persistEditAsVersion(
@@ -87,6 +91,63 @@ export async function saveVisualEdit(
   html: string,
 ): Promise<ActionResult<{ versionNumber: number; versionId: string }>> {
   return persistEditAsVersion(workspaceId, id, html, 'visual_edit');
+}
+
+/**
+ * Persist a typed banner tree edit. Source of truth for new generations.
+ * Validates the tree against the Zod schema, writes a new version row, then
+ * regenerates the HTML cache and PNG.
+ */
+export async function saveTreeEdit(
+  workspaceId: string,
+  id: string,
+  tree: BannerTree,
+): Promise<ActionResult<{ versionNumber: number; versionId: string }>> {
+  const parsed = bannerTreeSchema.safeParse(tree);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: `Invalid tree: ${parsed.error.issues[0]?.message ?? 'unknown'}`,
+    };
+  }
+  const user = await requireUser();
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) return { ok: false, error: 'Workspace not found' };
+  const generation = await getGenerationForWorkspace(id, workspace.id);
+  if (!generation) return { ok: false, error: 'Generation not found' };
+
+  const validatedTree = parsed.data;
+  const htmlCache = renderTreeToHtml(validatedTree);
+
+  try {
+    const versionNumber = await nextVersionNumber(generation.id);
+    const version = await insertGenerationVersion({
+      generationId: generation.id,
+      versionNumber,
+      tree: validatedTree,
+      html: htmlCache,
+      triggeredBy: 'visual_edit',
+    });
+
+    let pngKey: string | undefined;
+    try {
+      const rendered = await renderHtmlToPng({
+        tree: validatedTree,
+        format: generation.format,
+        generationId: generation.id,
+      });
+      pngKey = rendered.pngKey;
+    } catch (err) {
+      logger.warn({ err, generationId: id }, 'PNG render failed during tree save');
+    }
+
+    await updateGenerationCurrentTree(generation.id, validatedTree, htmlCache, pngKey);
+    revalidatePath(`/workspaces/${workspace.id}/generations/${id}`);
+    return { ok: true, data: { versionNumber, versionId: version.id } };
+  } catch (err) {
+    logger.error({ err, generationId: id }, 'saveTreeEdit failed');
+    return { ok: false, error: 'Could not save tree' };
+  }
 }
 
 export async function restoreVersion(
