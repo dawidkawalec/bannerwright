@@ -3,22 +3,16 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { BannerPreview } from '@/components/banner-preview';
-import { MonacoHtmlEditor } from './monaco-editor';
 import { ChatPanel, type ChatRow, type ChatStage } from './chat-panel';
 import { VersionsPanel, type VersionRow } from './versions-panel';
 import { BackgroundButton } from './background-button';
 import { VisualCanvas } from './visual/visual-canvas';
 import { PropertiesPanel } from './visual/properties-panel';
-import {
-  restoreVersion,
-  saveManualEdit,
-  saveVisualEdit,
-} from '@/app/actions/generations';
+import { restoreVersion, saveVisualEdit } from '@/app/actions/generations';
 import type { GenerationFormat } from '@/lib/db/schema';
 import { stampHtml } from '@/lib/wysiwyg/stamp';
 import { applyOps, type VisualOp } from '@/lib/wysiwyg/patch';
@@ -35,7 +29,7 @@ export type EditorShellProps = {
   initialVersions: VersionRow[];
 };
 
-type Mode = 'visual' | 'code' | 'chat';
+type Mode = 'visual' | 'chat';
 
 type Status =
   | { kind: 'idle' }
@@ -59,7 +53,7 @@ export function EditorShell({
   const [, startTransition] = useTransition();
 
   const [mode, setMode] = useState<Mode>('visual');
-  const [savedHtml, setSavedHtml] = useState(initialHtml);
+  const [, setSavedHtml] = useState(initialHtml);
   const [editorHtml, setEditorHtml] = useState(initialHtml);
   const [previewHtml, setPreviewHtml] = useState(initialHtml);
   const [chat, setChat] = useState<ChatRow[]>(initialChat);
@@ -98,7 +92,6 @@ export function EditorShell({
     };
   }, [editorHtml, status.kind]);
 
-  const isDirty = editorHtml !== savedHtml;
   const isWorking =
     status.kind === 'saving' ||
     status.kind === 'sending' ||
@@ -124,21 +117,6 @@ export function EditorShell({
         : chatStage === 'rendering'
           ? 'Rendering PNG…'
           : '';
-
-  async function onManualSave() {
-    if (!isDirty || isWorking) return;
-    setStatus({ kind: 'saving' });
-    const res = await saveManualEdit(workspaceId, generationId, editorHtml);
-    if (!res.ok) {
-      setStatus({ kind: 'error', message: res.error });
-      toast.error(res.error);
-      return;
-    }
-    setSavedHtml(editorHtml);
-    setStatus({ kind: 'ok', message: `Saved as v${res.data.versionNumber}` });
-    toast.success(`Saved as v${res.data.versionNumber}`);
-    startTransition(() => router.refresh());
-  }
 
   async function onVisualApply(ops: VisualOp[]) {
     if (ops.length === 0 || isWorking) return;
@@ -339,54 +317,6 @@ export function EditorShell({
           </>
         )}
 
-        {mode === 'code' && (
-          <>
-            <div className="flex min-h-[400px] flex-col overflow-hidden rounded-lg border border-border bg-[oklch(0.12_0.005_250)]">
-              <div className="flex items-center justify-between border-b border-border/40 px-3 py-2 text-xs text-muted-foreground">
-                <span title="Edytor kodu HTML banera. Każda zmiana renderuje się live po prawej.">
-                  HTML {isDirty && <em className="not-italic text-amber-400">· unsaved</em>}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-foreground hover:bg-muted hover:text-foreground"
-                  onClick={onManualSave}
-                  disabled={!isDirty || isWorking}
-                  title="Zapisz ręczną edycję jako nową wersję (skrót: ⌘S)"
-                >
-                  {status.kind === 'saving' ? 'Saving…' : 'Save (⌘S)'}
-                </Button>
-              </div>
-              <MonacoHtmlEditor
-                value={editorHtml}
-                onChange={setEditorHtml}
-                onSave={onManualSave}
-                className="flex-1"
-              />
-            </div>
-            <div className="flex min-h-[400px] flex-col gap-2">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
-                <span>Live preview</span>
-                <a
-                  href={`/api/generations/${generationId}/png`}
-                  download
-                  className="text-muted-foreground underline hover:text-foreground"
-                >
-                  Download PNG
-                </a>
-              </div>
-              <BannerPreview
-                html={previewHtml}
-                format={format}
-                className="flex-1"
-                busy={previewBusy}
-                busyLabel={previewLabel}
-              />
-              <StatusLine status={status} />
-            </div>
-          </>
-        )}
-
         {mode === 'chat' && (
           <div className="flex min-h-[400px] flex-col gap-2 lg:col-span-2">
             <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
@@ -437,9 +367,8 @@ function ModeTabs({
     {
       id: 'visual',
       label: 'Visual',
-      help: 'Klikaj elementy banera i edytuj tekst/kolory/fonty bez kodu — dla nietechnicznych.',
+      help: 'Klikaj elementy banera i edytuj tekst/kolory/fonty bez kodu.',
     },
-    { id: 'code', label: 'Code', help: 'Pełna kontrola nad HTML/CSS w Monaco. Dla technicznych.' },
     {
       id: 'chat',
       label: 'Chat',

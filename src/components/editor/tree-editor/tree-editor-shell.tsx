@@ -43,6 +43,7 @@ export function TreeEditorShell({
   const setSelection = useStore(store, (s) => s.setSelection);
   const setHover = useStore(store, (s) => s.setHover);
   const patchNode = useStore(store, (s) => s.patchNode);
+  const moveSelectedBy = useStore(store, (s) => s.moveSelectedBy);
   const markClean = useStore(store, (s) => s.markClean);
 
   const [status, setStatus] = useState<SaveStatus>({ kind: 'idle' });
@@ -144,6 +145,7 @@ export function TreeEditorShell({
             hover={hover}
             onSelect={handleSelect}
             onHover={setHover}
+            onDragSelected={moveSelectedBy}
           />
         </div>
         <div className="overflow-y-auto bg-card">
