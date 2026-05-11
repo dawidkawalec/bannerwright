@@ -1,3 +1,4 @@
+import 'server-only';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { BannerFont, BannerTree } from './types';
 import { BannerRenderer } from './render-react';

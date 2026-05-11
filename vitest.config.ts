@@ -9,6 +9,10 @@ export default defineConfig({
     globals: false,
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      // `server-only` throws on import in non-RSC contexts; stub it for unit tests.
+      'server-only': path.resolve(__dirname, './src/test/server-only-stub.ts'),
+    },
   },
 });
