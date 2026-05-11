@@ -19,7 +19,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "deploy:vps": "bash scripts/deploy-vps.sh"
+    "deploy:vps": "bash scripts/deploy-vps.sh",
+    "ship": "bash scripts/ship.sh",
+    "logs": "ssh kawalec-vps 'docker logs -f bannerwright --tail 100'"
   },
   "dependencies": {
     "@google/genai": "^2.0.1",

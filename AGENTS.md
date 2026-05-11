@@ -15,19 +15,33 @@ Self-hostable, open-source AI workshop that turns a brief + brand context into e
 
 > Stack diverges from PRD on two pinned versions (Next 15 → 16, Lucia v3 → manual sessions). See [ADR 0001](docs/decisions/0001-stack-deviations-from-prd.md).
 
-## Commands
+## Workflow — VPS-only
+
+**No local dev server, no local database.** All work goes straight to the production install at https://bannerwright.kawalec.pl. Local stays as the editor + commits + tests, nothing more.
 
 ```bash
-docker compose up               # web + db (Postgres 16 + pgvector)
-pnpm dev                        # Next.js dev server (Turbopack)
+pnpm ship "fix: tooltip colour"   # add → commit → push → remote build → curl /api/health
+pnpm ship                         # opens $EDITOR for the message
+pnpm logs                         # tail production container logs
+pnpm deploy:vps                   # remote rebuild only (no commit)
+```
+
+Under the hood `pnpm ship` calls `scripts/ship.sh` which `git add -A`, commits, pushes the current branch, SSHes into `kawalec-vps`, runs `/root/stacks/bannerwright/deploy.sh` (git pull → compose build → up → prune), and verifies `/api/health`.
+
+If you really need a local sanity check before shipping:
+
+```bash
 pnpm typecheck                  # tsc --noEmit
 pnpm lint                       # eslint
-pnpm format                     # prettier --write
 pnpm test                       # Vitest unit tests
 pnpm test:e2e                   # Playwright E2E
-pnpm db:generate                # Drizzle: schema → migration
-pnpm db:migrate                 # apply migrations + ensure extensions
-pnpm db:seed                    # admin user + demo workspace
+```
+
+Other useful commands:
+
+```bash
+pnpm db:generate                # Drizzle: schema → migration (commit + ship)
+pnpm db:migrate                 # local-only — VPS migrate runs automatically on ship
 pnpm tsx scripts/hash-password.ts <pw>   # generate ADMIN_PASSWORD_HASH
 ```
 
