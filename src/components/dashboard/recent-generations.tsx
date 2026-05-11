@@ -74,7 +74,10 @@ export function RecentGenerations({
                   href={`/workspaces/${row.workspaceId}/generations/${row.id}`}
                   className="group flex items-center gap-3 px-6 py-3 transition-colors hover:bg-muted/40"
                 >
-                  <Thumbnail src={row.thumbnailPath ?? row.currentPngPath} />
+                  <Thumbnail
+                    generationId={row.id}
+                    hasPng={Boolean(row.currentPngPath || row.thumbnailPath)}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">
                       {row.title}
@@ -104,13 +107,23 @@ export function RecentGenerations({
   );
 }
 
-function Thumbnail({ src }: { src: string | null }) {
-  if (src) {
-    const url = src.startsWith('http') ? src : `/storage/${src.replace(/^\/+/, '')}`;
+function Thumbnail({
+  generationId,
+  hasPng,
+}: {
+  generationId: string;
+  hasPng: boolean;
+}) {
+  if (hasPng) {
     return (
-      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg ring-1 ring-border">
+      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={url} alt="" className={cn('size-full object-cover')} />
+        <img
+          src={`/api/generations/${generationId}/png`}
+          alt=""
+          className={cn('size-full object-cover')}
+          loading="lazy"
+        />
       </div>
     );
   }
