@@ -146,6 +146,7 @@ export function TreeEditorShell({
             onSelect={handleSelect}
             onHover={setHover}
             onDragSelected={moveSelectedBy}
+            onPatchText={(id, text) => patchNode(id, { text })}
           />
         </div>
         <div className="overflow-y-auto bg-card">

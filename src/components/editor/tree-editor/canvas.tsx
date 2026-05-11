@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { BannerTree, Node } from '@/lib/tree/types';
+import type { BannerTree, Node, TextNode } from '@/lib/tree/types';
 import { BannerRenderer } from '@/lib/tree/render-react';
 import { findNode } from '@/lib/tree/operations';
 
@@ -11,8 +11,8 @@ export type TreeCanvasProps = {
   hover: string | null;
   onSelect: (id: string | null, additive: boolean) => void;
   onHover: (id: string | null) => void;
-  /** Called while dragging selected nodes. delta is in canvas pixels. */
   onDragSelected: (delta: { x: number; y: number }) => void;
+  onPatchText: (id: string, text: string) => void;
 };
 
 type DragState = {
@@ -29,12 +29,12 @@ export function TreeCanvas({
   onSelect,
   onHover,
   onDragSelected,
+  onPatchText,
 }: TreeCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
   const scaleRef = useRef(scale);
 
-  // Keep `scaleRef` in sync without writing to it during render.
   useEffect(() => {
     scaleRef.current = scale;
   }, [scale]);
@@ -42,10 +42,10 @@ export function TreeCanvas({
   const dragRef = useRef<DragState | null>(null);
   const pointerSuppressClick = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { width, height } = tree.canvas;
 
-  // Fit-to-container scaling.
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
@@ -60,8 +60,6 @@ export function TreeCanvas({
     return () => observer.disconnect();
   }, [width, height]);
 
-  // Global move/up listeners while dragging. Window-bound so we don't lose the
-  // drag if the cursor leaves the stage during fast movement.
   useEffect(() => {
     if (!isDragging) return;
     const onMove = (e: PointerEvent) => {
@@ -70,7 +68,6 @@ export function TreeCanvas({
       const s = scaleRef.current || 1;
       const dx = (e.clientX - drag.startClientX) / s;
       const dy = (e.clientY - drag.startClientY) / s;
-      // Round to integer pixels for stable inspector values.
       const targetX = Math.round(dx);
       const targetY = Math.round(dy);
       const deltaX = targetX - drag.lastCanvasX;
@@ -83,8 +80,6 @@ export function TreeCanvas({
     const onUp = () => {
       dragRef.current = null;
       setIsDragging(false);
-      // Suppress the synthetic click that fires after pointerup if we
-      // actually dragged the element.
       pointerSuppressClick.current = true;
       setTimeout(() => {
         pointerSuppressClick.current = false;
@@ -103,15 +98,14 @@ export function TreeCanvas({
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.button !== 0) return;
+      if (editingId) return;
       const target = (e.target as HTMLElement).closest('[data-node-id]');
       const id = target?.getAttribute('data-node-id') ?? null;
       if (!id) return;
       const node = findNode(tree, id);
       if (!node) return;
-      // Root frame is the canvas itself — don't drag it.
       if (id === tree.root.id) return;
       if (node.locked) return;
-      // Ensure the clicked element is selected before starting drag.
       if (!selection.includes(id)) {
         onSelect(id, e.shiftKey);
       }
@@ -121,21 +115,34 @@ export function TreeCanvas({
         lastCanvasX: 0,
         lastCanvasY: 0,
       };
-      // We don't flip isDragging until we cross threshold (in pointermove
-      // below), but we DO need a global listener attached now.
       setIsDragging(true);
     },
-    [selection, tree, onSelect],
+    [editingId, selection, tree, onSelect],
   );
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (pointerSuppressClick.current) return;
+      if (editingId) return;
       const target = (e.target as HTMLElement).closest('[data-node-id]');
       const id = target?.getAttribute('data-node-id') ?? null;
       onSelect(id, e.shiftKey);
     },
-    [onSelect],
+    [editingId, onSelect],
+  );
+
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = (e.target as HTMLElement).closest('[data-node-id]');
+      const id = target?.getAttribute('data-node-id') ?? null;
+      if (!id) return;
+      const node = findNode(tree, id);
+      if (node && node.type === 'text') {
+        setEditingId(id);
+        onSelect(id, false);
+      }
+    },
+    [tree, onSelect],
   );
 
   const handlePointerMove = useCallback(
@@ -147,6 +154,11 @@ export function TreeCanvas({
     },
     [isDragging, onHover],
   );
+
+  const editingNode =
+    editingId && tree
+      ? (findNode(tree, editingId) as TextNode | null)
+      : null;
 
   return (
     <div
@@ -170,6 +182,7 @@ export function TreeCanvas({
             cursor: isDragging ? 'grabbing' : 'default',
           }}
           onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
         >
@@ -179,10 +192,93 @@ export function TreeCanvas({
           tree={tree}
           selection={selection}
           hover={hover}
+          editingId={editingId}
           scale={scale}
         />
+        {editingNode && (
+          <InlineTextEditor
+            key={editingNode.id}
+            node={editingNode}
+            scale={scale}
+            absolutePosition={getAbsoluteFrame(tree, editingNode.id)}
+            onCommit={(text) => {
+              onPatchText(editingNode.id, text);
+              setEditingId(null);
+            }}
+            onCancel={() => setEditingId(null)}
+          />
+        )}
       </div>
     </div>
+  );
+}
+
+function InlineTextEditor({
+  node,
+  scale,
+  absolutePosition,
+  onCommit,
+  onCancel,
+}: {
+  node: TextNode;
+  scale: number;
+  absolutePosition: { x: number; y: number } | null;
+  onCommit: (text: string) => void;
+  onCancel: () => void;
+}) {
+  const ref = useRef<HTMLTextAreaElement | null>(null);
+  const [value, setValue] = useState(node.text);
+
+  useEffect(() => {
+    const ta = ref.current;
+    if (!ta) return;
+    ta.focus();
+    ta.select();
+  }, []);
+
+  if (!absolutePosition) return null;
+
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={() => onCommit(value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onCancel();
+        }
+        // Enter without shift commits; shift+enter inserts a newline.
+        if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+          e.preventDefault();
+          onCommit(value);
+        }
+      }}
+      style={{
+        position: 'absolute',
+        left: absolutePosition.x * scale,
+        top: absolutePosition.y * scale,
+        width: node.frame.w * scale,
+        height: node.frame.h * scale,
+        color: node.color,
+        background: 'rgba(255,255,255,0.92)',
+        outline: '2px solid #38BDF8',
+        fontFamily: `"${node.font.family}", sans-serif`,
+        fontWeight: node.font.weight,
+        fontSize: node.font.size * scale,
+        lineHeight: node.font.lineHeight ?? 1.1,
+        letterSpacing: node.font.letterSpacing ?? 0,
+        textAlign: node.align,
+        padding: 0,
+        margin: 0,
+        border: 'none',
+        resize: 'none',
+        overflow: 'hidden',
+        whiteSpace: 'pre-wrap',
+        boxSizing: 'border-box',
+      }}
+    />
   );
 }
 
@@ -190,11 +286,13 @@ function Overlays({
   tree,
   selection,
   hover,
+  editingId,
   scale,
 }: {
   tree: BannerTree;
   selection: string[];
   hover: string | null;
+  editingId: string | null;
   scale: number;
 }) {
   const lookup = useFrameLookup(tree, scale);
@@ -207,7 +305,7 @@ function Overlays({
         />
       )}
       {selection.map((id) =>
-        lookup[id] ? (
+        lookup[id] && id !== editingId ? (
           <div
             key={id}
             className="absolute rounded-[1px] ring-2 ring-sky-500"
@@ -247,3 +345,24 @@ function walk(
   }
 }
 
+function getAbsoluteFrame(tree: BannerTree, id: string): { x: number; y: number } | null {
+  return findAbs(tree.root, 0, 0, id);
+}
+
+function findAbs(
+  node: Node,
+  ox: number,
+  oy: number,
+  id: string,
+): { x: number; y: number } | null {
+  const absX = ox + node.frame.x;
+  const absY = oy + node.frame.y;
+  if (node.id === id) return { x: absX, y: absY };
+  if (node.type === 'frame' || node.type === 'group') {
+    for (const c of node.children) {
+      const found = findAbs(c, absX, absY, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
