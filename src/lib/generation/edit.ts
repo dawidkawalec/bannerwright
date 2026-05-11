@@ -45,6 +45,10 @@ export async function runEdit(
 ): Promise<void> {
   const generation = await getGenerationForWorkspace(input.generationId, input.workspaceId);
   if (!generation) throw new Error('Generation not found');
+  if (!generation.currentHtml) {
+    throw new Error('AI HTML edit requires legacy HTML banner (tree-based AI edit lands in Phase 2)');
+  }
+  const currentHtml = generation.currentHtml;
 
   await assertWithinDailyCaps();
 
@@ -63,7 +67,7 @@ export async function runEdit(
     systemInstruction: EDIT_HTML_SYSTEM,
     contents: buildEditHtmlContents({
       format: generation.format,
-      currentHtml: generation.currentHtml,
+      currentHtml,
       chatHistory: history,
       instruction: input.instruction,
       inspirations,

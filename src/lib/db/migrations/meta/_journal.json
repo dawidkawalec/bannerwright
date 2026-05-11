@@ -8,6 +8,13 @@
       "when": 1778376775047,
       "tag": "0000_keen_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778539238841,
+      "tag": "0001_mighty_moon_knight",
+      "breakpoints": true
     }
   ]
 }

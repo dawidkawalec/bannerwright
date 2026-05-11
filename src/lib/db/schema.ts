@@ -13,6 +13,7 @@ import {
   vector,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
+import type { BannerTree } from '../tree/types';
 
 // ============================================================================
 // AUTH (single-user; schema ready for multi-tenancy in future SaaS layer)
@@ -150,7 +151,17 @@ export const generations = pgTable(
     ),
     title: text('title').notNull(),
     format: text('format').notNull().$type<GenerationFormat>(),
-    currentHtml: text('current_html').notNull(),
+    /**
+     * HTML for the current banner state.
+     * Legacy banners: source of truth (no tree).
+     * New banners: regenerated from `currentTree` on every save (export cache).
+     */
+    currentHtml: text('current_html'),
+    /**
+     * Typed banner tree — source of truth for new banners. `null` indicates a
+     * legacy HTML-only generation that should open in read-mostly legacy mode.
+     */
+    currentTree: jsonb('current_tree').$type<BannerTree>(),
     currentPngPath: text('current_png_path'),
     brief: text('brief'),
     isTemplate: boolean('is_template').notNull().default(false),
@@ -188,7 +199,10 @@ export const generationVersions = pgTable(
       .notNull()
       .references(() => generations.id, { onDelete: 'cascade' }),
     versionNumber: integer('version_number').notNull(),
-    html: text('html').notNull(),
+    /** Legacy versions: source HTML. New versions: regenerated from `tree`. */
+    html: text('html'),
+    /** Typed tree snapshot for this version; null for legacy versions. */
+    tree: jsonb('tree').$type<BannerTree>(),
     triggeredBy: text('triggered_by').notNull().$type<VersionTrigger>(),
     aiPrompt: text('ai_prompt'),
     pngPath: text('png_path'),

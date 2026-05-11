@@ -84,7 +84,7 @@ export default async function GenerationEditorPage({ params }: Props) {
         workspaceId={workspace.id}
         generationId={generation.id}
         format={generation.format}
-        initialHtml={generation.currentHtml}
+        initialHtml={generation.currentHtml ?? ''}
         initialChat={chat.map((m) => ({
           id: m.id,
           role: m.role,

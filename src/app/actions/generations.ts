@@ -105,12 +105,17 @@ export async function restoreVersion(
     return { ok: false, error: 'Version not found' };
   }
 
+  if (!target.html) {
+    return { ok: false, error: 'Version has no HTML to restore (tree-only restore lands in Phase 1)' };
+  }
+  const restoredHtml = target.html;
+
   try {
     const versionNumber = await nextVersionNumber(generation.id);
     const newVersion = await insertGenerationVersion({
       generationId: generation.id,
       versionNumber,
-      html: target.html,
+      html: restoredHtml,
       triggeredBy: 'restore',
     });
     await recordChatMessage({
@@ -123,7 +128,7 @@ export async function restoreVersion(
     let pngKey: string | undefined;
     try {
       const rendered = await renderHtmlToPng({
-        html: target.html,
+        html: restoredHtml,
         format: generation.format,
         generationId: generation.id,
       });
@@ -131,7 +136,7 @@ export async function restoreVersion(
     } catch (err) {
       logger.warn({ err, generationId }, 'PNG render failed during restore');
     }
-    await updateGenerationCurrentHtml(generation.id, target.html, pngKey);
+    await updateGenerationCurrentHtml(generation.id, restoredHtml, pngKey);
     revalidatePath(`/workspaces/${workspace.id}/generations/${generationId}`);
     return { ok: true, data: { versionNumber, versionId: newVersion.id } };
   } catch (err) {
@@ -193,23 +198,36 @@ export async function duplicateGeneration(
       title: (title?.trim() || `Copy of ${source.title}`).slice(0, 120),
       format: source.format,
       currentHtml: source.currentHtml,
+      currentTree: source.currentTree,
       brief: source.brief,
     });
     await insertGenerationVersion({
       generationId: newGeneration.id,
       versionNumber: 1,
       html: source.currentHtml,
+      tree: source.currentTree,
       triggeredBy: 'initial_generation',
     });
 
     // Try to render PNG; non-fatal if it fails.
     try {
-      const rendered = await renderHtmlToPng({
-        html: source.currentHtml,
-        format: source.format,
-        generationId: newGeneration.id,
-      });
-      await updateGenerationCurrentHtml(newGeneration.id, source.currentHtml, rendered.pngKey);
+      const renderSource = source.currentTree
+        ? ({ tree: source.currentTree } as const)
+        : source.currentHtml
+          ? ({ html: source.currentHtml } as const)
+          : null;
+      if (renderSource) {
+        const rendered = await renderHtmlToPng({
+          ...renderSource,
+          format: source.format,
+          generationId: newGeneration.id,
+        });
+        await updateGenerationCurrentHtml(
+          newGeneration.id,
+          source.currentHtml ?? '',
+          rendered.pngKey,
+        );
+      }
     } catch (err) {
       logger.warn({ err, newId: newGeneration.id }, 'duplicate render failed');
     }

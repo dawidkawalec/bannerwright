@@ -2,11 +2,16 @@ import DOMPurify from 'isomorphic-dompurify';
 import { logger } from '../logger';
 import { getStorage, storageKeys } from '../storage';
 import type { GenerationFormat } from '../db/schema';
+import type { BannerTree } from '../tree/types';
+import { renderTreeToHtml } from '../tree/render-html';
 import { dimensionsFor } from './formats';
 import { withContext } from './playwright';
 
 export type RenderInput = {
-  html: string;
+  /** Legacy: pass raw HTML. New code should pass `tree` instead. */
+  html?: string;
+  /** New: typed banner tree. When provided, takes precedence over `html`. */
+  tree?: BannerTree;
   format: GenerationFormat;
   generationId?: string;
   versionId?: string;
@@ -27,7 +32,11 @@ const SANITIZE_CONFIG = {
 
 export async function renderHtmlToPng(input: RenderInput): Promise<RenderResult> {
   const { width, height } = dimensionsFor(input.format);
-  const sanitised = DOMPurify.sanitize(input.html, SANITIZE_CONFIG);
+  const source = input.tree ? renderTreeToHtml(input.tree) : input.html;
+  if (!source) {
+    throw new Error('renderHtmlToPng: either `tree` or `html` must be provided');
+  }
+  const sanitised = DOMPurify.sanitize(source, SANITIZE_CONFIG);
 
   const png = await withContext(async (ctx) => {
     const page = await ctx.newPage();

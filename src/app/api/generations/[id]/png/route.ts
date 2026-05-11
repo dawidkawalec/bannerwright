@@ -5,9 +5,16 @@ import {
   updateGenerationCurrentHtml,
 } from '@/lib/db/queries/generations';
 import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
+import type { Generation } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
-import { renderHtmlToPng } from '@/lib/renderer/render-png';
+import { renderHtmlToPng, type RenderInput } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
+
+function renderSourceFrom(generation: Generation): Pick<RenderInput, 'tree' | 'html'> | null {
+  if (generation.currentTree) return { tree: generation.currentTree };
+  if (generation.currentHtml) return { html: generation.currentHtml };
+  return null;
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,13 +51,21 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   }
 
   // On-demand render.
+  const source = renderSourceFrom(generation);
+  if (!source) {
+    return NextResponse.json({ error: 'generation has no renderable content' }, { status: 422 });
+  }
   try {
     const rendered = await renderHtmlToPng({
-      html: generation.currentHtml,
+      ...source,
       format: generation.format,
       generationId: generation.id,
     });
-    await updateGenerationCurrentHtml(generation.id, generation.currentHtml, rendered.pngKey);
+    await updateGenerationCurrentHtml(
+      generation.id,
+      generation.currentHtml ?? '',
+      rendered.pngKey,
+    );
     const buf = await storage.get(rendered.pngKey);
     return new NextResponse(buf as unknown as BodyInit, {
       status: 200,
@@ -77,11 +92,19 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
   const workspace = await getWorkspaceForUser(generation.workspaceId, user.id);
   if (!workspace) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
 
+  const source = renderSourceFrom(generation);
+  if (!source) {
+    return NextResponse.json({ error: 'generation has no renderable content' }, { status: 422 });
+  }
   const rendered = await renderHtmlToPng({
-    html: generation.currentHtml,
+    ...source,
     format: generation.format,
     generationId: generation.id,
   });
-  await updateGenerationCurrentHtml(generation.id, generation.currentHtml, rendered.pngKey);
+  await updateGenerationCurrentHtml(
+    generation.id,
+    generation.currentHtml ?? '',
+    rendered.pngKey,
+  );
   return NextResponse.json({ ok: true, pngKey: rendered.pngKey });
 }

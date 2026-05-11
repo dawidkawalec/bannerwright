@@ -31,6 +31,10 @@ export async function generateBannerBackground(
 ): Promise<BackgroundResult> {
   const generation = await getGenerationForWorkspace(input.generationId, input.workspaceId);
   if (!generation) throw new Error('Generation not found');
+  if (!generation.currentHtml) {
+    throw new Error('Background injection requires legacy HTML banner (tree-based image fill lands in Phase 2)');
+  }
+  const currentHtml = generation.currentHtml;
 
   await assertWithinDailyCaps();
 
@@ -51,7 +55,7 @@ export async function generateBannerBackground(
   // Embed as data URI so the rendered PNG (Playwright setContent) gets the
   // image without a CORS/network roundtrip.
   const dataUri = `data:${mimeType};base64,${bytes.toString('base64')}`;
-  const updatedHtml = injectBackground(generation.currentHtml, dataUri);
+  const updatedHtml = injectBackground(currentHtml, dataUri);
 
   const versionNumber = await nextVersionNumber(generation.id);
   const version = await insertGenerationVersion({

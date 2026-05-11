@@ -9,6 +9,7 @@ import {
   type GenerationVersion,
   type NewGeneration,
 } from '../schema';
+import type { BannerTree } from '../../tree/types';
 
 export async function listGenerationsByWorkspace(
   workspaceId: string,
@@ -82,7 +83,10 @@ export async function insertGeneration(values: NewGeneration): Promise<Generatio
 export async function insertGenerationVersion(values: {
   generationId: string;
   versionNumber: number;
-  html: string;
+  /** Required for legacy versions; null for tree-only versions. */
+  html?: string | null;
+  /** Required for tree versions; null for legacy versions. */
+  tree?: BannerTree | null;
   triggeredBy: GenerationVersion['triggeredBy'];
   aiPrompt?: string;
   pngPath?: string;
@@ -109,6 +113,27 @@ export async function updateGenerationCurrentHtml(
   await db
     .update(generations)
     .set({ currentHtml: html, currentPngPath: pngPath, updatedAt: new Date() })
+    .where(eq(generations.id, id));
+}
+
+/**
+ * Update the typed banner tree (source of truth for new banners) and the
+ * derived HTML cache used for the PNG render endpoint.
+ */
+export async function updateGenerationCurrentTree(
+  id: string,
+  tree: BannerTree,
+  htmlCache: string,
+  pngPath?: string,
+): Promise<void> {
+  await db
+    .update(generations)
+    .set({
+      currentTree: tree,
+      currentHtml: htmlCache,
+      currentPngPath: pngPath,
+      updatedAt: new Date(),
+    })
     .where(eq(generations.id, id));
 }
 
