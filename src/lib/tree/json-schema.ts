@@ -153,8 +153,10 @@ function nodeSchemaAtDepth(maxChildDepth: number): GeminiSchema {
 }
 
 /**
- * Top-level BannerTree schema. Depth 4 supports nested frames/groups well
- * beyond typical banner needs (root + 4 levels).
+ * Top-level BannerTree schema. Depth 3 is the maximum Gemini accepts for
+ * inline-recursive responseSchemas (depth 4 returns INVALID_ARGUMENT — the
+ * total nested-object count exceeds its limit). Banners virtually never need
+ * more than root + 3 levels of nested frames/groups.
  */
 export const BANNER_TREE_JSON_SCHEMA: GeminiSchema = {
   type: 'object',
@@ -169,7 +171,7 @@ export const BANNER_TREE_JSON_SCHEMA: GeminiSchema = {
       },
       required: ['width', 'height'],
     },
-    root: nodeSchemaAtDepth(4),
+    root: nodeSchemaAtDepth(3),
     fonts: {
       type: 'array',
       items: {

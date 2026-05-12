@@ -15,6 +15,7 @@ import {
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { loadAttachments } from '@/lib/storage/attachments';
+import { applyTreeDefaults } from '@/lib/tree/defaults';
 import { BANNER_TREE_JSON_SCHEMA } from '@/lib/tree/json-schema';
 import { bannerTreeSchema } from '@/lib/tree/schema';
 import { idSurvivalRatio } from '@/lib/tree/operations';
@@ -96,7 +97,7 @@ export async function runTreeEdit(
 
     try {
       const raw = JSON.parse(stripFences(result.text));
-      tree = bannerTreeSchema.parse(raw);
+      tree = bannerTreeSchema.parse(applyTreeDefaults(raw));
       break;
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);

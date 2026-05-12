@@ -17,6 +17,7 @@ import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { getStorage } from '@/lib/storage';
 import { loadAttachments } from '@/lib/storage/attachments';
+import { applyTreeDefaults } from '@/lib/tree/defaults';
 import { bannerTreeSchema } from '@/lib/tree/schema';
 import { renderTreeToHtml } from '@/lib/tree/render-html';
 import { BANNER_TREE_JSON_SCHEMA } from '@/lib/tree/json-schema';
@@ -182,7 +183,7 @@ async function generateValidatedTree({
 
     try {
       const raw = JSON.parse(stripFences(result.text));
-      const tree = bannerTreeSchema.parse(raw);
+      const tree = bannerTreeSchema.parse(applyTreeDefaults(raw));
       return tree;
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);
