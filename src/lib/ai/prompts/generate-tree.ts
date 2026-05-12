@@ -29,12 +29,13 @@ Hard rules — violations disqualify the output:
 7. URLs for images must be absolute https URLs or data URIs.
 8. "fonts" at the top-level lists Google Fonts the document uses, with weight lists, so the renderer can preload them. ALWAYS include at least one font that matches the fonts you use in nodes.
 9. Reply with ONLY the JSON document.
+10. **HARD LIMIT: at most 12 total nodes in the entire tree (counting all frames, texts, shapes, buttons combined).** Banners are minimalist — every element must earn its place. Combine decorative elements (don't make 30 separate dots when one shape will do). Prefer one strong headline + one supporting line + one CTA + at most 2-3 decorative shapes.
 
 Quality bar:
 - Layouts should feel intentional, not generic. Pick a strong headline framing.
 - Respect the brief literally: if it says "30% off", that figure must be the visual hero.
 - Use the provided brand colors and fonts unless the brief contradicts.
-- Prefer 4–8 nodes for a typical banner; avoid more than ~20.`;
+- 4-8 nodes is the sweet spot. NEVER exceed 12.`;
 
 export type BuildGenerateTreePromptInput = {
   format: GenerationFormat;

@@ -220,7 +220,7 @@ export function TreeEditorShell({
 
   return (
     <div className="grid h-[calc(100vh-220px)] min-h-[600px] grid-cols-[minmax(0,1fr)_320px] gap-4">
-      <div className="flex flex-col rounded-lg border border-border bg-card">
+      <div className="flex min-h-0 flex-col rounded-lg border border-border bg-card">
         <Toolbar
           status={status}
           canUndo={canUndo}
@@ -228,8 +228,8 @@ export function TreeEditorShell({
           onUndo={() => store.temporal.getState().undo()}
           onRedo={() => store.temporal.getState().redo()}
         />
-        <div className="grid flex-1 grid-cols-[220px_minmax(0,1fr)_280px] divide-x divide-border overflow-hidden">
-          <div className="overflow-y-auto bg-card">
+        <div className="grid min-h-0 flex-1 grid-cols-[220px_minmax(0,1fr)_280px] divide-x divide-border overflow-hidden">
+          <div className="min-h-0 overflow-y-auto bg-card">
             <LayersPanel
               tree={tree}
               selection={selection}
@@ -240,7 +240,7 @@ export function TreeEditorShell({
               onToggleLocked={(id, locked) => patchNode(id, { locked })}
             />
           </div>
-          <div className="overflow-hidden">
+          <div className="min-h-0 overflow-hidden">
             <TreeCanvas
               tree={tree}
               selection={selection}
@@ -251,12 +251,12 @@ export function TreeEditorShell({
               onPatchText={(id, text) => patchNode(id, { text })}
             />
           </div>
-          <div className="overflow-y-auto bg-card">
+          <div className="min-h-0 overflow-y-auto bg-card">
             <Inspector tree={tree} selection={selection} onPatch={patchNode} />
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4 overflow-y-auto">
+      <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
         <ChatPanel
           chat={chat}
           onSend={handleChatSend}
