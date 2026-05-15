@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   motion,
   useScroll,
   useTransform,
   useReducedMotion,
+  useMotionValueEvent,
   type MotionValue,
 } from 'framer-motion';
 import {
@@ -172,23 +173,28 @@ function StepCard({
 }
 
 function BannerEndpoint({ progress }: { progress: MotionValue<number> }) {
-  // Each banner uses its own pre-defined phase window, so the row reads left → centre → right.
-  const op1 = useTransform(progress, BANNER_PHASE_ONE, [0, 1]);
-  const x1 = useTransform(progress, BANNER_PHASE_ONE, [-48, 0]);
+  // Toggle reveal via React state — bypasses a Framer Motion 12 quirk where
+  // opacity bound to a derived MotionValue stays stuck at the initial sample.
+  // We only need 4 discrete stages (0..3), so a coarse-grained state setter is fine.
+  const [stage, setStage] = useState(0);
 
-  const op2 = useTransform(progress, BANNER_PHASE_TWO, [0, 1]);
-  const y2 = useTransform(progress, BANNER_PHASE_TWO, [48, 0]);
-
-  const op3 = useTransform(progress, BANNER_PHASE_THREE, [0, 1]);
-  const x3 = useTransform(progress, BANNER_PHASE_THREE, [48, 0]);
+  useMotionValueEvent(progress, 'change', (v) => {
+    const next = v >= BANNER_PHASE_THREE[0] ? 3 : v >= BANNER_PHASE_TWO[0] ? 2 : v >= BANNER_PHASE_ONE[0] ? 1 : 0;
+    setStage((prev) => (prev === next ? prev : next));
+  });
 
   const slotClass =
-    'relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40';
+    'relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]';
   const ringClass = 'pointer-events-none absolute inset-0 ring-1 ring-inset ring-primary/15';
 
   return (
     <div className="mt-8 grid grid-cols-3 gap-3 md:gap-4">
-      <motion.div style={{ opacity: op1, x: x1 }} className={slotClass}>
+      <div
+        className={cn(
+          slotClass,
+          stage >= 1 ? 'translate-x-0 opacity-100' : '-translate-x-12 opacity-0',
+        )}
+      >
         <Image
           src={ENDPOINT_BANNERS[0].src}
           alt={ENDPOINT_BANNERS[0].alt}
@@ -197,8 +203,13 @@ function BannerEndpoint({ progress }: { progress: MotionValue<number> }) {
           className="object-cover"
         />
         <div className={ringClass} />
-      </motion.div>
-      <motion.div style={{ opacity: op2, y: y2 }} className={slotClass}>
+      </div>
+      <div
+        className={cn(
+          slotClass,
+          stage >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0',
+        )}
+      >
         <Image
           src={ENDPOINT_BANNERS[1].src}
           alt={ENDPOINT_BANNERS[1].alt}
@@ -207,8 +218,13 @@ function BannerEndpoint({ progress }: { progress: MotionValue<number> }) {
           className="object-cover"
         />
         <div className={ringClass} />
-      </motion.div>
-      <motion.div style={{ opacity: op3, x: x3 }} className={slotClass}>
+      </div>
+      <div
+        className={cn(
+          slotClass,
+          stage >= 3 ? 'translate-x-0 opacity-100' : 'translate-x-12 opacity-0',
+        )}
+      >
         <Image
           src={ENDPOINT_BANNERS[2].src}
           alt={ENDPOINT_BANNERS[2].alt}
@@ -217,7 +233,7 @@ function BannerEndpoint({ progress }: { progress: MotionValue<number> }) {
           className="object-cover"
         />
         <div className={ringClass} />
-      </motion.div>
+      </div>
     </div>
   );
 }
