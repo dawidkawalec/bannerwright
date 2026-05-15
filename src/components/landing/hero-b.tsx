@@ -44,8 +44,10 @@ export function HeroB() {
         ))}
       </div>
 
-      {/* Soft scrim over the wall so foreground stays legible */}
-      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_at_center,oklch(0.12_0.005_250_/_0.6),oklch(0.12_0.005_250_/_0.9)_60%,oklch(0.12_0.005_250)_85%)]" />
+      {/* Inverted scrim: a soft dark wash sits behind the centred copy so the H1 stays
+          legible, while the edges keep most of the banner-wall colour visible.
+          Effect is intentionally light — about 55% wash in the middle, fading to ~15% at the rim. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_55%_45%_at_center,oklch(0.12_0.005_250_/_0.6)_0%,oklch(0.12_0.005_250_/_0.42)_45%,oklch(0.12_0.005_250_/_0.18)_85%,oklch(0.12_0.005_250_/_0.1)_100%)]" />
 
       {/* Foreground */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
