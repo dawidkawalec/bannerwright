@@ -61,3 +61,8 @@ drizzle/
 
 # Reference template — kept locally, never committed
 demo/
+
+# Local Playwright/MCP scratch artifacts
+.playwright-mcp/
+bw_*.png
+langchain_*.png
