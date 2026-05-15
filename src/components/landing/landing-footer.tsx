@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Hammer } from 'lucide-react';
+import { Logo } from '@/components/brand/logo';
 
 const COLUMNS = [
   {
@@ -35,13 +35,8 @@ export function LandingFooter() {
     <footer className="relative border-t border-white/5 bg-background px-6 py-16">
       <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
-          <Link href="/" className="inline-flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/60 shadow-sm">
-              <Hammer className="size-3.5 text-primary-foreground" />
-            </span>
-            <span className="text-sm font-medium tracking-tight text-foreground">
-              Bannerwright
-            </span>
+          <Link href="/" aria-label="Bannerwright — home" className="inline-flex">
+            <Logo variant="wordmark" />
           </Link>
           <p className="mt-4 max-w-xs text-xs text-muted-foreground">
             An AI workshop for makers of HTML banners. Open source, self-hosted, yours.

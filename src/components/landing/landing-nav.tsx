@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Hammer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/brand/logo';
 import { GithubIcon } from './github-icon';
 import { cn } from '@/lib/utils';
 
@@ -34,11 +34,8 @@ export function LandingNav() {
       )}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-          <span className="flex size-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/60 shadow-sm">
-            <Hammer className="size-3.5 text-primary-foreground" />
-          </span>
-          <span className="text-sm font-medium tracking-tight">Bannerwright</span>
+        <Link href="/" aria-label="Bannerwright — home" className="flex items-center">
+          <Logo variant="wordmark" />
         </Link>
 
         <ul className="hidden items-center gap-7 md:flex">

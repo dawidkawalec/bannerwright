@@ -13,11 +13,6 @@ import { TrustMetrics } from '@/components/landing/trust-metrics';
 import { FinalCTA } from '@/components/landing/final-cta';
 import { LandingFooter } from '@/components/landing/landing-footer';
 
-export const metadata = {
-  title: 'Bannerwright — The AI workshop for HTML banners',
-  description:
-    'Self-hosted, open-source AI workshop. Briefs in, brand-perfect HTML banners out — editable, version-controlled, yours.',
-};
 
 export default async function RootPage() {
   const { user } = await getSession();

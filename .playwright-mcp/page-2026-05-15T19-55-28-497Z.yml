@@ -1,0 +1,446 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "Beta Now in private beta — request early access" [ref=e4] [cursor=pointer]:
+      - /url: "#early-access"
+      - generic [ref=e5]: Beta
+      - generic [ref=e6]: Now in private beta — request early access
+      - img [ref=e7]
+    - banner [ref=e9]:
+      - navigation [ref=e10]:
+        - link "Bannerwright" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img [ref=e13]
+          - generic [ref=e17]: Bannerwright
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Features" [ref=e20] [cursor=pointer]:
+              - /url: "#features"
+          - listitem [ref=e21]:
+            - link "Open Source" [ref=e22] [cursor=pointer]:
+              - /url: "#open-source"
+          - listitem [ref=e23]:
+            - link "Use cases" [ref=e24] [cursor=pointer]:
+              - /url: "#use-cases"
+          - listitem [ref=e25]:
+            - link "Why" [ref=e26] [cursor=pointer]:
+              - /url: "#metrics"
+        - generic [ref=e27]:
+          - link "Star" [ref=e28] [cursor=pointer]:
+            - /url: https://github.com/dawidkawalec/bannerwright
+            - img
+            - text: Star
+          - link "Start building" [ref=e29] [cursor=pointer]:
+            - /url: /login
+    - main [ref=e30]:
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]: Open source · Self-hosted · BYOM
+          - heading "The AI workshop for HTML banners." [level=1] [ref=e36]:
+            - generic [ref=e37]:
+              - generic [ref=e38]: T
+              - generic [ref=e39]: h
+              - generic [ref=e40]: e
+            - generic [ref=e41]:
+              - generic [ref=e42]: A
+              - generic [ref=e43]: I
+            - generic [ref=e44]:
+              - generic [ref=e45]: w
+              - generic [ref=e46]: o
+              - generic [ref=e47]: r
+              - generic [ref=e48]: k
+              - generic [ref=e49]: s
+              - generic [ref=e50]: h
+              - generic [ref=e51]: o
+              - generic [ref=e52]: p
+            - generic [ref=e53]:
+              - generic [ref=e54]: f
+              - generic [ref=e55]: o
+              - generic [ref=e56]: r
+            - generic [ref=e57]:
+              - generic [ref=e58]: H
+              - generic [ref=e59]: T
+              - generic [ref=e60]: M
+              - generic [ref=e61]: L
+            - generic [ref=e62]:
+              - generic [ref=e63]: b
+              - generic [ref=e64]: a
+              - generic [ref=e65]: "n"
+              - generic [ref=e66]: "n"
+              - generic [ref=e67]: e
+              - generic [ref=e68]: r
+              - generic [ref=e69]: s
+              - generic [ref=e70]: .
+          - paragraph [ref=e71]: Brief in. Brand-perfect creatives out — as editable HTML, ready to export. Self-hosted, AI-driven, no vendor lock-in.
+          - generic [ref=e72]:
+            - link "Start building" [ref=e73] [cursor=pointer]:
+              - /url: /login
+              - text: Start building
+              - img
+            - link "View on GitHub" [ref=e74] [cursor=pointer]:
+              - /url: https://github.com/dawidkawalec/bannerwright
+              - img
+              - text: View on GitHub
+          - paragraph [ref=e75]: MIT licensed · One VPS · Your AI keys · Zero telemetry
+        - generic [ref=e79]:
+          - generic [ref=e86]: brief.md
+          - generic [ref=e91]:
+            - generic [ref=e97]: banner.html
+            - code [ref=e100]: <section class="banner"> <h2>Holiday drop is live.</h2> <p>Up to 40% off — for 48 hours.</p> <a>Shop the drop →</a> </section>
+          - generic [ref=e102]:
+            - generic [ref=e108]: banner.png · 1200×628
+            - generic [ref=e112]:
+              - generic [ref=e113]: Holiday drop
+              - heading "Holiday drop is live." [level=3] [ref=e114]
+              - paragraph [ref=e115]: Up to 40% off — for 48 hours.
+              - generic [ref=e117]: Shop the drop →
+      - generic [ref=e119]:
+        - paragraph [ref=e120]: Built for solo makers, agencies, and indie SaaS
+        - generic [ref=e121]:
+          - generic [ref=e122]: Drift & Co.
+          - generic [ref=e123]: Northsignal
+          - generic [ref=e124]: Lumenpath
+          - generic [ref=e125]: Foldery
+          - generic [ref=e126]: Kindred Studio
+          - generic [ref=e127]: Brightline
+          - generic [ref=e128]: Helio
+          - generic [ref=e129]: Pinecone Lab
+      - generic [ref=e132]:
+        - generic [ref=e133]:
+          - text: The workshop
+          - heading "Banners are code. Treat them like it." [level=2] [ref=e134]:
+            - text: Banners are code.
+            - text: Treat them like it.
+          - paragraph [ref=e135]: Bannerwright generates HTML — not PNGs in a black box. Every creative is inspectable, diff-able, version-controlled. AI handles the boring parts; you stay in control.
+          - list [ref=e136]:
+            - listitem [ref=e137]:
+              - img [ref=e139]
+              - generic [ref=e141]: Editable HTML — no opaque designs
+            - listitem [ref=e142]:
+              - img [ref=e144]
+              - generic [ref=e146]: Brand-aware — pulls colors, fonts, voice from your client's site
+            - listitem [ref=e147]:
+              - img [ref=e149]
+              - generic [ref=e151]: Iterative — chat to refine, never regenerate from scratch
+            - listitem [ref=e152]:
+              - img [ref=e154]
+              - generic [ref=e156]: Yours — self-hosted, your AI keys, your data
+        - generic [ref=e159]:
+          - generic [ref=e165]: editor — holiday-drop.html
+          - generic [ref=e166]:
+            - code [ref=e169]: 1 <section> 2 <h2>Holiday drop.</h2> 3 <p>48 hours.</p> 4 <a>Shop →</a> 5 </section>
+            - generic [ref=e172]:
+              - generic [ref=e173]: Holiday drop
+              - heading "Holiday drop is live." [level=4] [ref=e174]
+              - paragraph [ref=e175]: Up to 40% off — 48 hours.
+              - generic [ref=e176]: Shop →
+            - generic [ref=e177]:
+              - generic [ref=e178]: Chat edit
+              - generic [ref=e179]: make the CTA larger and use the brand accent
+              - generic [ref=e180]: Updated CTA → +14% size, primary teal applied. v3.
+              - generic [ref=e181]: Refining…
+      - generic:
+        - navigation:
+          - link:
+            - /url: "#brand-kb"
+            - text: Knowledge base
+          - link:
+            - /url: "#generation"
+            - text: Generation
+          - link:
+            - /url: "#chat-editor"
+            - text: AI editor
+          - link:
+            - /url: "#versioning"
+            - text: Versioning
+          - link:
+            - /url: "#templates"
+            - text: Templates
+          - link:
+            - /url: "#image-gen"
+            - text: AI imagery
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - text: What it does
+          - heading "Six pieces. One workshop." [level=2] [ref=e186]
+          - paragraph [ref=e187]: Every step from brief to export — brand extraction, generation, AI editing, versioning, templates, and on-demand imagery — owned end-to-end.
+        - generic [ref=e188]:
+          - article [ref=e189]:
+            - img [ref=e192]
+            - text: Knowledge base
+            - heading "Brand Knowledge Base" [level=3] [ref=e195]
+            - paragraph [ref=e196]: Drop a URL — we build the brand brief.
+            - list [ref=e197]:
+              - listitem [ref=e198]:
+                - img [ref=e199]
+                - generic [ref=e201]: URL → live screenshot capture
+              - listitem [ref=e202]:
+                - img [ref=e203]
+                - generic [ref=e205]: Auto-extracted colors & fonts
+              - listitem [ref=e206]:
+                - img [ref=e207]
+                - generic [ref=e209]: Voice & tone analysis
+              - listitem [ref=e210]:
+                - img [ref=e211]
+                - generic [ref=e213]: Logo detection from favicons & headers
+          - article [ref=e214]:
+            - img [ref=e217]
+            - text: Generation
+            - heading "HTML Generation" [level=3] [ref=e221]
+            - paragraph [ref=e222]: Briefs become editable HTML in ~30 seconds.
+            - list [ref=e223]:
+              - listitem [ref=e224]:
+                - img [ref=e225]
+                - generic [ref=e227]: Gemini 3.1 Pro with brand context
+              - listitem [ref=e228]:
+                - img [ref=e229]
+                - generic [ref=e231]: Pixel-perfect typography
+              - listitem [ref=e232]:
+                - img [ref=e233]
+                - generic [ref=e235]: Deterministic Playwright exports
+              - listitem [ref=e236]:
+                - img [ref=e237]
+                - generic [ref=e239]: PNG ready on a single click
+          - article [ref=e240]:
+            - img [ref=e243]
+            - text: AI editor
+            - heading "AI Chat Editor" [level=3] [ref=e245]
+            - paragraph [ref=e246]: Refine creatives by talking, not clicking.
+            - list [ref=e247]:
+              - listitem [ref=e248]:
+                - img [ref=e249]
+                - generic [ref=e251]: Multi-turn conversational context
+              - listitem [ref=e252]:
+                - img [ref=e253]
+                - generic [ref=e255]: Full HTML rewrite per turn
+              - listitem [ref=e256]:
+                - img [ref=e257]
+                - generic [ref=e259]: Live preview alongside the chat
+              - listitem [ref=e260]:
+                - img [ref=e261]
+                - generic [ref=e263]: Diff per version, side by side
+          - article [ref=e264]:
+            - img [ref=e267]
+            - text: Versioning
+            - heading "Full Version History" [level=3] [ref=e271]
+            - paragraph [ref=e272]: Every edit is a snapshot. Roll back anything.
+            - list [ref=e273]:
+              - listitem [ref=e274]:
+                - img [ref=e275]
+                - generic [ref=e277]: Manual & AI edits captured
+              - listitem [ref=e278]:
+                - img [ref=e279]
+                - generic [ref=e281]: Name and pin key versions
+              - listitem [ref=e282]:
+                - img [ref=e283]
+                - generic [ref=e285]: Side-by-side visual diff
+              - listitem [ref=e286]:
+                - img [ref=e287]
+                - generic [ref=e289]: Restore in one click
+          - article [ref=e290]:
+            - img [ref=e293]
+            - text: Templates
+            - heading "Reusable Templates" [level=3] [ref=e297]
+            - paragraph [ref=e298]: Promote any creative to a template.
+            - list [ref=e299]:
+              - listitem [ref=e300]:
+                - img [ref=e301]
+                - generic [ref=e303]: Parent-generation lineage tracking
+              - listitem [ref=e304]:
+                - img [ref=e305]
+                - generic [ref=e307]: Brand-aware fills across formats
+              - listitem [ref=e308]:
+                - img [ref=e309]
+                - generic [ref=e311]: Batch export for variants
+              - listitem [ref=e312]:
+                - img [ref=e313]
+                - generic [ref=e315]: Re-run with new briefs
+          - article [ref=e316]:
+            - img [ref=e319]
+            - text: AI imagery
+            - heading "AI Imagery — Nano Banana" [level=3] [ref=e323]
+            - paragraph [ref=e324]: Need a custom background? The model generates one.
+            - list [ref=e325]:
+              - listitem [ref=e326]:
+                - img [ref=e327]
+                - generic [ref=e329]: On-demand only — no waste
+              - listitem [ref=e330]:
+                - img [ref=e331]
+                - generic [ref=e333]: Embedded straight into HTML
+              - listitem [ref=e334]:
+                - img [ref=e335]
+                - generic [ref=e337]: Style-controlled prompts
+              - listitem [ref=e338]:
+                - img [ref=e339]
+                - generic [ref=e341]: Cached per generation
+      - generic [ref=e343]:
+        - generic [ref=e344]:
+          - text: Why it's different
+          - heading "Open by default. Yours by design." [level=2] [ref=e345]
+        - generic [ref=e346]:
+          - generic [ref=e347]:
+            - img [ref=e349]
+            - heading "Open source" [level=3] [ref=e351]
+            - paragraph [ref=e352]: MIT licensed. Read the code, fork it, contribute. No closed core, no enterprise tier gating the good parts.
+            - link "View on GitHub" [ref=e353] [cursor=pointer]:
+              - /url: https://github.com/dawidkawalec/bannerwright
+              - text: View on GitHub
+              - img [ref=e354]
+          - generic [ref=e356]:
+            - img [ref=e358]
+            - heading "Self-hosted" [level=3] [ref=e361]
+            - paragraph [ref=e362]: One VPS. One .env. One user. Your data — briefs, brand assets, generated creatives — never leaves your box.
+            - link "Deploy guide" [ref=e363] [cursor=pointer]:
+              - /url: "#"
+              - text: Deploy guide
+              - img [ref=e364]
+          - generic [ref=e366]:
+            - img [ref=e368]
+            - heading "Bring your own keys" [level=3] [ref=e371]
+            - paragraph [ref=e372]: Direct Gemini API. No markup on tokens, no shared quota, no lock-in. Swap providers if you ever want to.
+            - link "Setup" [ref=e373] [cursor=pointer]:
+              - /url: "#"
+              - text: Setup
+              - img [ref=e374]
+      - generic [ref=e377]:
+        - generic [ref=e378]:
+          - generic [ref=e379]:
+            - text: Stories
+            - heading "From makers who ship every day." [level=2] [ref=e380]
+          - generic [ref=e381]:
+            - button "Previous" [ref=e382]:
+              - img [ref=e383]
+            - button "Next" [ref=e385]:
+              - img [ref=e386]
+        - generic [ref=e388]:
+          - img [ref=e389]
+          - generic [ref=e392]:
+            - paragraph [ref=e393]: “I used to spend an hour per creative. Now it's a coffee break.”
+            - generic [ref=e394]:
+              - generic [ref=e395]: MK
+              - generic [ref=e396]:
+                - generic [ref=e397]: Marta K.
+                - generic [ref=e398]: SoMe freelancer · 5 brand clients
+        - generic [ref=e399]:
+          - button "Go to testimonial 1" [ref=e400]
+          - button "Go to testimonial 2" [ref=e401]
+          - button "Go to testimonial 3" [ref=e402]
+          - button "Go to testimonial 4" [ref=e403]
+      - generic [ref=e405]:
+        - generic [ref=e406]:
+          - text: The numbers
+          - heading "Built to stay out of your way." [level=2] [ref=e407]
+        - generic [ref=e408]:
+          - generic [ref=e409]:
+            - generic [ref=e410]: ~0s
+            - paragraph [ref=e411]: from brief to exported PNG
+          - generic [ref=e412]:
+            - generic [ref=e413]: 0%
+            - paragraph [ref=e414]: HTML, inspectable & editable
+          - generic [ref=e415]:
+            - generic [ref=e416]: "0"
+            - paragraph [ref=e417]: vendor lock-in, telemetry, hidden quotas
+      - generic [ref=e419]:
+        - heading "Build your first banner in 60 seconds." [level=2] [ref=e420]:
+          - generic [ref=e421]:
+            - generic [ref=e422]: B
+            - generic [ref=e423]: u
+            - generic [ref=e424]: i
+            - generic [ref=e425]: l
+            - generic [ref=e426]: d
+          - generic [ref=e427]:
+            - generic [ref=e428]: "y"
+            - generic [ref=e429]: o
+            - generic [ref=e430]: u
+            - generic [ref=e431]: r
+          - generic [ref=e432]:
+            - generic [ref=e433]: f
+            - generic [ref=e434]: i
+            - generic [ref=e435]: r
+            - generic [ref=e436]: s
+            - generic [ref=e437]: t
+          - generic [ref=e438]:
+            - generic [ref=e439]: b
+            - generic [ref=e440]: a
+            - generic [ref=e441]: "n"
+            - generic [ref=e442]: "n"
+            - generic [ref=e443]: e
+            - generic [ref=e444]: r
+          - generic [ref=e445]:
+            - generic [ref=e446]: i
+            - generic [ref=e447]: "n"
+          - generic [ref=e448]:
+            - generic [ref=e449]: "6"
+            - generic [ref=e450]: "0"
+          - generic [ref=e451]:
+            - generic [ref=e452]: s
+            - generic [ref=e453]: e
+            - generic [ref=e454]: c
+            - generic [ref=e455]: o
+            - generic [ref=e456]: "n"
+            - generic [ref=e457]: d
+            - generic [ref=e458]: s
+            - generic [ref=e459]: .
+        - paragraph [ref=e460]: Self-host in an evening. Generate creatives the next morning.
+        - generic [ref=e461]:
+          - link "Start building" [ref=e462] [cursor=pointer]:
+            - /url: /login
+            - text: Start building
+            - img
+          - link "Star on GitHub" [ref=e463] [cursor=pointer]:
+            - /url: https://github.com/dawidkawalec/bannerwright
+            - img
+            - text: Star on GitHub
+    - contentinfo [ref=e464]:
+      - generic [ref=e465]:
+        - generic [ref=e466]:
+          - link "Bannerwright" [ref=e467] [cursor=pointer]:
+            - /url: /
+            - img [ref=e469]
+            - generic [ref=e473]: Bannerwright
+          - paragraph [ref=e474]: An AI workshop for makers of HTML banners. Open source, self-hosted, yours.
+        - generic [ref=e475]:
+          - heading "Product" [level=4] [ref=e476]
+          - list [ref=e477]:
+            - listitem [ref=e478]:
+              - link "Features" [ref=e479] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e480]:
+              - link "Open Source" [ref=e481] [cursor=pointer]:
+                - /url: "#open-source"
+            - listitem [ref=e482]:
+              - link "Use cases" [ref=e483] [cursor=pointer]:
+                - /url: "#use-cases"
+            - listitem [ref=e484]:
+              - link "Roadmap" [ref=e485] [cursor=pointer]:
+                - /url: https://github.com/dawidkawalec/bannerwright
+        - generic [ref=e486]:
+          - heading "Resources" [level=4] [ref=e487]
+          - list [ref=e488]:
+            - listitem [ref=e489]:
+              - link "GitHub" [ref=e490] [cursor=pointer]:
+                - /url: https://github.com/dawidkawalec/bannerwright
+            - listitem [ref=e491]:
+              - link "Issues" [ref=e492] [cursor=pointer]:
+                - /url: https://github.com/dawidkawalec/bannerwright/issues
+            - listitem [ref=e493]:
+              - link "License (MIT)" [ref=e494] [cursor=pointer]:
+                - /url: https://opensource.org/license/mit
+            - listitem [ref=e495]:
+              - link "Changelog" [ref=e496] [cursor=pointer]:
+                - /url: https://github.com/dawidkawalec/bannerwright/releases
+        - generic [ref=e497]:
+          - heading "Connect" [level=4] [ref=e498]
+          - list [ref=e499]:
+            - listitem [ref=e500]:
+              - link "hello@kawalec.pl" [ref=e501] [cursor=pointer]:
+                - /url: mailto:hello@kawalec.pl
+            - listitem [ref=e502]:
+              - link "X / Twitter" [ref=e503] [cursor=pointer]:
+                - /url: https://twitter.com
+            - listitem [ref=e504]:
+              - link "Sign in" [ref=e505] [cursor=pointer]:
+                - /url: /login
+      - generic [ref=e506]:
+        - generic [ref=e507]: © 2026 Bannerwright · MIT licensed
+        - generic [ref=e508]: Crafted with care by makers, for makers.
+  - region "Notifications alt+T"
