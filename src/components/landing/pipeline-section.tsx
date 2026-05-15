@@ -50,9 +50,12 @@ const ENDPOINT_BANNERS = [
 ];
 
 // Step k lights up between scrollProgress START_OFFSET + k*WINDOW … +WINDOW.
-// 5 steps span ~0.05 → 0.65 of the scrollable runway, then banners take 0.65 → 1.
-const STEP_START = 0.05;
+// 5 steps span ~0.10 → 0.68 of the scrollable runway, then banners take 0.7 → 1.
+// STEP_START must be >= STEP_LEAD_IN so that `start - STEP_LEAD_IN` never goes negative
+// (negative keyframe offsets crash native WAAPI on mount).
+const STEP_START = 0.1;
 const STEP_WINDOW = 0.12;
+const STEP_LEAD_IN = 0.08;
 
 const BANNER_PHASE_ONE: [number, number] = [0.7, 0.82];
 const BANNER_PHASE_TWO: [number, number] = [0.78, 0.9];
@@ -134,13 +137,14 @@ function StepCard({
 }) {
   const Icon = step.icon;
   const start = STEP_START + index * STEP_WINDOW;
-  // Fade + lift in over a short window centred on each step.
-  const opacity = useTransform(progress, [start - 0.08, start], [0.18, 1]);
-  const y = useTransform(progress, [start - 0.08, start], [16, 0]);
+  const leadIn = Math.max(0, start - STEP_LEAD_IN);
+  // Fade + lift in over a short window leading up to each step.
+  const opacity = useTransform(progress, [leadIn, start], [0.18, 1]);
+  const y = useTransform(progress, [leadIn, start], [16, 0]);
   // Border glow ramps to 1 when the step is "active", stays at 0.45 after the next step takes over.
   const glow = useTransform(
     progress,
-    [start - 0.02, start + 0.02, start + STEP_WINDOW],
+    [Math.max(0, start - 0.02), start + 0.02, Math.min(1, start + STEP_WINDOW)],
     [0, 1, 0.45],
   );
 
