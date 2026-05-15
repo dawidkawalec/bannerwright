@@ -12,37 +12,48 @@ const PILLS = [
   { id: 'image-gen', label: 'AI imagery' },
 ];
 
-// Bounds where the anchor nav stays visible. Anything outside these IDs
-// hides the pill bar so it doesn't overlap unrelated sections (hero, OSS, final CTA).
-const VISIBLE_FROM = 'features';
-const VISIBLE_TO = 'use-cases';
+// Sections that "own" the anchor nav. The bar appears while any of these
+// are in viewport, and hides over hero / OSS / testimonials / CTA.
+const OWNERS = ['features'];
 
 export function AnchorNav() {
   const [active, setActive] = useState<string>(PILLS[0].id);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      const middle = window.scrollY + window.innerHeight / 2;
+    const owners = OWNERS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
+    if (owners.length === 0) return;
 
-      const from = document.getElementById(VISIBLE_FROM);
-      const to = document.getElementById(VISIBLE_TO);
-      if (from && to) {
-        const start = from.offsetTop - 120;
-        const end = to.offsetTop + to.offsetHeight;
-        setVisible(middle >= start && middle <= end);
-      }
+    const ownerState = new Map<Element, boolean>();
+    const ownerObserver = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) ownerState.set(e.target, e.isIntersecting);
+        setVisible([...ownerState.values()].some(Boolean));
+      },
+      { threshold: 0, rootMargin: '-120px 0px -40% 0px' },
+    );
+    owners.forEach((el) => ownerObserver.observe(el));
 
-      let current = PILLS[0].id;
-      for (const pill of PILLS) {
-        const el = document.getElementById(pill.id);
-        if (el && el.offsetTop <= middle) current = pill.id;
-      }
-      setActive(current);
+    const pillEls = PILLS.map((p) => document.getElementById(p.id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
+    const pillObserver = new IntersectionObserver(
+      (entries) => {
+        const top = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (top?.target.id) setActive(top.target.id);
+      },
+      { rootMargin: '-30% 0px -55% 0px', threshold: 0 },
+    );
+    pillEls.forEach((el) => pillObserver.observe(el));
+
+    return () => {
+      ownerObserver.disconnect();
+      pillObserver.disconnect();
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
