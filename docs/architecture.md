@@ -1,6 +1,6 @@
 # Architecture
 
-Bannerwright is a Next.js 15 monolith. App, API, and rendering all run in one process; modules with future-extraction value (`lib/renderer/`) are isolated behind clean boundaries.
+Bannerwright is a Next.js 16 monolith. App, API, and rendering all run in one process; modules with future-extraction value (`lib/renderer/`) are isolated behind clean boundaries.
 
 ## High-level diagram
 
@@ -20,13 +20,17 @@ Single process, single Dockerfile. Playwright (chromium) runs in-process; image 
 
 | Module | Responsibility | May import from |
 |--------|---------------|-----------------|
-| `app/` | Pages, layouts, Server Actions, Route Handlers | `components/`, `lib/*` |
-| `components/` | UI (shadcn primitives, domain components, editor) | `lib/utils`, `lib/schemas` |
+| `app/` | Pages, layouts, Server Actions, Route Handlers, metadata routes (`icon`, `apple-icon`, `opengraph-image`, `twitter-image` via `next/og`) | `components/`, `lib/*` |
+| `proxy.ts` | Next.js Proxy — auth gate. Whitelists `PUBLIC_PATHS` (`/`, `/login`, `/api/auth/login`, `/api/health`) + `PUBLIC_PATH_PREFIXES` (metadata image routes); everything else needs a session cookie | `lib/auth/sessions` |
+| `components/ui/` | shadcn-style primitives (Button, Card, Dialog, …) — owned, not vendored | `lib/utils` |
+| `components/brand/` | Bannerwright logo (mark + wordmark) — shared across LP, nav, footer, OG | `lib/utils` |
+| `components/landing/` | Public one-pager sections (hero, feature pillars, OSS, testimonials, metrics, CTA, footer, anchor nav, letter-reveal, …) | `components/ui/`, `components/brand/`, `lib/utils` |
+| `components/` *(domain)* | Workspace dashboard, editor split-view, KB management, AI chat | `components/ui/`, `lib/utils`, `lib/schemas` |
 | `lib/db/` | Drizzle schema, client, queries, migrations | (leaf) |
 | `lib/storage/` | File adapter (`local.ts` for MVP, `s3.ts` later) | (leaf) |
 | `lib/ai/` | Gemini SDK wrapper, prompts, structured-output schemas, `llm_usage` logging | `lib/db/`, `lib/storage/` |
 | `lib/renderer/` | Playwright singleton, HTML→PNG, URL→screenshot | `lib/storage/`, `lib/db/`, `lib/ai/` |
-| `lib/auth/` | Lucia config, session middleware | `lib/db/` |
+| `lib/auth/` | Manual sessions (Argon2id + `@oslojs/crypto`), single-user from `.env` | `lib/db/` |
 | `lib/schemas/` | Zod input schemas (forms, API) | (leaf) |
 | `lib/utils/` | Pure helpers, no I/O | (leaf) |
 
@@ -35,6 +39,8 @@ Single process, single Dockerfile. Playwright (chromium) runs in-process; image 
 **`lib/storage/` rule** — every file op flows through it. Never call `fs.*` or hardcode `./storage/...` in app code. SaaS swaps to S3 by replacing `local.ts`.
 
 **`lib/ai/` rule** — every Gemini call goes through `lib/ai/gemini.ts` so cost tracking via `llm_usage` is automatic and centralized.
+
+**`proxy.ts` rule** — when adding new public-facing routes (Next.js conventions like RSS feeds, sitemaps, robots, additional metadata images), update both `PUBLIC_PATHS` (exact match) and `PUBLIC_PATH_PREFIXES` (prefix match) in [src/proxy.ts](../src/proxy.ts). Crawlers and social-card bots never have a session cookie; an unwhitelisted route returns a 307 to `/login` and breaks the integration silently.
 
 ## Data flow: end-to-end "generate"
 
