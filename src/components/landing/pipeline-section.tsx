@@ -183,7 +183,7 @@ function BannerEndpoint({ progress }: { progress: MotionValue<number> }) {
   const x3 = useTransform(progress, BANNER_PHASE_THREE, [48, 0]);
 
   const slotClass =
-    'relative aspect-square overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40';
+    'relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40';
   const ringClass = 'pointer-events-none absolute inset-0 ring-1 ring-inset ring-primary/15';
 
   return (
@@ -352,7 +352,7 @@ function StaticFallback() {
             <div
               key={b.src}
               className={cn(
-                'relative aspect-square overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40',
+                'relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/40',
               )}
             >
               <Image
