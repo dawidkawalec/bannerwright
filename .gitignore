@@ -62,11 +62,10 @@ drizzle/
 # Reference template — kept locally, never committed
 demo/
 
-# Local Playwright/MCP scratch artifacts
+# Local Playwright/MCP scratch artifacts — anything dropped at repo root from screenshots
 .playwright-mcp/
-bw_*.png
-hero_*.png
-langchain_*.png
+/*.png
+!/public/**/*.png
 
 # nano-banana raw outputs — keep curated banners in public/landing/banners/ instead
 generated_imgs/
