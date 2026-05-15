@@ -65,4 +65,8 @@ demo/
 # Local Playwright/MCP scratch artifacts
 .playwright-mcp/
 bw_*.png
+hero_*.png
 langchain_*.png
+
+# nano-banana raw outputs — keep curated banners in public/landing/banners/ instead
+generated_imgs/
