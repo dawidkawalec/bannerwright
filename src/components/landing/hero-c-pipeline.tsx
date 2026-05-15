@@ -21,28 +21,19 @@ const NODES: Node[] = [
   { id: 'png', label: 'PNG', icon: ImageIcon, preview: 'png' },
 ];
 
-const PNG_ROTATION = [
-  '/landing/banners/01-maple-holiday-drop.png',
-  '/landing/banners/04-olivetto-summer-menu.png',
-  '/landing/banners/07-brushwork-academy-cohort.png',
-  '/landing/banners/02-makers-hour-podcast.png',
-];
+// Single hero banner used as the endpoint. Subtle breathing loop instead of cycling.
+const ENDPOINT_BANNER = '/landing/banners/01-maple-holiday-drop.png';
 
 const STEP_MS = 1500;
 
 export function HeroCPipeline() {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
-  const [pngIndex, setPngIndex] = useState(0);
 
   useEffect(() => {
     if (reduceMotion) return;
     const id = setInterval(() => {
-      setActive((i) => {
-        const next = (i + 1) % NODES.length;
-        if (next === 0) setPngIndex((p) => (p + 1) % PNG_ROTATION.length);
-        return next;
-      });
+      setActive((i) => (i + 1) % NODES.length);
     }, STEP_MS);
     return () => clearInterval(id);
   }, [reduceMotion]);
@@ -51,7 +42,6 @@ export function HeroCPipeline() {
     <div className="relative">
       <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-primary/15 via-transparent to-transparent blur-2xl" />
 
-      {/* Connection lines (between adjacent nodes, runs full height) */}
       <ConnectionLines activeIndex={active} reduceMotion={reduceMotion ?? false} />
 
       <ul className="relative grid gap-3">
@@ -62,7 +52,6 @@ export function HeroCPipeline() {
             index={i}
             active={i === active}
             past={i < active}
-            pngSrc={PNG_ROTATION[pngIndex]}
             reduceMotion={reduceMotion ?? false}
           />
         ))}
@@ -78,7 +67,6 @@ function ConnectionLines({
   activeIndex: number;
   reduceMotion: boolean;
 }) {
-  // Vertical line glow positioned absolutely behind the node list.
   return (
     <div
       aria-hidden
@@ -101,14 +89,12 @@ function PipelineNode({
   index,
   active,
   past,
-  pngSrc,
   reduceMotion,
 }: {
   node: Node;
   index: number;
   active: boolean;
   past: boolean;
-  pngSrc: string;
   reduceMotion: boolean;
 }) {
   const Icon = node.icon;
@@ -116,11 +102,11 @@ function PipelineNode({
   return (
     <motion.li
       initial={reduceMotion ? false : { opacity: 0, x: 16 }}
-      animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       className="relative z-10 flex gap-4"
     >
-      {/* Node marker */}
       <div className="flex-shrink-0 pt-1">
         <div
           className={cn(
@@ -139,7 +125,6 @@ function PipelineNode({
         </div>
       </div>
 
-      {/* Node card */}
       <div
         className={cn(
           'flex-1 overflow-hidden rounded-xl border transition-colors',
@@ -155,14 +140,20 @@ function PipelineNode({
           </span>
         </div>
         <div className="p-3">
-          <NodePreview kind={node.preview} pngSrc={pngSrc} />
+          <NodePreview kind={node.preview} reduceMotion={reduceMotion} />
         </div>
       </div>
     </motion.li>
   );
 }
 
-function NodePreview({ kind, pngSrc }: { kind: Node['preview']; pngSrc: string }) {
+function NodePreview({
+  kind,
+  reduceMotion,
+}: {
+  kind: Node['preview'];
+  reduceMotion: boolean;
+}) {
   switch (kind) {
     case 'url':
       return (
@@ -173,7 +164,7 @@ function NodePreview({ kind, pngSrc }: { kind: Node['preview']; pngSrc: string }
             <span className="size-1.5 rounded-full bg-white/20" />
           </span>
           <span className="text-primary/70">https://</span>
-          <span className="text-foreground">acme.com</span>
+          <span className="text-foreground">maple-and-co.com</span>
         </div>
       );
 
@@ -181,7 +172,7 @@ function NodePreview({ kind, pngSrc }: { kind: Node['preview']; pngSrc: string }
       return (
         <div className="space-y-2">
           <div className="flex gap-1.5">
-            {['#0E3B43', '#D9603B', '#F4E3C3', '#1B1B1B'].map((c) => (
+            {['#3F1B14', '#A04324', '#E9B98F', '#F4E8D4'].map((c) => (
               <span
                 key={c}
                 className="size-5 rounded-md ring-1 ring-white/10"
@@ -191,7 +182,7 @@ function NodePreview({ kind, pngSrc }: { kind: Node['preview']; pngSrc: string }
           </div>
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="font-serif text-foreground">Aa</span>
-            <span>Editorial Serif · Sans Display</span>
+            <span>Editorial Serif · Soft Sans</span>
           </div>
         </div>
       );
@@ -227,15 +218,27 @@ function NodePreview({ kind, pngSrc }: { kind: Node['preview']; pngSrc: string }
 
     case 'png':
       return (
-        <div className="relative aspect-square w-full overflow-hidden rounded-md ring-1 ring-white/10">
+        <motion.div
+          className="relative aspect-square w-full overflow-hidden rounded-md ring-1 ring-primary/20"
+          animate={reduceMotion ? undefined : { scale: [1, 1.015, 1] }}
+          transition={{ duration: 4.5, ease: 'easeInOut', repeat: Infinity }}
+        >
           <Image
-            src={pngSrc}
-            alt="Rendered banner sample"
+            src={ENDPOINT_BANNER}
+            alt="Rendered banner — Maple & Co. Holiday Drop"
             fill
             sizes="(min-width: 768px) 240px, 180px"
             className="object-cover"
           />
-        </div>
+          {!reduceMotion && (
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent"
+              animate={{ opacity: [0.2, 0.55, 0.2] }}
+              transition={{ duration: 4.5, ease: 'easeInOut', repeat: Infinity }}
+            />
+          )}
+        </motion.div>
       );
   }
 }
