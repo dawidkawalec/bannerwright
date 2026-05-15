@@ -12,12 +12,27 @@ const PILLS = [
   { id: 'image-gen', label: 'AI imagery' },
 ];
 
+// Bounds where the anchor nav stays visible. Anything outside these IDs
+// hides the pill bar so it doesn't overlap unrelated sections (hero, OSS, final CTA).
+const VISIBLE_FROM = 'features';
+const VISIBLE_TO = 'use-cases';
+
 export function AnchorNav() {
   const [active, setActive] = useState<string>(PILLS[0].id);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
       const middle = window.scrollY + window.innerHeight / 2;
+
+      const from = document.getElementById(VISIBLE_FROM);
+      const to = document.getElementById(VISIBLE_TO);
+      if (from && to) {
+        const start = from.offsetTop - 120;
+        const end = to.offsetTop + to.offsetHeight;
+        setVisible(middle >= start && middle <= end);
+      }
+
       let current = PILLS[0].id;
       for (const pill of PILLS) {
         const el = document.getElementById(pill.id);
@@ -31,8 +46,19 @@ export function AnchorNav() {
   }, []);
 
   return (
-    <div className="sticky top-16 z-30 flex w-full justify-center px-6 py-3 backdrop-blur-md">
-      <nav className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-white/10 bg-background/70 p-1 shadow-lg shadow-black/40">
+    <div
+      aria-hidden={!visible}
+      className={cn(
+        'pointer-events-none fixed inset-x-0 top-[5.25rem] z-30 flex justify-center px-6 transition-all duration-300',
+        visible ? 'translate-y-0 opacity-100' : '-translate-y-3 opacity-0',
+      )}
+    >
+      <nav
+        className={cn(
+          'flex max-w-full gap-1 overflow-x-auto rounded-full border border-white/10 bg-background/85 p-1 shadow-lg shadow-black/40 backdrop-blur-xl',
+          visible && 'pointer-events-auto',
+        )}
+      >
         {PILLS.map((pill) => (
           <a
             key={pill.id}
