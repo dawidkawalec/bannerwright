@@ -70,9 +70,8 @@ export function PipelineSection() {
     offset: ['start start', 'end end'],
   });
 
-  // Header subtly drifts as the user scrolls past it.
+  // Header subtly fades as the user nears the end of the section.
   const headerOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 1, 0.7]);
-  const headerY = useTransform(scrollYProgress, [0, 1], [0, -24]);
 
   if (reduceMotion) {
     return <StaticFallback />;
@@ -87,13 +86,10 @@ export function PipelineSection() {
       // time for the steps to light up and the banners to slide in.
       style={{ height: '350vh' }}
     >
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center px-6 py-12">
+      <div className="sticky top-16 flex h-[calc(100vh-4rem)] flex-col overflow-hidden">
+        <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-8 pb-12">
           {/* Header — stays near the top of the sticky frame */}
-          <motion.div
-            style={{ opacity: headerOpacity, y: headerY }}
-            className="mb-10 max-w-2xl"
-          >
+          <motion.div style={{ opacity: headerOpacity }} className="mb-10 max-w-2xl">
             <span className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
               How it works
             </span>
