@@ -120,6 +120,53 @@ export async function onboardWorkspace(
   }
 }
 
+export type GeneratedAsset = {
+  name: string;
+  size: number;
+  createdAt: number;
+};
+
+export async function listGeneratedAssets(
+  workspaceId: string,
+): Promise<ActionResult<GeneratedAsset[]>> {
+  const user = await requireUser();
+  const ws = await getWorkspaceForUser(workspaceId, user.id);
+  if (!ws) return { ok: false, error: 'Workspace not found' };
+  try {
+    const entries = await getStorage().list(`workspaces/${workspaceId}/generated`);
+    return {
+      ok: true,
+      data: entries.map((e) => ({
+        name: e.key.split('/').pop() ?? e.key,
+        size: e.size,
+        createdAt: e.mtimeMs,
+      })),
+    };
+  } catch (err) {
+    logger.error({ err, workspaceId }, 'listGeneratedAssets failed');
+    return { ok: false, error: 'Could not list assets' };
+  }
+}
+
+export async function deleteGeneratedAsset(
+  workspaceId: string,
+  name: string,
+): Promise<ActionResult<true>> {
+  const user = await requireUser();
+  const ws = await getWorkspaceForUser(workspaceId, user.id);
+  if (!ws) return { ok: false, error: 'Workspace not found' };
+  // Reject path traversal and non-asset names.
+  if (!/^[\w.\-]+$/.test(name)) return { ok: false, error: 'Invalid asset name' };
+  try {
+    await getStorage().delete(storageKeys.generated(workspaceId, name));
+    revalidatePath(`/workspaces/${workspaceId}/assets`);
+    return { ok: true, data: true };
+  } catch (err) {
+    logger.error({ err, workspaceId, name }, 'deleteGeneratedAsset failed');
+    return { ok: false, error: 'Could not delete asset' };
+  }
+}
+
 export async function updateWorkspace(
   id: string,
   input: unknown,

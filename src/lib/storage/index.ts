@@ -10,6 +10,12 @@ export type StoredFile = {
   contentType: string;
 };
 
+export type StorageListEntry = {
+  key: string;
+  size: number;
+  mtimeMs: number;
+};
+
 export interface StorageAdapter {
   put(key: string, data: Buffer | Uint8Array, contentType: string): Promise<StoredFile>;
   get(key: string): Promise<Buffer>;
@@ -17,6 +23,8 @@ export interface StorageAdapter {
   delete(key: string): Promise<void>;
   /** Resolve to an absolute URL or filesystem path the renderer can read. */
   resolveUrl(key: string): string;
+  /** Enumerate files under a key prefix (non-recursive). */
+  list(prefix: string): Promise<StorageListEntry[]>;
 }
 
 let _storage: StorageAdapter | undefined;

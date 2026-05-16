@@ -4,6 +4,7 @@ import {
   Image as ImageIcon,
   Database,
   LayoutTemplate,
+  Sparkles,
   Settings as SettingsIcon,
   BookOpen,
   type LucideIcon,
@@ -26,6 +27,7 @@ export function workspaceNavItems(workspaceId: string): NavItem[] {
     { name: 'Generations', href: `/workspaces/${workspaceId}/generations`, icon: ImageIcon },
     { name: 'Knowledge base', href: `/workspaces/${workspaceId}/knowledge-base`, icon: Database },
     { name: 'Templates', href: `/workspaces/${workspaceId}/templates`, icon: LayoutTemplate },
+    { name: 'Assets', href: `/workspaces/${workspaceId}/assets`, icon: Sparkles },
     { name: 'Settings', href: `/workspaces/${workspaceId}/settings`, icon: SettingsIcon },
   ];
 }
