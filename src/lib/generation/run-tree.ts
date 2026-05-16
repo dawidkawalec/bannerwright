@@ -88,11 +88,22 @@ export async function runTreeGeneration(
 
   let logo: { mimeType: string; bytes: Buffer } | undefined;
   if (workspace.logoUrl) {
-    try {
-      const bytes = await storage.get(workspace.logoUrl);
-      logo = { mimeType: mimeFromKey(workspace.logoUrl), bytes };
-    } catch (err) {
-      logger.warn({ err, key: workspace.logoUrl }, 'logo missing for prompt');
+    const logoMime = mimeFromKey(workspace.logoUrl);
+    // Gemini multimodal input accepts PNG/JPEG/WEBP/HEIC/HEIF only — SVG must be
+    // rasterised before we can pass it. Skip silently for now (logo just doesn't
+    // appear in the prompt; everything else proceeds).
+    if (logoMime === 'image/svg+xml') {
+      logger.info(
+        { key: workspace.logoUrl },
+        'skipping SVG logo for prompt — Gemini does not accept svg+xml',
+      );
+    } else {
+      try {
+        const bytes = await storage.get(workspace.logoUrl);
+        logo = { mimeType: logoMime, bytes };
+      } catch (err) {
+        logger.warn({ err, key: workspace.logoUrl }, 'logo missing for prompt');
+      }
     }
   }
 
