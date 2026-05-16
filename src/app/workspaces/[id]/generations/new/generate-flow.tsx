@@ -31,9 +31,9 @@ type Step =
 
 const STEP_LABELS: Record<string, string> = {
   analyzing_kb: 'Analysing knowledge base…',
-  rendering_background: 'Painting background with Nano Banana…',
+  rendering_background: 'Painting design with Nano Banana…',
   generating_html: 'Drafting HTML…',
-  generating_tree: 'Designing layout…',
+  generating_tree: 'Encoding design as editable tree…',
   rendering_png: 'Rendering PNG…',
 };
 
@@ -223,10 +223,12 @@ export function GenerateFlow({
                   className="mt-0.5 size-4 accent-primary"
                 />
                 <span className="flex-1 text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">AI background image</span>
+                  <span className="font-medium text-foreground">Image-first design (Nano Banana + Vision encode)</span>
                   {' '}
-                  · Nano Banana generates a custom 1080×1080 background in your brand colours
-                  before Gemini composes the text on top. Adds ~10 s and ~$0.04 per banner.
+                  · Nano Banana paints the complete banner (visual + text + composition) in your
+                  brand style, then Gemini Vision re-encodes it into an editable text/shape tree
+                  you can drag, edit, restyle. Adds ~25 s and ~$0.05 per banner. Uncheck for a
+                  fast text-only draft.
                 </span>
               </label>
             )}
@@ -319,7 +321,7 @@ function busyLabelFor(step: Step): string {
     case 'progress':
       return step.label;
     case 'streaming':
-      return 'Designing layout…';
+      return 'Encoding design as editable tree…';
     case 'rendering':
       return 'Rendering PNG…';
     default:
