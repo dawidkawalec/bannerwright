@@ -33,10 +33,10 @@ export function HeroB() {
 
   return (
     <section className="relative overflow-hidden bg-[oklch(0.12_0.005_250)] pt-16 pb-24 md:pt-20 md:pb-32">
-      {/* Banner wall fills the full viewport — only a soft top/bottom fade so the section
-          blends with the rest of the page. No left/right mask so the sides keep the banner
-          colours all the way to the edges. */}
-      <div className="pointer-events-none absolute inset-0 -z-0 flex flex-col gap-4 py-4 [mask-image:linear-gradient(to_bottom,transparent_0%,#000_10%,#000_90%,transparent_100%)]">
+      {/* Banner wall — radial mask so the wall reads as a soft glow of creatives behind the H1
+          rather than a hard edge-to-edge grid. Banners are visible across most of the hero
+          (35% solid, fading to 0 by 85%), with the corners settling into the dark base. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 flex flex-col gap-4 py-4 [mask-image:radial-gradient(ellipse_at_center,#000_35%,transparent_85%)]">
         {ROWS.map((row, ri) => (
           <BannerMarquee
             key={ri}
@@ -46,10 +46,10 @@ export function HeroB() {
         ))}
       </div>
 
-      {/* Central dark wash: only the middle of the hero gets darkened so the H1 reads cleanly.
-          Tight ellipse (45% wide × 35% tall) with a fast falloff — the four corners stay
-          completely transparent so the banner wall is fully visible on the sides. */}
-      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_45%_35%_at_center,oklch(0.08_0.005_250_/_0.72)_0%,oklch(0.08_0.005_250_/_0.55)_45%,oklch(0.08_0.005_250_/_0.25)_75%,transparent_100%)]" />
+      {/* Dark wash over the whole hero — heaviest behind the H1, still pronounced at the rim.
+          Whole section reads as uniformly dim; the banner wall comes through as accents, never
+          competing with the centred copy. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.72)_0%,oklch(0.08_0.005_250_/_0.82)_55%,oklch(0.08_0.005_250_/_0.92)_80%,oklch(0.08_0.005_250)_100%)]" />
 
       {/* Foreground */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
