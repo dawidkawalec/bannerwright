@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,12 @@ export function AssetCard({
   }
 
   const sizeKb = (size / 1024).toFixed(0);
-  const date = new Date(createdAt).toLocaleString();
+  // toLocaleString() output depends on the client's locale/timezone, which
+  // differs from SSR — render only after mount to avoid hydration mismatch.
+  const [date, setDate] = useState<string>('');
+  useEffect(() => {
+    setDate(new Date(createdAt).toLocaleString());
+  }, [createdAt]);
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card">
