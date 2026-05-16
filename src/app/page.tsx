@@ -10,7 +10,7 @@ import { AnchorNav } from '@/components/landing/anchor-nav';
 import { FeaturePillars } from '@/components/landing/feature-pillars';
 import { DemoReelSection } from '@/components/landing/demo-reel-section';
 import { OssSection } from '@/components/landing/oss-section';
-import { TestimonialsCarousel } from '@/components/landing/testimonials-carousel';
+import { TestimonialsMarquee } from '@/components/landing/testimonials-marquee';
 import { TrustMetrics } from '@/components/landing/trust-metrics';
 import { FinalCTA } from '@/components/landing/final-cta';
 import { LandingFooter } from '@/components/landing/landing-footer';
@@ -32,7 +32,7 @@ export default async function RootPage() {
         <FeaturePillars />
         <DemoReelSection />
         <OssSection />
-        <TestimonialsCarousel />
+        <TestimonialsMarquee />
         <TrustMetrics />
         <FinalCTA />
       </main>

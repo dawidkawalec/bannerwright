@@ -44,10 +44,10 @@ export function HeroB() {
         ))}
       </div>
 
-      {/* Soft horizontal dark band — a gentle wash behind the centred H1, no visible ring.
-          Vertical linear-gradient that's almost transparent at top/bottom and lifts to ~35% black
-          across the middle third of the hero, letting the banner wall keep its colour everywhere. */}
-      <div className="pointer-events-none absolute inset-0 -z-0 bg-[linear-gradient(to_bottom,transparent_0%,oklch(0.10_0.005_250_/_0.15)_18%,oklch(0.10_0.005_250_/_0.32)_42%,oklch(0.10_0.005_250_/_0.32)_58%,oklch(0.10_0.005_250_/_0.15)_82%,transparent_100%)]" />
+      {/* Soft central dark wash, transparent at the edges. Wide ellipse + many gradient stops
+          so the falloff reads as a gentle vignette rather than a visible halo. The H1 sits in the
+          darker centre; the four corners stay open so the banner wall keeps its colour. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_120%_90%_at_center,oklch(0.10_0.005_250_/_0.55)_0%,oklch(0.10_0.005_250_/_0.45)_25%,oklch(0.10_0.005_250_/_0.28)_50%,oklch(0.10_0.005_250_/_0.12)_75%,oklch(0.10_0.005_250_/_0.04)_90%,transparent_100%)]" />
 
       {/* Foreground */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
