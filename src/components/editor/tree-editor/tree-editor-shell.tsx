@@ -6,12 +6,13 @@ import { useStore } from 'zustand';
 import { CheckCircle2, Loader2, Redo2, Undo2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { saveTreeEdit } from '@/app/actions/generations';
+import { restoreVersion, saveTreeEdit } from '@/app/actions/generations';
 import { createEditorStore } from '@/lib/tree/store';
 import { bannerTreeSchema } from '@/lib/tree/schema';
 import type { BannerTree } from '@/lib/tree/types';
 import { BackgroundButton } from '../background-button';
 import { ChatPanel, type ChatRow, type ChatStage } from '../chat-panel';
+import { VersionsPanel, type VersionRow } from '../versions-panel';
 import { TreeCanvas } from './canvas';
 import { LayersPanel } from './layers-panel';
 import { Inspector } from './inspector';
@@ -23,6 +24,7 @@ export type TreeEditorShellProps = {
   generationId: string;
   initialTree: BannerTree;
   initialChat: ChatRow[];
+  versions: VersionRow[];
 };
 
 type SaveStatus =
@@ -36,6 +38,7 @@ export function TreeEditorShell({
   generationId,
   initialTree,
   initialChat,
+  versions,
 }: TreeEditorShellProps) {
   const router = useRouter();
   // Create the store once per editor instance. useState lazy init is the
@@ -271,6 +274,19 @@ export function TreeEditorShell({
           disabled={chatStage !== 'idle'}
           workspaceId={workspaceId}
           stage={chatStage}
+        />
+        <VersionsPanel
+          versions={versions}
+          onRestore={async (versionId) => {
+            const res = await restoreVersion(workspaceId, generationId, versionId);
+            if (!res.ok) {
+              toast.error(res.error);
+              return;
+            }
+            toast.success(`Restored as v${res.data.versionNumber}`);
+            router.refresh();
+          }}
+          disabled={chatStage !== 'idle'}
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { BannerTree, Node, TextNode } from '@/lib/tree/types';
 import { BannerRenderer } from '@/lib/tree/render-react';
 import { findNode } from '@/lib/tree/operations';
@@ -32,7 +32,10 @@ export function TreeCanvas({
   onPatchText,
 }: TreeCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(1);
+  // Start at 0 so the canvas is invisible on first paint instead of overflowing
+  // at 1:1 — useLayoutEffect synchronously measures and sets the real scale
+  // before the browser paints anything.
+  const [scale, setScale] = useState(0);
   const scaleRef = useRef(scale);
 
   useEffect(() => {
@@ -46,16 +49,19 @@ export function TreeCanvas({
 
   const { width, height } = tree.canvas;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
-    const observer = new ResizeObserver(() => {
+    const compute = () => {
       const { clientWidth, clientHeight } = wrapper;
+      if (clientWidth <= 0 || clientHeight <= 0) return;
       const padding = 48;
       const sx = (clientWidth - padding) / width;
       const sy = (clientHeight - padding) / height;
-      setScale(Math.min(1, sx, sy));
-    });
+      setScale(Math.max(0.05, Math.min(1, sx, sy)));
+    };
+    compute();
+    const observer = new ResizeObserver(compute);
     observer.observe(wrapper);
     return () => observer.disconnect();
   }, [width, height]);

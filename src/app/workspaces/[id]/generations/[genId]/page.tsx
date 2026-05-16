@@ -106,6 +106,12 @@ export default async function GenerationEditorPage({ params }: Props) {
             content: m.content,
             createdAt: m.createdAt.toISOString(),
           }))}
+          versions={versions.map((v) => ({
+            id: v.id,
+            versionNumber: v.versionNumber,
+            triggeredBy: v.triggeredBy,
+            createdAt: v.createdAt.toISOString(),
+          }))}
         />
       ) : (
         <EditorShell

@@ -166,13 +166,48 @@ export async function restoreVersion(
     return { ok: false, error: 'Version not found' };
   }
 
-  if (!target.html) {
-    return { ok: false, error: 'Version has no HTML to restore (tree-only restore lands in Phase 1)' };
+  if (!target.tree && !target.html) {
+    return { ok: false, error: 'Version has neither a tree nor HTML to restore' };
   }
-  const restoredHtml = target.html;
 
   try {
     const versionNumber = await nextVersionNumber(generation.id);
+
+    if (target.tree) {
+      // Tree-based restore: snapshot becomes a fresh version, then update current.
+      const restoredTree = target.tree;
+      const restoredHtml = target.html ?? renderTreeToHtml(restoredTree);
+      const newVersion = await insertGenerationVersion({
+        generationId: generation.id,
+        versionNumber,
+        tree: restoredTree,
+        html: restoredHtml,
+        triggeredBy: 'restore',
+      });
+      await recordChatMessage({
+        generationId: generation.id,
+        role: 'system',
+        content: `Restored from v${target.versionNumber} as v${versionNumber}.`,
+        resultedInVersionId: newVersion.id,
+      });
+      let pngKey: string | undefined;
+      try {
+        const rendered = await renderHtmlToPng({
+          tree: restoredTree,
+          format: generation.format,
+          generationId: generation.id,
+        });
+        pngKey = rendered.pngKey;
+      } catch (err) {
+        logger.warn({ err, generationId }, 'PNG render failed during tree restore');
+      }
+      await updateGenerationCurrentTree(generation.id, restoredTree, restoredHtml, pngKey);
+      revalidatePath(`/workspaces/${workspace.id}/generations/${generationId}`);
+      return { ok: true, data: { versionNumber, versionId: newVersion.id } };
+    }
+
+    // Legacy HTML restore.
+    const restoredHtml = target.html!;
     const newVersion = await insertGenerationVersion({
       generationId: generation.id,
       versionNumber,
@@ -185,7 +220,6 @@ export async function restoreVersion(
       content: `Restored from v${target.versionNumber} as v${versionNumber}.`,
       resultedInVersionId: newVersion.id,
     });
-
     let pngKey: string | undefined;
     try {
       const rendered = await renderHtmlToPng({
