@@ -34,9 +34,32 @@ export default function OpengraphImage() {
               background: 'linear-gradient(135deg, #11BB88 0%, #0A7F5C 100%)',
             }}
           >
-            <span style={{ color: 'white', fontSize: 50, fontWeight: 700, letterSpacing: '-0.03em' }}>
-              B
-            </span>
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 10 L9 10 L9 38 L15 38"
+                stroke="white"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+              <path
+                d="M33 10 L39 10 L39 38 L33 38"
+                stroke="white"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+              <rect x="18" y="20" width="12" height="3.2" rx="1" fill="white" />
+              <rect x="18" y="25" width="8" height="3.2" rx="1" fill="white" fillOpacity="0.7" />
+            </svg>
           </div>
           <span style={{ fontSize: 34, fontWeight: 500, letterSpacing: '-0.01em' }}>
             Bannerwright

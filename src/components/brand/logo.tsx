@@ -19,6 +19,12 @@ export function Logo({ variant = 'wordmark', className }: LogoProps) {
   );
 }
 
+/**
+ * Mark concept — `[ ▬ ]`:
+ *   - Two angle brackets (HTML-ish framing) hold a small filled banner in the centre.
+ *   - Reads as "banner inside code" → the literal idea of Bannerwright.
+ *   - Strong silhouette at any size; stroke-based brackets stay crisp down to 16px.
+ */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg
@@ -28,7 +34,6 @@ export function LogoMark({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn('size-7', className)}
     >
-      <rect width="32" height="32" rx="8" fill="url(#bw-mark-bg)" />
       <defs>
         <linearGradient
           id="bw-mark-bg"
@@ -42,13 +47,30 @@ export function LogoMark({ className }: { className?: string }) {
           <stop offset="1" stopColor="#0A7F5C" />
         </linearGradient>
       </defs>
-      {/* Geometric "B" — spine + two stacked banner bumps */}
+      <rect width="32" height="32" rx="8" fill="url(#bw-mark-bg)" />
+
+      {/* Left bracket — `[` */}
       <path
-        d="M10 8.5h6.4c2.18 0 3.78 1.45 3.78 3.45 0 1.28-.65 2.3-1.7 2.82 1.42.48 2.34 1.66 2.34 3.16 0 2.26-1.78 3.77-4.2 3.77H10V8.5zm2.55 5.65h3.2c1.04 0 1.66-.6 1.66-1.55s-.62-1.55-1.66-1.55h-3.2v3.1zm0 5.23h3.65c1.12 0 1.78-.66 1.78-1.66 0-.98-.66-1.65-1.78-1.65h-3.65v3.31z"
-        fill="white"
+        d="M10 9 L7.25 9 L7.25 23 L10 23"
+        stroke="white"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
       />
-      {/* Accent dot — symbolizes the "wright" tool tap */}
-      <circle cx="24" cy="24" r="1.6" fill="white" fillOpacity="0.9" />
+      {/* Right bracket — `]` */}
+      <path
+        d="M22 9 L24.75 9 L24.75 23 L22 23"
+        stroke="white"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+
+      {/* Banner pictogram between the brackets — two stacked filled bars (a "headline + sub" cue) */}
+      <rect x="12" y="13.5" width="8" height="2.1" rx="0.8" fill="white" />
+      <rect x="12" y="16.4" width="5.5" height="2.1" rx="0.8" fill="white" fillOpacity="0.7" />
     </svg>
   );
 }

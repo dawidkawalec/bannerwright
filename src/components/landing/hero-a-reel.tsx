@@ -50,8 +50,8 @@ const REEL: Slot[] = [
   },
 ];
 
-const TYPING_SPEED = 18;
-const HOLD_MS = 4500;
+const TYPING_SPEED = 8;
+const HOLD_MS = 2200;
 
 type Phase = 'typing' | 'generating' | 'done';
 
@@ -109,12 +109,12 @@ function SlotPlayer({
     if (reduceMotion) return;
     let i = 0;
     const id = setInterval(() => {
-      i += 2;
+      i += 3;
       setTypedBrief(slot.brief.slice(0, i));
       if (i >= slot.brief.length) {
         clearInterval(id);
-        setTimeout(() => setPhase('generating'), 150);
-        setTimeout(() => setPhase('done'), 950);
+        setTimeout(() => setPhase('generating'), 60);
+        setTimeout(() => setPhase('done'), 420);
       }
     }, TYPING_SPEED);
     return () => clearInterval(id);
