@@ -5,12 +5,16 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { listKbSourcesByWorkspace } from '@/lib/db/queries/kb';
 import { GenerateFlow } from './generate-flow';
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ brief?: string; title?: string }>;
+};
 
 export const metadata = { title: 'New banner — Bannerwright' };
 
-export default async function NewGenerationPage({ params }: Props) {
+export default async function NewGenerationPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { brief: prefilledBrief, title: prefilledTitle } = await searchParams;
   const user = await requireUser();
   const workspace = await getWorkspaceForUser(id, user.id);
   if (!workspace) notFound();
@@ -45,6 +49,10 @@ export default async function NewGenerationPage({ params }: Props) {
         workspaceId={workspace.id}
         readyKbCount={readyCount}
         hasBrand={hasBrand}
+        brandColors={workspace.brandColors}
+        brandFonts={workspace.brandFonts}
+        initialBrief={prefilledBrief?.slice(0, 2000) ?? ''}
+        initialTitle={prefilledTitle?.slice(0, 120) ?? ''}
       />
     </div>
   );

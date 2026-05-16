@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, History, LayoutTemplate } from 'lucide-react';
+import { ArrowLeft, History, LayoutTemplate, Sparkles } from 'lucide-react';
 import { requireUser } from '@/lib/auth/current-user';
 import {
   getGenerationForWorkspace,
@@ -11,6 +11,7 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import { EditorShell } from '@/components/editor/editor-shell';
 import { TreeEditorShell } from '@/components/editor/tree-editor/tree-editor-shell';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { formatLabels } from '@/lib/schemas/generations';
 import { DeleteGenerationButton } from './delete-button';
 import { TemplateToggle } from './template-toggle';
@@ -70,6 +71,18 @@ export default async function GenerationEditorPage({ params }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap items-start gap-2">
+          {generation.brief && (
+            <Button asChild size="sm" variant="outline" title="Re-run with the same brief — produce a fresh variant.">
+              <Link
+                href={`/workspaces/${workspace.id}/generations/new?brief=${encodeURIComponent(
+                  generation.brief,
+                )}&title=${encodeURIComponent('Variant of ' + generation.title)}`}
+              >
+                <Sparkles className="size-3" />
+                New variant
+              </Link>
+            </Button>
+          )}
           <TemplateToggle
             workspaceId={workspace.id}
             generationId={generation.id}

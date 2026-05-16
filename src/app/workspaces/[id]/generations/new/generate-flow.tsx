@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BannerPreview } from '@/components/banner-preview';
+import { BrandPreview } from '@/components/editor/brand-preview';
 import { formats, formatLabels } from '@/lib/schemas/generations';
-import type { GenerationFormat } from '@/lib/db/schema';
+import type { BrandColors, BrandFonts, GenerationFormat } from '@/lib/db/schema';
 import { AttachmentDropzone, type Attachment } from '@/components/ai/attachment-dropzone';
 
 type Step =
@@ -37,15 +38,23 @@ export function GenerateFlow({
   workspaceId,
   readyKbCount,
   hasBrand,
+  brandColors,
+  brandFonts,
+  initialBrief = '',
+  initialTitle = '',
 }: {
   workspaceId: string;
   readyKbCount: number;
   hasBrand: boolean;
+  brandColors?: BrandColors | null;
+  brandFonts?: BrandFonts | null;
+  initialBrief?: string;
+  initialTitle?: string;
 }) {
   const router = useRouter();
   const [format, setFormat] = useState<GenerationFormat>('square_1080');
-  const [brief, setBrief] = useState('');
-  const [title, setTitle] = useState('');
+  const [brief, setBrief] = useState(initialBrief);
+  const [title, setTitle] = useState(initialTitle);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [step, setStep] = useState<Step>({ kind: 'idle' });
   const [html, setHtml] = useState<string>('');
@@ -191,6 +200,8 @@ export function GenerateFlow({
                 helper="Drag, paste (⌘V) or click. Mood boards, screenshots, reference banners — used as visual cues for the AI."
               />
             </div>
+
+            <BrandPreview colors={brandColors} fonts={brandFonts} workspaceId={workspaceId} />
 
             <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               <span>{readyKbCount} ready KB source{readyKbCount === 1 ? '' : 's'} will inform the prompt.</span>
