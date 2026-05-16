@@ -19,14 +19,16 @@ The marketing site is live, the waitlist is open, the core stack runs on a singl
 - ✅ Templates: promote any banner, "Use template" creates a copy with `parent_generation_id`
 - ✅ PNG render + download via `/api/generations/[id]/png`
 
-## Next — MVP polish (Faza 4)
+## Next — MVP polish (Faza 4 → Faza 5)
 
 What lands before the public OSS release.
 
-- Surface Nano Banana background generation inside the tree editor (Server Action exists; currently throws on tree-based banners and is only wired into the legacy HTML editor)
+- ✅ Nano Banana background generation inside the tree editor (`canvas.background = image fill`, new version per call)
+- ✅ Onboarding hero on empty `/workspaces` (single form for workspace name + optional brand URL, fire-and-forget KB ingestion)
+- ✅ GHCR release workflow + `docker-compose.prod.yml` (prebuilt image self-host without cloning)
 - Image asset library per workspace (uploads + generated backgrounds in one panel)
 - Versions panel + side-by-side diff in the tree editor (legacy editor already has it)
-- Onboarding wizard: first login → create workspace → add URL → generate first banner
+- Tag `v0.1.0` (release pipeline ready; just needs the first push to validate end-to-end)
 
 ## Public OSS release (Faza 5)
 

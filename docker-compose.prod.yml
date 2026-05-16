@@ -1,0 +1,71 @@
+# Self-host docker-compose using the prebuilt image from GHCR.
+#
+# Usage:
+#   1. Save .env in the same directory (see .env.example for fields)
+#   2. docker compose -f docker-compose.prod.yml up -d
+#   3. Open http://localhost:3000
+#
+# The `web` image is published on tag push by .github/workflows/release.yml.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bannerwright}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bannerwright}
+      POSTGRES_DB: ${POSTGRES_DB:-bannerwright}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-bannerwright} -d ${POSTGRES_DB:-bannerwright}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: ghcr.io/dawidkawalec/bannerwright:${BANNERWRIGHT_TAG:-latest}
+    restart: 'no'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bannerwright}:${POSTGRES_PASSWORD:-bannerwright}@db:5432/${POSTGRES_DB:-bannerwright}
+    command: ['pnpm', 'tsx', 'src/lib/db/migrate.ts']
+
+  web:
+    image: ghcr.io/dawidkawalec/bannerwright:${BANNERWRIGHT_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bannerwright}:${POSTGRES_PASSWORD:-bannerwright}@db:5432/${POSTGRES_DB:-bannerwright}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
+      SESSION_SECRET: ${SESSION_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      STORAGE_DRIVER: local
+      STORAGE_PATH: /app/storage
+      MAX_GENERATIONS_PER_DAY: ${MAX_GENERATIONS_PER_DAY:-100}
+      MAX_LLM_COST_USD_PER_DAY: ${MAX_LLM_COST_USD_PER_DAY:-10}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      NODE_ENV: production
+    volumes:
+      - ./storage:/app/storage
+    ports:
+      - '${BANNERWRIGHT_PORT:-3000}:3000'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('node:http').get('http://localhost:3000/api/health',(r)=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

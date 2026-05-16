@@ -66,7 +66,7 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 
 **Deliverable hit:** edit visually or via chat → live tree updates → new version row per change.
 
-## Faza 4 — Templates + Nano Banana 🟡 partial
+## Faza 4 — Templates + Nano Banana ✅ done
 
 **Goal:** promote to template, AI generates backgrounds.
 
@@ -74,10 +74,10 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 - [x] Templates gallery per workspace
 - [x] `parent_generation_id` traceability in DB and UI
 - [x] Nano Banana Pro integration in `lib/ai/gemini.ts` (`generateImage` → `gemini-3-pro-image-preview`)
-- [ ] "Generate background" button on tree banners (currently throws "tree-based image fill lands in Phase 2" — only works on legacy HTML banners)
-- [ ] Image asset library per workspace (no UI yet)
+- [x] "Generate background" button works on tree banners — sets `canvas.background = image fill`, re-renders HTML, new version row, PNG refresh. Legacy HTML banners still use the `body[data-bw-bg]` style injection
+- [ ] Image asset library per workspace (no UI yet; assets land in `./storage/workspaces/{id}/generated/` so a list view is the only thing missing)
 
-**Deliverable:** save banner as template ✅, create new from template ✅, AI background blocked for tree banners ❌.
+**Deliverable hit:** save banner as template ✅, create new from template ✅, AI background works end-to-end on tree banners (verified live: $0.04 / image, 821 KB PNG, `canvas.background.kind = "image"`).
 
 ## Faza 5 — Polish + OSS Release 🟡 partial
 
@@ -89,15 +89,16 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 - [x] ADRs 0001-0005 for non-trivial decisions
 - [x] LICENSE (MIT)
 - [x] `.env.example` with comments
-- [ ] Onboarding wizard (empty `/workspaces` should funnel new users to first banner)
-- [ ] GitHub Actions: lint + typecheck + build on push/PR
-- [ ] Prebuilt Docker image on GHCR (`ghcr.io/<owner>/bannerwright:v0.1.0` + `:latest`)
-- [ ] Tag `v0.1.0`
+- [x] Onboarding hero on empty `/workspaces` — single form (workspace name + optional brand URL), fire-and-forget KB ingestion, lands on `/workspaces/{id}`
+- [x] GitHub Actions: lint + typecheck + test + build on push/PR (`.github/workflows/ci.yml`)
+- [x] Release workflow: build & push Docker image to GHCR on `v*.*.*` tag (`.github/workflows/release.yml`)
+- [x] `docker-compose.prod.yml` pulling the prebuilt GHCR image
+- [x] README quickstart updated for both prebuilt-image and clone-and-build flows
+- [ ] Tag `v0.1.0` and ensure the first release succeeds
 - [ ] Repo transfer to `bannerwright/bannerwright`
 - [ ] Demo video / screenshots in README
-- [ ] Public release
 
-**Deliverable target:** `git clone` + `docker compose up` from a stranger's VPS works — pending GHCR image + README quickstart.
+**Deliverable target:** `git clone` + `docker compose up` from a stranger's VPS works — infrastructure ready; only needs the first `v0.1.0` tag to validate the release pipeline.
 
 ## Out of MVP (v2+)
 
