@@ -31,10 +31,11 @@ export function FinalCTA() {
       id="early-access"
       className="relative overflow-hidden bg-[oklch(0.12_0.005_250)] px-6 py-28 md:py-40"
     >
-      {/* Banner wall — two static rows of thumbnails, the second offset for variation */}
+      {/* Banner wall — two static rows of thumbnails, the second offset for variation.
+          z-0 puts the wall above the section's solid bg-colour but below the scrim & content. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 flex flex-col items-stretch justify-center gap-4 [mask-image:radial-gradient(ellipse_120%_70%_at_center,#000_50%,transparent_95%)]"
+        className="pointer-events-none absolute inset-0 z-0 flex flex-col items-stretch justify-center gap-4 [mask-image:radial-gradient(ellipse_120%_70%_at_center,#000_50%,transparent_95%)]"
       >
         <div className="flex shrink-0 gap-4 px-[-2rem]">
           {ROW_A.map((src, i) => (
@@ -71,12 +72,12 @@ export function FinalCTA() {
       </div>
 
       {/* Dark scrim — uniformly dim so banners read as accents behind the H1, never compete */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.68)_0%,oklch(0.08_0.005_250_/_0.82)_60%,oklch(0.08_0.005_250)_95%)]" />
+      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.68)_0%,oklch(0.08_0.005_250_/_0.82)_60%,oklch(0.08_0.005_250)_95%)]" />
 
       {/* Thin teal divider line at the top edge */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-      <div className="relative mx-auto max-w-3xl text-center">
+      <div className="relative z-20 mx-auto max-w-3xl text-center">
         <LetterReveal
           as="h2"
           text="Build your first banner in 60 seconds."
