@@ -57,6 +57,69 @@ export async function createWorkspace(
   }
 }
 
+export async function onboardWorkspace(
+  input: unknown,
+): Promise<ActionResult<{ id: string; slug: string; queuedKbSourceId?: string }>> {
+  const parsed = createWorkspaceSchema.safeParse(
+    typeof input === 'object' && input
+      ? { name: (input as { name?: string }).name, slug: (input as { slug?: string }).slug }
+      : input,
+  );
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+  const rawUrl = typeof input === 'object' && input ? (input as { url?: string }).url : undefined;
+  const trimmedUrl = (rawUrl ?? '').trim();
+  let parsedUrl: URL | undefined;
+  if (trimmedUrl) {
+    try {
+      parsedUrl = new URL(trimmedUrl);
+      if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+        return { ok: false, error: 'URL must use http or https' };
+      }
+    } catch {
+      return { ok: false, error: 'URL is not valid' };
+    }
+  }
+
+  const user = await requireUser();
+  const slug = parsed.data.slug ?? autoSlug(parsed.data.name);
+  if (!slug) return { ok: false, error: 'Could not derive slug from name' };
+  const existing = await getWorkspaceBySlug(slug, user.id);
+  if (existing) return { ok: false, error: `Slug "${slug}" already in use` };
+
+  try {
+    const ws = await insertWorkspace({
+      userId: user.id,
+      name: parsed.data.name,
+      slug,
+      description: parsed.data.description,
+    });
+
+    let queuedKbSourceId: string | undefined;
+    if (parsedUrl) {
+      const { insertKbSourceUrl } = await import('@/lib/db/queries/kb');
+      const { processKbUrl } = await import('@/lib/kb/process-url');
+      try {
+        const source = await insertKbSourceUrl(ws.id, parsedUrl.toString());
+        queuedKbSourceId = source.id;
+        void processKbUrl(source.id).catch((err) =>
+          logger.error({ err, sourceId: source.id }, 'onboarding kb worker rejected'),
+        );
+      } catch (err) {
+        // Workspace already created — KB attach failure is non-fatal at onboarding.
+        logger.warn({ err, workspaceId: ws.id }, 'onboarding KB source insert failed');
+      }
+    }
+
+    revalidatePath('/workspaces');
+    return { ok: true, data: { id: ws.id, slug: ws.slug, queuedKbSourceId } };
+  } catch (err) {
+    logger.error({ err }, 'onboardWorkspace failed');
+    return { ok: false, error: 'Could not create workspace' };
+  }
+}
+
 export async function updateWorkspace(
   id: string,
   input: unknown,

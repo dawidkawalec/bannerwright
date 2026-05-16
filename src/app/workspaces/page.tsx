@@ -9,6 +9,7 @@ import {
 import { StatsCards, type StatCard } from '@/components/dashboard/stats-cards';
 import { GenerationsChart } from '@/components/dashboard/generations-chart';
 import { RecentGenerations } from '@/components/dashboard/recent-generations';
+import { OnboardingHero } from '@/components/dashboard/onboarding-hero';
 import { QuickActionsCard } from '@/components/dashboard/quick-actions-card';
 import { WorkspaceGrid } from '@/components/dashboard/workspace-grid';
 
@@ -16,8 +17,13 @@ export const metadata = { title: 'Dashboard — Bannerwright' };
 
 export default async function WorkspacesPage() {
   const user = await requireUser();
-  const [workspaces, stats, timeseries, recent] = await Promise.all([
-    listWorkspacesByUser(user.id),
+  const workspaces = await listWorkspacesByUser(user.id);
+
+  if (workspaces.length === 0) {
+    return <OnboardingHero email={user.email} />;
+  }
+
+  const [stats, timeseries, recent] = await Promise.all([
     getGlobalStats(user.id),
     getGenerationsTimeseries({ userId: user.id, days: 30 }),
     getRecentGenerations({ userId: user.id, limit: 8 }),
