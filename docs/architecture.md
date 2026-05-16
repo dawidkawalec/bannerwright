@@ -20,11 +20,11 @@ Single process, single Dockerfile. Playwright (chromium) runs in-process; image 
 
 | Module | Responsibility | May import from |
 |--------|---------------|-----------------|
-| `app/` | Pages, layouts, Server Actions, Route Handlers, metadata routes (`icon`, `apple-icon`, `opengraph-image`, `twitter-image` via `next/og`) | `components/`, `lib/*` |
-| `proxy.ts` | Next.js Proxy — auth gate. Whitelists `PUBLIC_PATHS` (`/`, `/login`, `/api/auth/login`, `/api/health`) + `PUBLIC_PATH_PREFIXES` (metadata image routes); everything else needs a session cookie | `lib/auth/sessions` |
+| `app/` | Pages, layouts, Server Actions, Route Handlers, metadata routes (`icon`, `apple-icon`, `opengraph-image`, `twitter-image` via `next/og`) + SEO/PWA routes (`sitemap.ts`, `robots.ts`, `manifest.ts`). Admin waitlist UI at `app/account/waitlist/` | `components/`, `lib/*` |
+| `proxy.ts` | Next.js Proxy — auth gate. Whitelists `PUBLIC_PATHS` (`/`, `/login`, `/api/auth/login`, `/api/health`) + `PUBLIC_PATH_PREFIXES` (metadata image routes, `/landing/*` assets) + `PUBLIC_FILE_EXTENSIONS` (png/jpg/svg/webp/woff/css/xml/txt/json/webmanifest); everything else needs a session cookie | `lib/auth/sessions` |
 | `components/ui/` | shadcn-style primitives (Button, Card, Dialog, …) — owned, not vendored | `lib/utils` |
-| `components/brand/` | Bannerwright logo (mark + wordmark) — shared across LP, nav, footer, OG | `lib/utils` |
-| `components/landing/` | Public one-pager sections (hero, feature pillars, OSS, testimonials, metrics, CTA, footer, anchor nav, letter-reveal, …) | `components/ui/`, `components/brand/`, `lib/utils` |
+| `components/brand/` | Bannerwright logo mark + wordmark — standalone `[ ▬ ]` glyph (two brackets framing a banner pictogram), shared across LP, app sidebar, login, OG | `lib/utils` |
+| `components/landing/` | Public one-pager sections (hero with banner-wall marquee, scrollytelling pipeline, demo reel, feature pillars, OSS pillar, testimonials marquee, trust metrics, final CTA, footer) + `waitlist-dialog.tsx` triggered from announcement banner / hero / final CTA | `components/ui/`, `components/brand/`, `lib/utils` |
 | `components/` *(domain)* | Workspace dashboard, editor split-view, KB management, AI chat | `components/ui/`, `lib/utils`, `lib/schemas` |
 | `lib/db/` | Drizzle schema, client, queries, migrations | (leaf) |
 | `lib/storage/` | File adapter (`local.ts` for MVP, `s3.ts` later) | (leaf) |

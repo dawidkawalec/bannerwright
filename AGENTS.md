@@ -2,7 +2,7 @@
 
 Self-hostable, open-source AI workshop that turns a brief + brand context into editable HTML banners (PNG export) for social media. **A wright is a maker** — banners are HTML you can read, edit, and own; PNG is just the export.
 
-**Domain:** bannerwright.com · **License:** MIT · **Status:** Faza 0 scaffolded (auth, workspaces CRUD, render skeleton, no AI flows yet)
+**Domain:** bannerwright.com · **License:** MIT · **Status:** Faza 0 scaffolded + public LP live (auth, workspaces CRUD, render skeleton, marketing site at bannerwright.com, private-beta waitlist; AI flows still ahead)
 
 ## Stack
 
@@ -57,6 +57,7 @@ pnpm tsx scripts/hash-password.ts <pw>   # generate ADMIN_PASSWORD_HASH
 - [docs/decisions/](docs/decisions/) — ADRs for stack deviations and non-trivial choices
 - [PRD.md](PRD.md) — full product spec (source of truth, v1.0)
 - [AGENT_INSTRUCTIONS.mdc](AGENT_INSTRUCTIONS.mdc) — Cursor rules (mirrors critical rules below)
+- [CHANGELOG.md](CHANGELOG.md) · [ROADMAP.md](ROADMAP.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) · [TRADEMARK.md](TRADEMARK.md) — public OSS-launch surface
 
 ## Critical Rules
 

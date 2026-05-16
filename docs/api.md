@@ -110,6 +110,23 @@ POST   /api/internal/render
 
 Internal-only: same-origin check + auth. Never exposed externally.
 
+## Waitlist (private-beta access)
+
+**Server Actions** (`app/actions/waitlist.ts`):
+
+```ts
+submitWaitlist({ email, name?, useCase?, source? })   // public (no auth) — Zod validates, inserts with ON CONFLICT DO NOTHING
+```
+
+**Admin Server Actions** (`app/account/waitlist/actions.ts`, require auth):
+
+```ts
+setSignupStatus({ id, status, notes? })   // 'pending' | 'contacted' | 'installed' | 'declined'
+removeSignup(id)
+```
+
+Stored in `waitlist_signups`. Full flow + alternatives considered: [ADR-0004](decisions/0004-waitlist-and-access-flow.md).
+
 ## Health
 
 ```

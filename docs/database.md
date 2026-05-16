@@ -23,6 +23,7 @@ CREATE EXTENSION IF NOT EXISTS "vector";   -- pgvector, RAG-ready (unused in MVP
 | `generation_versions` | Snapshot per edit (`triggered_by`: initial / manual_edit / ai_edit / restore) |
 | `chat_messages` | Per-generation chat history with AI editor |
 | `llm_usage` | Cost tracking per call: model, operation, tokens, cost_usd |
+| `waitlist_signups` | Private-beta access requests: email, name, use_case, source, status (`pending`/`contacted`/`installed`/`declined`), notes, timestamps. See [ADR-0004](decisions/0004-waitlist-and-access-flow.md). |
 
 ## Conventions
 
