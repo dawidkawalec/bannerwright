@@ -33,8 +33,10 @@ export function HeroB() {
 
   return (
     <section className="relative overflow-hidden bg-[oklch(0.12_0.005_250)] pt-16 pb-24 md:pt-20 md:pb-32">
-      {/* Banner wall (background) */}
-      <div className="pointer-events-none absolute inset-0 -z-0 flex flex-col gap-4 py-4 [mask-image:radial-gradient(ellipse_at_center,#000_30%,transparent_75%)]">
+      {/* Banner wall fills the full viewport — only a soft top/bottom fade so the section
+          blends with the rest of the page. No left/right mask so the sides keep the banner
+          colours all the way to the edges. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 flex flex-col gap-4 py-4 [mask-image:linear-gradient(to_bottom,transparent_0%,#000_10%,#000_90%,transparent_100%)]">
         {ROWS.map((row, ri) => (
           <BannerMarquee
             key={ri}
@@ -44,10 +46,10 @@ export function HeroB() {
         ))}
       </div>
 
-      {/* Soft central dark wash, transparent at the edges. Wide ellipse + many gradient stops
-          so the falloff reads as a gentle vignette rather than a visible halo. The H1 sits in the
-          darker centre; the four corners stay open so the banner wall keeps its colour. */}
-      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_120%_90%_at_center,oklch(0.10_0.005_250_/_0.55)_0%,oklch(0.10_0.005_250_/_0.45)_25%,oklch(0.10_0.005_250_/_0.28)_50%,oklch(0.10_0.005_250_/_0.12)_75%,oklch(0.10_0.005_250_/_0.04)_90%,transparent_100%)]" />
+      {/* Central dark wash: only the middle of the hero gets darkened so the H1 reads cleanly.
+          Tight ellipse (45% wide × 35% tall) with a fast falloff — the four corners stay
+          completely transparent so the banner wall is fully visible on the sides. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_45%_35%_at_center,oklch(0.08_0.005_250_/_0.72)_0%,oklch(0.08_0.005_250_/_0.55)_45%,oklch(0.08_0.005_250_/_0.25)_75%,transparent_100%)]" />
 
       {/* Foreground */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
