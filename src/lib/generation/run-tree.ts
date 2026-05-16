@@ -15,6 +15,7 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import type { GenerationFormat } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
+import { rasterizeSvgToPng } from '@/lib/renderer/rasterize-svg';
 import { getStorage } from '@/lib/storage';
 import { loadAttachments } from '@/lib/storage/attachments';
 import { applyTreeDefaults } from '@/lib/tree/defaults';
@@ -89,21 +90,18 @@ export async function runTreeGeneration(
   let logo: { mimeType: string; bytes: Buffer } | undefined;
   if (workspace.logoUrl) {
     const logoMime = mimeFromKey(workspace.logoUrl);
-    // Gemini multimodal input accepts PNG/JPEG/WEBP/HEIC/HEIF only — SVG must be
-    // rasterised before we can pass it. Skip silently for now (logo just doesn't
-    // appear in the prompt; everything else proceeds).
-    if (logoMime === 'image/svg+xml') {
-      logger.info(
-        { key: workspace.logoUrl },
-        'skipping SVG logo for prompt — Gemini does not accept svg+xml',
-      );
-    } else {
-      try {
-        const bytes = await storage.get(workspace.logoUrl);
+    try {
+      const bytes = await storage.get(workspace.logoUrl);
+      if (logoMime === 'image/svg+xml') {
+        // Gemini multimodal input accepts PNG/JPEG/WEBP only — rasterise the
+        // SVG via Chromium so the model can still see + place the logo.
+        const png = await rasterizeSvgToPng(bytes);
+        logo = { mimeType: 'image/png', bytes: png };
+      } else {
         logo = { mimeType: logoMime, bytes };
-      } catch (err) {
-        logger.warn({ err, key: workspace.logoUrl }, 'logo missing for prompt');
       }
+    } catch (err) {
+      logger.warn({ err, key: workspace.logoUrl }, 'logo prompt prep failed');
     }
   }
 

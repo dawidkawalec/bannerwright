@@ -251,7 +251,12 @@ export function GenerateFlow({
 
       <div className="flex flex-col gap-2">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Live preview</p>
-        <BannerPreview html={html} format={format} />
+        <BannerPreview
+          html={html}
+          format={format}
+          busy={isWorking}
+          busyLabel={busyLabelFor(step)}
+        />
       </div>
     </div>
   );
@@ -276,5 +281,18 @@ function parseEvent(data: string): ServerEvent | null {
     return JSON.parse(data) as ServerEvent;
   } catch {
     return null;
+  }
+}
+
+function busyLabelFor(step: Step): string {
+  switch (step.kind) {
+    case 'progress':
+      return step.label;
+    case 'streaming':
+      return 'Designing layout…';
+    case 'rendering':
+      return 'Rendering PNG…';
+    default:
+      return 'AI is working…';
   }
 }
