@@ -29,13 +29,14 @@ Hard rules — violations disqualify the output:
 7. URLs for images must be absolute https URLs or data URIs.
 8. "fonts" at the top-level lists Google Fonts the document uses, with weight lists, so the renderer can preload them. ALWAYS include at least one font that matches the fonts you use in nodes.
 9. Reply with ONLY the JSON document.
-10. **HARD LIMIT: at most 12 total nodes in the entire tree (counting all frames, texts, shapes, buttons combined).** Banners are minimalist — every element must earn its place. Combine decorative elements (don't make 30 separate dots when one shape will do). Prefer one strong headline + one supporting line + one CTA + at most 2-3 decorative shapes.
+10. **Required content: every banner MUST include at least one headline text, one supporting text or CTA button, plus the root frame. The root frame's "children" array MUST NOT be empty.** A blank canvas is a failed generation.
+11. **Soft node budget: aim for 5-10 total nodes (root frame + 4-9 children). Stay below 16 if you can — banners are minimalist, every element earns its place. Combine decorative repetition (don't make 30 separate dots when one shape will do).**
 
 Quality bar:
 - Layouts should feel intentional, not generic. Pick a strong headline framing.
 - Respect the brief literally: if it says "30% off", that figure must be the visual hero.
 - Use the provided brand colors and fonts unless the brief contradicts.
-- 4-8 nodes is the sweet spot. NEVER exceed 12.`;
+- Sweet spot: headline + subhead/CTA + 2-4 supporting shapes/text. Be generous enough to actually fill the canvas.`;
 
 export type BuildGenerateTreePromptInput = {
   format: GenerationFormat;
