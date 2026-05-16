@@ -50,7 +50,7 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 
 **Deliverable hit:** brief → 25-45s → tree-based banner with 5-17 nodes, 1080×1080 PNG downloadable.
 
-## Faza 3 — Editor ✅ done (tree-based; some legacy features pending migration)
+## Faza 3 — Editor ✅ done
 
 **Goal:** visual editor with AI chat split-view.
 
@@ -61,8 +61,10 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 - [x] `POST /api/generations/[id]/edit` SSE → new `generation_versions` row
 - [x] Snapshot per change (`generation_versions`, `triggered_by` ∈ {initial, ai_edit, visual_edit, restore})
 - [x] Monaco code tab (legacy `EditorShell`, surfaced when no `currentTree`)
-- [ ] Versions sidebar in `TreeEditorShell` (legacy `EditorShell` has it; tree shell still missing) → Faza 4 polish
+- [x] Versions sidebar in `TreeEditorShell` + tree-aware restore
 - [x] Manual PNG re-render
+- [x] Mobile-responsive layout: Layers/Inspector behind toolbar Sheet triggers at `< md`, chat stacks below canvas at `< lg`
+- [x] Canvas scale fix (useLayoutEffect + synchronous measurement) — no more "1px strip" first paint
 
 **Deliverable hit:** edit visually or via chat → live tree updates → new version row per change.
 
@@ -75,9 +77,10 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 - [x] `parent_generation_id` traceability in DB and UI
 - [x] Nano Banana Pro integration in `lib/ai/gemini.ts` (`generateImage` → `gemini-3-pro-image-preview`)
 - [x] "Generate background" button works on tree banners — sets `canvas.background = image fill`, re-renders HTML, new version row, PNG refresh. Legacy HTML banners still use the `body[data-bw-bg]` style injection
-- [ ] Image asset library per workspace (no UI yet; assets land in `./storage/workspaces/{id}/generated/` so a list view is the only thing missing)
+- [x] Image asset library per workspace — `/workspaces/[id]/assets` lists thumbnails, copy-filename + delete actions, served via `/api/workspaces/[id]/assets/[name]`
+- [x] Brand logo flows into generated banners via multimodal image part + `__BW_LOGO__` placeholder rewrite
 
-**Deliverable hit:** save banner as template ✅, create new from template ✅, AI background works end-to-end on tree banners (verified live: $0.04 / image, 821 KB PNG, `canvas.background.kind = "image"`).
+**Deliverable hit:** save banner as template ✅, create new from template ✅, AI background works end-to-end on tree banners (verified live: $0.04 / image, 821 KB PNG, `canvas.background.kind = "image"`), asset library lists past backgrounds ✅, logo lands in fresh banners ✅.
 
 ## Faza 5 — Polish + OSS Release 🟡 partial
 

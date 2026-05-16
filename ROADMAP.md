@@ -26,9 +26,15 @@ What lands before the public OSS release.
 - ✅ Nano Banana background generation inside the tree editor (`canvas.background = image fill`, new version per call)
 - ✅ Onboarding hero on empty `/workspaces` (single form for workspace name + optional brand URL, fire-and-forget KB ingestion)
 - ✅ GHCR release workflow + `docker-compose.prod.yml` (prebuilt image self-host without cloning)
-- Image asset library per workspace (uploads + generated backgrounds in one panel)
-- Versions panel + side-by-side diff in the tree editor (legacy editor already has it)
+- ✅ Brand preview swatches + "New variant" shortcut on the generation form
+- ✅ Brand logo flows into generated banners via multimodal image + placeholder rewrite
+- ✅ Versions panel + tree-aware restore in the tree editor
+- ✅ Canvas first-paint scale fix
+- ✅ Image asset library per workspace
+- ✅ Mobile-responsive tree editor (Sheet drawers at `< md`)
 - Tag `v0.1.0` (release pipeline ready; just needs the first push to validate end-to-end)
+- Demo video / screenshots in README
+- Repo transfer to `bannerwright/bannerwright`
 
 ## Public OSS release (Faza 5)
 
