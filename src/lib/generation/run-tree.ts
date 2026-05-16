@@ -184,9 +184,12 @@ async function generateValidatedTree({
     try {
       const raw = JSON.parse(stripFences(result.text));
       const tree = bannerTreeSchema.parse(applyTreeDefaults(raw));
-      if (!tree.root.children || tree.root.children.length === 0) {
+      const textOrButtonCount = countTextLikeNodes(tree.root);
+      if (textOrButtonCount === 0) {
         throw new Error(
-          'Root frame has no children — banners must contain at least a headline and one supporting element. Generate a real banner with 5–10 nodes.',
+          `Banner has no text or button nodes (${
+            tree.root.children?.length ?? 0
+          } total children, all decorative). Banners MUST include at least a headline text node; ideally also a supporting line and a CTA button. Produce a real banner with 5–10 nodes including the headline.`,
         );
       }
       return tree;
@@ -213,6 +216,19 @@ function appendRetryFeedback(contents: ReturnType<typeof buildGenerateTreeConten
       ],
     },
   ];
+}
+
+function countTextLikeNodes(node: { type: string; children?: unknown[] }): number {
+  let count = 0;
+  if (node.type === 'text' || node.type === 'button') count += 1;
+  if (Array.isArray(node.children)) {
+    for (const child of node.children) {
+      if (child && typeof child === 'object' && 'type' in child) {
+        count += countTextLikeNodes(child as { type: string; children?: unknown[] });
+      }
+    }
+  }
+  return count;
 }
 
 function stripFences(text: string): string {
