@@ -21,46 +21,55 @@ export default function OpengraphImage() {
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
-        {/* top row — mark + brand */}
+        {/* top row — standalone mark + wordmark, no surrounding tile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 18,
-              background: 'linear-gradient(135deg, #11BB88 0%, #0A7F5C 100%)',
-            }}
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 48 48"
+            <defs>
+              <linearGradient
+                id="og-grad"
+                x1="2"
+                y1="4"
+                x2="30"
+                y2="28"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="#16D195" />
+                <stop offset="1" stopColor="#0A7F5C" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M10 5 L4 5 L4 27 L10 27"
+              stroke="url(#og-grad)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15 10 L9 10 L9 38 L15 38"
-                stroke="white"
-                strokeWidth="3.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              <path
-                d="M33 10 L39 10 L39 38 L33 38"
-                stroke="white"
-                strokeWidth="3.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              <rect x="18" y="20" width="12" height="3.2" rx="1" fill="white" />
-              <rect x="18" y="25" width="8" height="3.2" rx="1" fill="white" fillOpacity="0.7" />
-            </svg>
-          </div>
+            />
+            <path
+              d="M22 5 L28 5 L28 27 L22 27"
+              stroke="url(#og-grad)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <rect x="11.5" y="13" width="9" height="2.8" rx="1" fill="url(#og-grad)" />
+            <rect
+              x="11.5"
+              y="17.4"
+              width="6"
+              height="2.8"
+              rx="1"
+              fill="url(#og-grad)"
+              fillOpacity="0.6"
+            />
+          </svg>
           <span style={{ fontSize: 34, fontWeight: 500, letterSpacing: '-0.01em' }}>
             Bannerwright
           </span>
