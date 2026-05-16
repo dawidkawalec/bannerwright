@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const SITE_URL = 'https://bannerwright.kawalec.pl';
+const SITE_URL = 'https://bannerwright.com';
 const SITE_TITLE = 'Bannerwright — The AI workshop for HTML banners';
 const SITE_DESCRIPTION =
   'Self-hosted, open-source AI workshop. Drop a brand URL and a one-line brief — Bannerwright drafts editable HTML banners, version-controlled and ready to export as PNG. Yours, end-to-end.';

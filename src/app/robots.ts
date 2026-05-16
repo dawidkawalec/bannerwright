@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = 'https://bannerwright.kawalec.pl';
+const SITE_URL = 'https://bannerwright.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

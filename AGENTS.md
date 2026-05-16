@@ -17,7 +17,7 @@ Self-hostable, open-source AI workshop that turns a brief + brand context into e
 
 ## Workflow — VPS-only
 
-**No local dev server, no local database.** All work goes straight to the production install at https://bannerwright.kawalec.pl. Local stays as the editor + commits + tests, nothing more.
+**No local dev server, no local database.** All work goes straight to the production install at https://bannerwright.com (with https://bannerwright.kawalec.pl kept as a 301 redirect). Local stays as the editor + commits + tests, nothing more.
 
 ```bash
 pnpm ship "fix: tooltip colour"   # add → commit → push → remote build → curl /api/health

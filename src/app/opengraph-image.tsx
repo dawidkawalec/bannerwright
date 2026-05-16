@@ -115,7 +115,7 @@ export default function OpengraphImage() {
           <span style={{ maxWidth: 720 }}>
             Brief in. Brand-perfect creatives out — as editable HTML, ready to export.
           </span>
-          <span style={{ color: '#F5F7F6', fontWeight: 500 }}>bannerwright.kawalec.pl</span>
+          <span style={{ color: '#F5F7F6', fontWeight: 500 }}>bannerwright.com</span>
         </div>
       </div>
     ),

@@ -7,7 +7,7 @@ set -euo pipefail
 
 REMOTE_HOST="${BANNERWRIGHT_REMOTE_HOST:-kawalec-vps}"
 REMOTE_DIR="${BANNERWRIGHT_REMOTE_DIR:-/root/stacks/bannerwright}"
-URL="${BANNERWRIGHT_URL:-https://bannerwright.kawalec.pl}"
+URL="${BANNERWRIGHT_URL:-https://bannerwright.com}"
 
 cd "$(git rev-parse --show-toplevel)"
 

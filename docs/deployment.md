@@ -85,7 +85,7 @@ GitHub Actions (target):
 
 ## VPS deploy (kawalec-vps)
 
-The production install lives at **https://bannerwright.kawalec.pl**, running on the shared VPS behind a Caddy reverse proxy.
+The production install lives at **https://bannerwright.com** (canonical), running on the shared VPS behind a Caddy reverse proxy. The legacy `https://bannerwright.kawalec.pl` URL is kept as a 301 redirect to the canonical domain.
 
 Layout on the box (`kawalec-vps`):
 
@@ -107,12 +107,22 @@ The compose stack defines three services on the shared `proxy` network:
 The Caddy entry (in `/root/stacks/caddy/Caddyfile`):
 
 ```caddy
-bannerwright.kawalec.pl {
+bannerwright.com {
+    encode zstd gzip
     reverse_proxy bannerwright:3000
 }
 
+www.bannerwright.com {
+    redir https://bannerwright.com{uri} permanent
+}
+
+# Legacy subdomain — 301s to the canonical .com so old links keep working.
+bannerwright.kawalec.pl {
+    redir https://bannerwright.com{uri} permanent
+}
+
 www.bannerwright.kawalec.pl {
-    redir https://bannerwright.kawalec.pl{uri} permanent
+    redir https://bannerwright.com{uri} permanent
 }
 ```
 
