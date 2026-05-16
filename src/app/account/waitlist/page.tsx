@@ -30,7 +30,7 @@ export default async function WaitlistAdminPage() {
               Waitlist signups
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Anyone who's hit the early-access CTA on the marketing page.
+              Anyone who&apos;s hit the early-access CTA on the marketing page.
             </p>
           </div>
           <div className="grid grid-cols-4 gap-2 text-center text-xs">
