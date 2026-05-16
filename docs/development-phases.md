@@ -2,95 +2,102 @@
 
 Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliverable a human can verify in a browser.
 
-## Faza 0 — Foundations (Week 1)
+## Faza 0 — Foundations ✅ done
 
 **Goal:** scaffold runs, you log in, see an empty workspace list.
 
-- [ ] Repo: Next.js 15 + TS strict + Tailwind 4 + shadcn/ui + Drizzle + ESLint + Prettier
-- [ ] `docker-compose.yml`: `web` + `db` (Postgres 16 + pgvector, pg_trgm, uuid-ossp)
-- [ ] Drizzle schema (all tables from PRD §4) + first migration
-- [ ] Seed: 1 admin user from env, 1 demo workspace
-- [ ] Lucia Auth + middleware + `/login`
-- [ ] Layout: nav, workspace switcher
-- [ ] Workspaces CRUD (list, create, edit, delete)
-- [ ] `lib/storage/` (local FS adapter)
-- [ ] `lib/ai/gemini.ts` skeleton with `llm_usage` logging
-- [ ] `lib/renderer/playwright.ts` singleton + simple `renderHtmlToPng()`
-- [ ] `/api/health`
+- [x] Repo: Next.js 16 + TS strict + Tailwind 4 + shadcn-style primitives + Drizzle + ESLint + Prettier
+- [x] `docker-compose.yml`: `web` + `db` + `migrate` (Postgres 16 + pgvector, pg_trgm, uuid-ossp)
+- [x] Drizzle schema (all tables from PRD §4) + migrations
+- [x] Seed: 1 admin user from env, 1 demo workspace
+- [x] Manual sessions (Argon2id + `@oslojs/crypto`) + proxy.ts + `/login`
+- [x] Layout: sidebar, workspace switcher
+- [x] Workspaces CRUD (list, create, edit, delete)
+- [x] `lib/storage/` (local FS adapter)
+- [x] `lib/ai/gemini.ts` with `llm_usage` logging + retry
+- [x] `lib/renderer/playwright.ts` singleton + `renderHtmlToPng()`
+- [x] `/api/health`
 
-**Deliverable:** `docker compose up` → log in → create workspace → manual `renderHtmlToPng()` test produces PNG.
+**Deliverable hit:** prod stack at https://bannerwright.com, login works, healthcheck green, `renderHtmlToPng()` produces PNGs.
 
-## Faza 1 — Knowledge Base (Week 2)
+## Faza 1 — Knowledge Base ✅ done
 
 **Goal:** add a client URL, see screenshot + extracted brand.
 
-- [ ] KB sources CRUD (URL / upload / text)
-- [ ] Playwright ingestion job (URL → screenshot + content)
-- [ ] Fire-and-forget pattern with status updates in DB
-- [ ] UI: KB list, status indicators, screenshot preview
-- [ ] "Auto-detect brand" — Gemini 3.1 Pro extracts colours, fonts, tone (structured Zod output)
-- [ ] Brand settings UI (manual override)
-- [ ] Logo upload
+- [x] KB sources CRUD (URL / upload / text)
+- [x] Playwright ingestion job (`scrapeUrl` + `processKbUrl`)
+- [x] Fire-and-forget pattern with status updates (`pending` → `processing` → `ready` / `failed`)
+- [x] UI: KB list, status indicators, screenshot preview, auto-refresh while processing
+- [x] "Auto-detect brand" — Gemini 3.1 Pro extracts colours, fonts, tone via structured output
+- [x] Brand settings UI (manual override)
+- [x] Logo upload
 
-**Deliverable:** paste URL → 10 s later screenshot + auto-filled brand colours.
+**Deliverable hit:** smoke-tested on stripe.com — ready in ~15s with 11k chars + screenshot, auto-detect filled `#635BFF` purple + `#0A2540` navy + `#00D4FF` cyan + Inter.
 
-## Faza 2 — Generation MVP (Week 3–4)
+## Faza 2 — Generation MVP ✅ done (with retry guard)
 
 **Goal:** brief → generated banner.
 
-- [ ] `POST /api/generations` with SSE streaming
-- [ ] Prompt template `lib/ai/prompts/generate-html.ts` + 3–5 gold examples
-- [ ] Full Gemini 3.1 Pro pipeline (multimodal: text + KB screenshots)
-- [ ] Iframe live preview component (sandboxed)
-- [ ] Generations list per workspace
-- [ ] PNG render + download
-- [ ] Generation detail page (HTML view + PNG preview)
-- [ ] `llm_usage` tracking confirmed
+- [x] `POST /api/generations` with SSE streaming
+- [x] Prompt template `lib/ai/prompts/generate-tree.ts` + structured-output schema
+- [x] Full Gemini 3.1 Pro pipeline (multimodal: text + KB screenshots + brand)
+- [x] Iframe live preview component (sandboxed)
+- [x] Generations list per workspace
+- [x] PNG render + download via `/api/generations/[id]/png`
+- [x] Generation detail page
+- [x] `llm_usage` tracking confirmed (cost-per-call in DB)
+- [x] Empty-tree retry guard (`run-tree.ts` retries when Gemini returns 0 text/button nodes)
 
-**Deliverable:** brief in → ~30 s later HTML in iframe + downloadable PNG.
+**Deliverable hit:** brief → 25-45s → tree-based banner with 5-17 nodes, 1080×1080 PNG downloadable.
 
-## Faza 3 — Editor (Week 5)
+## Faza 3 — Editor ✅ done (tree-based; some legacy features pending migration)
 
-**Goal:** Monaco + iframe + AI chat split-view.
+**Goal:** visual editor with AI chat split-view.
 
-- [ ] Monaco Editor (`@monaco-editor/react`) for HTML
-- [ ] Live iframe re-render (debounced 500 ms manual; >200 ms last-chunk for streaming)
-- [ ] Chat panel UI (messages, input, streaming)
-- [ ] `POST /api/generations/[id]/edit` SSE
-- [ ] Snapshot per change (`generation_versions`, both manual and AI)
-- [ ] Versions sidebar: list, click-to-view, "Restore" creates a NEW version
-- [ ] Manual PNG re-render trigger
+- [x] Tree editor (Webflow-style): Layers panel + Canvas + Inspector + chat
+- [x] Drag-to-move shapes on canvas
+- [x] Inline text editing (double-click)
+- [x] Chat panel UI (multi-turn, streaming via SSE)
+- [x] `POST /api/generations/[id]/edit` SSE → new `generation_versions` row
+- [x] Snapshot per change (`generation_versions`, `triggered_by` ∈ {initial, ai_edit, visual_edit, restore})
+- [x] Monaco code tab (legacy `EditorShell`, surfaced when no `currentTree`)
+- [ ] Versions sidebar in `TreeEditorShell` (legacy `EditorShell` has it; tree shell still missing) → Faza 4 polish
+- [x] Manual PNG re-render
 
-**Deliverable:** edit HTML manually OR via chat → live preview → versioning works → restore works.
+**Deliverable hit:** edit visually or via chat → live tree updates → new version row per change.
 
-## Faza 4 — Templates + Nano Banana (Week 6)
+## Faza 4 — Templates + Nano Banana 🟡 partial
 
 **Goal:** promote to template, AI generates backgrounds.
 
-- [ ] "Promote to template" + "Use template" flow
-- [ ] Templates gallery per workspace
-- [ ] `parent_generation_id` traceability
-- [ ] Nano Banana Pro integration (function-call from Gemini 3.1 Pro)
-- [ ] "Generate background" button in editor
-- [ ] Image asset library per workspace
+- [x] "Promote to template" + "Use template" flow (with `parent_generation_id`)
+- [x] Templates gallery per workspace
+- [x] `parent_generation_id` traceability in DB and UI
+- [x] Nano Banana Pro integration in `lib/ai/gemini.ts` (`generateImage` → `gemini-3-pro-image-preview`)
+- [ ] "Generate background" button on tree banners (currently throws "tree-based image fill lands in Phase 2" — only works on legacy HTML banners)
+- [ ] Image asset library per workspace (no UI yet)
 
-**Deliverable:** save banner as template → create new from template → AI generates a custom background.
+**Deliverable:** save banner as template ✅, create new from template ✅, AI background blocked for tree banners ❌.
 
-## Faza 5 — Polish + OSS Release (Week 7)
+## Faza 5 — Polish + OSS Release 🟡 partial
 
 **Goal:** internal use stable + GitHub release.
 
-- [ ] Error handling + retry (LLM rate limits, Playwright timeouts)
-- [ ] Onboarding wizard (first login → create workspace → add URL → generate first banner)
-- [ ] README + self-hosting guide
-- [ ] `.env.example` with comments for every var
-- [ ] Prebuilt Docker image on GHCR
-- [ ] GitHub Actions: lint + typecheck + build
-- [ ] LICENSE (MIT)
-- [ ] Demo video / screenshots
+- [x] `lib/ai/gemini.ts` retry on 429/503/timeout
+- [x] Retry-on-empty-tree in `run-tree.ts`
+- [x] CONTRIBUTING / SECURITY / TRADEMARK / CHANGELOG / ROADMAP on the public surface
+- [x] ADRs 0001-0005 for non-trivial decisions
+- [x] LICENSE (MIT)
+- [x] `.env.example` with comments
+- [ ] Onboarding wizard (empty `/workspaces` should funnel new users to first banner)
+- [ ] GitHub Actions: lint + typecheck + build on push/PR
+- [ ] Prebuilt Docker image on GHCR (`ghcr.io/<owner>/bannerwright:v0.1.0` + `:latest`)
+- [ ] Tag `v0.1.0`
+- [ ] Repo transfer to `bannerwright/bannerwright`
+- [ ] Demo video / screenshots in README
 - [ ] Public release
 
-**Deliverable:** `git clone` + `docker compose up` from a stranger's VPS works.
+**Deliverable target:** `git clone` + `docker compose up` from a stranger's VPS works — pending GHCR image + README quickstart.
 
 ## Out of MVP (v2+)
 

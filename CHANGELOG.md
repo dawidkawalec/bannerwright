@@ -19,10 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Brand palette unified to a single Uber-green family (HUE 152). All inline hex literals migrated from `#11BB88` (teal HUE 165) to `#06C167`; light-mode primary CSS var aligned with dark mode.
 - Production domain cut over to https://bannerwright.com. Legacy `bannerwright.kawalec.pl` kept as a 301 redirect.
+- Status reflected in `AGENTS.md` / `ROADMAP.md` / `docs/development-phases.md`: Faza 0-3 marked done end-to-end (auth, KB ingestion, brand auto-detect, tree generation, tree editor, AI chat edit, templates, PNG export). Faza 4-5 partial.
 
 ### Fixed
 
 - `_next/image` failed for `/landing/banners/*` because the auth proxy didn't whitelist them — proxy now allows common static-asset extensions and the `/landing` prefix.
+- `runTreeGeneration` was occasionally persisting "banners" with `root.children = []` because Gemini 3.1 Pro intermittently returned a minimum-valid empty tree (≈300 output tokens) under the prior "HARD LIMIT 12, NEVER exceed" prompt. The prompt now asks for a positive 5-10 node budget with required headline + supporting element, and the validator counts text/button nodes — if there are none, the existing retry loop fires with explicit feedback. Smoke-tested: 3-attempt retry chain landed a 17-node banner with 4 KB HTML output.
 
 ## How to read this file
 

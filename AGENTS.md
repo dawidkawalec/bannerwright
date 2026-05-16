@@ -2,7 +2,7 @@
 
 Self-hostable, open-source AI workshop that turns a brief + brand context into editable HTML banners (PNG export) for social media. **A wright is a maker** — banners are HTML you can read, edit, and own; PNG is just the export.
 
-**Domain:** bannerwright.com · **License:** MIT · **Status:** Faza 0 scaffolded + public LP live (auth, workspaces CRUD, render skeleton, marketing site at bannerwright.com, private-beta waitlist; AI flows still ahead)
+**Domain:** bannerwright.com · **License:** MIT · **Status:** Fazy 0-3 live in prod (auth, workspaces, KB ingestion + brand auto-detect, brief → tree generation, tree editor with Layers/Canvas/Inspector, AI chat edit, templates with parent_generation lineage, PNG export). Fazy 4-5 in progress (Nano Banana wired but tree-side blocked, no GHCR/v0.1.0 yet)
 
 ## Stack
 

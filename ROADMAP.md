@@ -4,26 +4,29 @@ A summary of where Bannerwright is and where it's going. No dates promised — o
 
 For the long-form spec, see [PRD.md](PRD.md). For why specific choices were made, see [docs/decisions/](docs/decisions/).
 
-## Now — Private beta (Faza 0–1)
+## Now — Private beta (Faza 0–3 done, polish + Faza 4 pending)
 
-The marketing site is live, the waitlist is open, the core stack runs on a single VPS.
+The marketing site is live, the waitlist is open, the core stack runs on a single VPS, and the editing workshop is functional end-to-end.
 
 - ✅ Single-user auth (manual sessions, Argon2id)
 - ✅ Workspace CRUD
 - ✅ Marketing landing at https://bannerwright.com
 - ✅ Waitlist signup + admin review at `/account/waitlist`
-- 🟡 Brand knowledge base (URL screenshot + colour/font/voice extraction) — in progress
+- ✅ Brand knowledge base: URL → Playwright screenshot + body text scrape, status pending → ready
+- ✅ Auto-detect brand (Gemini 3.1 Pro multimodal): pulls colours, fonts, tone from KB sources and writes them onto the workspace
+- ✅ Brief → tree-based banner generation (Gemini 3.1 Pro structured output), with retry guard for anemic outputs
+- ✅ Tree editor (Webflow-style): Layers panel, Canvas (drag-to-move), Inspector, plus AI chat edit
+- ✅ Templates: promote any banner, "Use template" creates a copy with `parent_generation_id`
+- ✅ PNG render + download via `/api/generations/[id]/png`
 
-## Next — MVP (Faza 2–4)
+## Next — MVP polish (Faza 4)
 
 What lands before the public OSS release.
 
-- HTML generation from a brief + brand profile (Gemini 3.1 Pro, streamed)
-- Editor split-view: Monaco code · iframe preview · AI chat
-- Multi-turn chat editor (full HTML rewrite per turn, version per edit)
-- Reusable templates with `parent_generation` lineage
-- On-demand AI imagery (Nano Banana) embedded straight into the HTML
-- Version history with side-by-side diff and one-click restore
+- Surface Nano Banana background generation inside the tree editor (Server Action exists; currently throws on tree-based banners and is only wired into the legacy HTML editor)
+- Image asset library per workspace (uploads + generated backgrounds in one panel)
+- Versions panel + side-by-side diff in the tree editor (legacy editor already has it)
+- Onboarding wizard: first login → create workspace → add URL → generate first banner
 
 ## Public OSS release (Faza 5)
 
