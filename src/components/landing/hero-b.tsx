@@ -1,12 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LetterReveal } from './letter-reveal';
 import { GithubIcon } from './github-icon';
+import { WaitlistDialog } from './waitlist-dialog';
 
 const ALL_BANNERS = [
   '/landing/banners/01-maple-holiday-drop.png',
@@ -85,12 +85,12 @@ export function HeroB() {
           transition={{ duration: 0.6, delay: 0.9 }}
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
-          <Button asChild size="lg" className="h-11 px-5 text-sm">
-            <Link href="/login">
-              Start building
+          <WaitlistDialog source="final_cta">
+            <Button size="lg" className="h-11 px-5 text-sm">
+              Request early access
               <ArrowRight className="size-4" />
-            </Link>
-          </Button>
+            </Button>
+          </WaitlistDialog>
           <Button asChild variant="outline" size="lg" className="h-11 px-5 text-sm">
             <a
               href="https://github.com/dawidkawalec/bannerwright"

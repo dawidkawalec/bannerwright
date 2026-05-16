@@ -15,6 +15,13 @@
       "when": 1778539238841,
       "tag": "0001_mighty_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778928475434,
+      "tag": "0002_rapid_phalanx",
+      "breakpoints": true
     }
   ]
 }

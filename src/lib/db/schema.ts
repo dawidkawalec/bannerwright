@@ -273,6 +273,34 @@ export const llmUsage = pgTable(
 );
 
 // ============================================================================
+// WAITLIST (private-beta access requests)
+// ============================================================================
+// Lightweight signup collection while we're in private beta. Admin reviews,
+// flips status to `contacted`, sends a manual welcome email + the self-host
+// guide. Schema kept flexible so a future SaaS phase can grow into it.
+export const waitlistSignups = pgTable(
+  'waitlist_signups',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull().unique(),
+    name: text('name'),
+    useCase: text('use_case'),
+    source: text('source'), // 'announcement_banner' | 'final_cta' | 'direct' | ...
+    status: text('status')
+      .notNull()
+      .default('pending')
+      .$type<'pending' | 'contacted' | 'installed' | 'declined'>(),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    contactedAt: timestamp('contacted_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('idx_waitlist_status_created').on(t.status, t.createdAt),
+    index('idx_waitlist_created').on(t.createdAt),
+  ],
+);
+
+// ============================================================================
 // Type exports
 // ============================================================================
 export type User = typeof users.$inferSelect;
@@ -287,3 +315,6 @@ export type GenerationVersion = typeof generationVersions.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type LlmUsageRow = typeof llmUsage.$inferSelect;
 export type NewLlmUsage = typeof llmUsage.$inferInsert;
+export type WaitlistSignup = typeof waitlistSignups.$inferSelect;
+export type NewWaitlistSignup = typeof waitlistSignups.$inferInsert;
+export type WaitlistStatus = 'pending' | 'contacted' | 'installed' | 'declined';
