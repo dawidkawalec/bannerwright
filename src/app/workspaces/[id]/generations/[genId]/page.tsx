@@ -83,6 +83,7 @@ export default async function GenerationEditorPage({ params }: Props) {
 
       {generation.currentTree ? (
         <TreeEditorShell
+          key={generation.updatedAt.toISOString()}
           workspaceId={workspace.id}
           generationId={generation.id}
           initialTree={generation.currentTree}

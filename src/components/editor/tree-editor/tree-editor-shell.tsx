@@ -10,6 +10,7 @@ import { saveTreeEdit } from '@/app/actions/generations';
 import { createEditorStore } from '@/lib/tree/store';
 import { bannerTreeSchema } from '@/lib/tree/schema';
 import type { BannerTree } from '@/lib/tree/types';
+import { BackgroundButton } from '../background-button';
 import { ChatPanel, type ChatRow, type ChatStage } from '../chat-panel';
 import { TreeCanvas } from './canvas';
 import { LayersPanel } from './layers-panel';
@@ -257,6 +258,13 @@ export function TreeEditorShell({
         </div>
       </div>
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
+        <div className="flex items-center justify-end">
+          <BackgroundButton
+            workspaceId={workspaceId}
+            generationId={generationId}
+            disabled={chatStage !== 'idle'}
+          />
+        </div>
         <ChatPanel
           chat={chat}
           onSend={handleChatSend}
