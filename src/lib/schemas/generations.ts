@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { STYLE_PRESET_IDS } from '@/lib/ai/style-presets';
 
 export const formats = [
   'square_1080',
@@ -21,6 +22,10 @@ export const generateBriefSchema = z.object({
   title: z.string().max(120).optional(),
   /** Storage keys of inspiration images already uploaded via /api/workspaces/[id]/attachments. */
   attachmentKeys: z.array(z.string().max(300)).max(5).optional(),
+  /** Visual style preset — drives Nano Banana background + typography hints. */
+  style: z.enum(STYLE_PRESET_IDS).optional(),
+  /** Explicit opt-out for Nano Banana background even when the preset wants one. */
+  withBackground: z.boolean().optional(),
 });
 
 export type GenerateBriefInput = z.infer<typeof generateBriefSchema>;

@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/select';
 import { BannerPreview } from '@/components/banner-preview';
 import { BrandPreview } from '@/components/editor/brand-preview';
+import { StyleSelector } from '@/components/editor/style-selector';
 import { formats, formatLabels } from '@/lib/schemas/generations';
+import { STYLE_PRESETS, type StylePresetId } from '@/lib/ai/style-presets';
 import type { BrandColors, BrandFonts, GenerationFormat } from '@/lib/db/schema';
 import { AttachmentDropzone, type Attachment } from '@/components/ai/attachment-dropzone';
 
@@ -29,6 +31,7 @@ type Step =
 
 const STEP_LABELS: Record<string, string> = {
   analyzing_kb: 'Analysing knowledge base…',
+  rendering_background: 'Painting background with Nano Banana…',
   generating_html: 'Drafting HTML…',
   generating_tree: 'Designing layout…',
   rendering_png: 'Rendering PNG…',
@@ -56,6 +59,8 @@ export function GenerateFlow({
   const [brief, setBrief] = useState(initialBrief);
   const [title, setTitle] = useState(initialTitle);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [style, setStyle] = useState<StylePresetId>('bold');
+  const [withBackground, setWithBackground] = useState(true);
   const [step, setStep] = useState<Step>({ kind: 'idle' });
   const [html, setHtml] = useState<string>('');
   const [generationId, setGenerationId] = useState<string | null>(null);
@@ -80,6 +85,8 @@ export function GenerateFlow({
         brief,
         title: title || undefined,
         attachmentKeys: attachments.length > 0 ? attachments.map((a) => a.key) : undefined,
+        style,
+        withBackground,
       }),
     });
 
@@ -200,6 +207,29 @@ export function GenerateFlow({
                 helper="Drag, paste (⌘V) or click. Mood boards, screenshots, reference banners — used as visual cues for the AI."
               />
             </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Visual style</Label>
+              <StyleSelector value={style} onChange={setStyle} disabled={isWorking} />
+            </div>
+
+            {STYLE_PRESETS[style].withBackground && (
+              <label className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
+                <input
+                  type="checkbox"
+                  checked={withBackground}
+                  onChange={(e) => setWithBackground(e.target.checked)}
+                  disabled={isWorking}
+                  className="mt-0.5 size-4 accent-primary"
+                />
+                <span className="flex-1 text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">AI background image</span>
+                  {' '}
+                  · Nano Banana generates a custom 1080×1080 background in your brand colours
+                  before Gemini composes the text on top. Adds ~10 s and ~$0.04 per banner.
+                </span>
+              </label>
+            )}
 
             <BrandPreview colors={brandColors} fonts={brandFonts} workspaceId={workspaceId} />
 

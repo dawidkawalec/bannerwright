@@ -1,9 +1,14 @@
-import { generateContent } from '@/lib/ai/gemini';
+import { generateContent, generateImage } from '@/lib/ai/gemini';
 import { assertWithinDailyCaps } from '@/lib/ai/limits';
 import {
   buildGenerateTreeContents,
   GENERATE_TREE_SYSTEM,
 } from '@/lib/ai/prompts/generate-tree';
+import {
+  buildBackgroundPrompt,
+  getPreset,
+  type StylePresetId,
+} from '@/lib/ai/style-presets';
 import {
   insertGeneration,
   insertGenerationVersion,
@@ -16,7 +21,7 @@ import type { GenerationFormat } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
 import { rasterizeSvgToPng } from '@/lib/renderer/rasterize-svg';
-import { getStorage } from '@/lib/storage';
+import { getStorage, storageKeys } from '@/lib/storage';
 import { loadAttachments } from '@/lib/storage/attachments';
 import { applyTreeDefaults } from '@/lib/tree/defaults';
 import { bannerTreeSchema } from '@/lib/tree/schema';
@@ -31,10 +36,14 @@ export type RunTreeInput = {
   brief: string;
   title?: string;
   attachmentKeys?: string[];
+  /** Visual style preset — drives the Nano Banana background prompt + typography hint. */
+  style?: StylePresetId;
+  /** Force-disable background generation even when the preset wants one. */
+  withBackground?: boolean;
 };
 
 export type RunTreeEvent =
-  | { type: 'progress'; step: 'analyzing_kb' | 'generating_tree' | 'rendering_png' }
+  | { type: 'progress'; step: 'analyzing_kb' | 'rendering_background' | 'generating_tree' | 'rendering_png' }
   | {
       type: 'done';
       generationId: string;
@@ -105,10 +114,43 @@ export async function runTreeGeneration(
     }
   }
 
+  // ── Step: Nano Banana background (when the preset wants one) ──────────────
+  const preset = getPreset(input.style);
+  const wantsBackground = input.withBackground ?? preset.withBackground;
+  let bgDataUri: string | undefined;
+  let bgCostUsd = 0;
+  if (wantsBackground) {
+    const prompt = buildBackgroundPrompt(preset, workspace.brandColors);
+    if (prompt) {
+      emit({ type: 'progress', step: 'rendering_background' });
+      try {
+        const { bytes, mimeType, costUsd } = await generateImage({
+          model: 'gemini-3-pro-image-preview',
+          operation: 'image_gen',
+          workspaceId: workspace.id,
+          prompt,
+        });
+        bgCostUsd = costUsd;
+        // Persist to assets/ so the user sees it in the library too.
+        const filename = `bg-${Date.now()}.${mimeType === 'image/jpeg' ? 'jpg' : 'png'}`;
+        const key = storageKeys.generated(workspace.id, filename);
+        await storage.put(key, bytes, mimeType);
+        bgDataUri = `data:${mimeType};base64,${bytes.toString('base64')}`;
+      } catch (err) {
+        logger.warn({ err, style: preset.id }, 'Nano Banana background failed — continuing without it');
+      }
+    }
+  }
+
   emit({ type: 'progress', step: 'generating_tree' });
+
+  const systemInstruction = bgDataUri
+    ? `${GENERATE_TREE_SYSTEM}${preset.typographyHint}\n\nIMPORTANT: the canvas already has a custom AI-generated background image (set server-side after your output). DO NOT set canvas.background yourself. Position text and shapes for high contrast against a rich background — assume the centre area has reasonable negative space.`
+    : `${GENERATE_TREE_SYSTEM}${preset.typographyHint}`;
 
   const tree = await generateValidatedTree({
     workspaceId: workspace.id,
+    systemInstruction,
     promptInput: {
       format: input.format,
       brief: input.brief,
@@ -123,6 +165,15 @@ export async function runTreeGeneration(
 
   if (logo) {
     replaceLogoPlaceholder(tree, logo);
+  }
+
+  // Server-side override of canvas.background so the model can't accidentally
+  // wipe the AI-generated bg with a plain colour fill.
+  if (bgDataUri) {
+    tree.canvas = {
+      ...tree.canvas,
+      background: { kind: 'image', src: bgDataUri, fit: 'cover' },
+    };
   }
 
   const htmlCache = renderTreeToHtml(tree);
@@ -177,17 +228,19 @@ export async function runTreeGeneration(
     htmlFinal: htmlCache,
     pngUrl: `/api/generations/${generation.id}/png`,
     tokens: { input: 0, output: 0 },
-    costUsd: 0,
+    costUsd: bgCostUsd,
   });
 }
 
 type GenerateValidatedInput = {
   workspaceId: string;
+  systemInstruction: string;
   promptInput: Parameters<typeof buildGenerateTreeContents>[0];
 };
 
 async function generateValidatedTree({
   workspaceId,
+  systemInstruction,
   promptInput,
 }: GenerateValidatedInput): Promise<BannerTree> {
   let lastError: string | undefined;
@@ -200,7 +253,7 @@ async function generateValidatedTree({
       model: 'gemini-3.1-pro-preview',
       operation: 'generate_html',
       workspaceId,
-      systemInstruction: GENERATE_TREE_SYSTEM,
+      systemInstruction,
       contents,
       responseSchema: BANNER_TREE_JSON_SCHEMA,
     });
