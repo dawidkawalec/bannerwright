@@ -184,6 +184,11 @@ async function generateValidatedTree({
     try {
       const raw = JSON.parse(stripFences(result.text));
       const tree = bannerTreeSchema.parse(applyTreeDefaults(raw));
+      if (!tree.root.children || tree.root.children.length === 0) {
+        throw new Error(
+          'Root frame has no children — banners must contain at least a headline and one supporting element. Generate a real banner with 5–10 nodes.',
+        );
+      }
       return tree;
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);
