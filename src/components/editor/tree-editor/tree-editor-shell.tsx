@@ -3,8 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from 'zustand';
-import { CheckCircle2, Loader2, Redo2, Undo2, XCircle } from 'lucide-react';
+import { CheckCircle2, Layers as LayersIcon, Loader2, Redo2, Settings2, Undo2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { restoreVersion, saveTreeEdit } from '@/app/actions/generations';
 import { createEditorStore } from '@/lib/tree/store';
@@ -222,28 +229,34 @@ export function TreeEditorShell({
     [setSelection, store],
   );
 
+  const layersNode = (
+    <LayersPanel
+      tree={tree}
+      selection={selection}
+      hover={hover}
+      onSelect={handleSelect}
+      onHover={setHover}
+      onToggleVisible={(id, visible) => patchNode(id, { visible })}
+      onToggleLocked={(id, locked) => patchNode(id, { locked })}
+    />
+  );
+  const inspectorNode = <Inspector tree={tree} selection={selection} onPatch={patchNode} />;
+
   return (
-    <div className="grid h-[calc(100vh-220px)] min-h-[600px] grid-cols-[minmax(0,1fr)_300px] gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-      <div className="flex min-h-0 flex-col rounded-lg border border-border bg-card">
+    <div className="grid min-h-[600px] grid-cols-1 gap-4 lg:h-[calc(100vh-220px)] lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="flex min-h-[520px] flex-col overflow-hidden rounded-lg border border-border bg-card lg:min-h-0">
         <Toolbar
           status={status}
           canUndo={canUndo}
           canRedo={canRedo}
           onUndo={() => store.temporal.getState().undo()}
           onRedo={() => store.temporal.getState().redo()}
+          mobileLayers={layersNode}
+          mobileInspector={inspectorNode}
         />
-        <div className="grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)_220px] divide-x divide-border overflow-hidden xl:grid-cols-[200px_minmax(0,1fr)_260px]">
-          <div className="min-h-0 overflow-y-auto bg-card">
-            <LayersPanel
-              tree={tree}
-              selection={selection}
-              hover={hover}
-              onSelect={handleSelect}
-              onHover={setHover}
-              onToggleVisible={(id, visible) => patchNode(id, { visible })}
-              onToggleLocked={(id, locked) => patchNode(id, { locked })}
-            />
-          </div>
+        {/* Desktop: three-column split. Mobile (< md): canvas only — Layers/Inspector live in Sheets. */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 divide-x divide-border overflow-hidden md:grid-cols-[180px_minmax(0,1fr)_220px] xl:grid-cols-[200px_minmax(0,1fr)_260px]">
+          <div className="hidden min-h-0 overflow-y-auto bg-card md:block">{layersNode}</div>
           <div className="min-h-0 overflow-hidden">
             <TreeCanvas
               tree={tree}
@@ -255,9 +268,7 @@ export function TreeEditorShell({
               onPatchText={(id, text) => patchNode(id, { text })}
             />
           </div>
-          <div className="min-h-0 overflow-y-auto bg-card">
-            <Inspector tree={tree} selection={selection} onPatch={patchNode} />
-          </div>
+          <div className="hidden min-h-0 overflow-y-auto bg-card md:block">{inspectorNode}</div>
         </div>
       </div>
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
@@ -299,16 +310,38 @@ function Toolbar({
   canRedo,
   onUndo,
   onRedo,
+  mobileLayers,
+  mobileInspector,
 }: {
   status: SaveStatus;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  mobileLayers: React.ReactNode;
+  mobileInspector: React.ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between border-b border-border px-3 py-2">
       <div className="flex items-center gap-1">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Open layers"
+              className="md:hidden"
+            >
+              <LayersIcon className="size-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] p-0">
+            <SheetHeader className="border-b border-border px-4 py-3">
+              <SheetTitle>Layers</SheetTitle>
+            </SheetHeader>
+            <div className="h-[calc(100vh-56px)] overflow-y-auto">{mobileLayers}</div>
+          </SheetContent>
+        </Sheet>
         <Button
           variant="ghost"
           size="sm"
@@ -328,7 +361,27 @@ function Toolbar({
           <Redo2 className="size-4" />
         </Button>
       </div>
-      <StatusPill status={status} />
+      <div className="flex items-center gap-2">
+        <StatusPill status={status} />
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Open inspector"
+              className="md:hidden"
+            >
+              <Settings2 className="size-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[320px] p-0">
+            <SheetHeader className="border-b border-border px-4 py-3">
+              <SheetTitle>Inspector</SheetTitle>
+            </SheetHeader>
+            <div className="h-[calc(100vh-56px)] overflow-y-auto">{mobileInspector}</div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }
