@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Hammer, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import { getSession } from '@/lib/auth/current-user';
+import { LogoMark } from '@/components/brand/logo';
 import { LoginForm } from './login-form';
 
 export const metadata = { title: 'Sign in — Bannerwright' };
@@ -29,9 +30,9 @@ export default async function LoginPage({
         {/* Left: brand panel */}
         <div className="relative hidden flex-col justify-between bg-gradient-to-br from-primary via-primary/90 to-blue-500 p-10 text-primary-foreground lg:flex">
           <div>
-            <div className="flex items-center gap-2 text-base font-semibold tracking-tight">
+            <div className="flex items-center gap-2.5 text-base font-semibold tracking-tight">
               <span className="grid size-8 place-items-center rounded-lg bg-white/15 backdrop-blur">
-                <Hammer className="size-4" />
+                <LogoMark className="size-5" />
               </span>
               Bannerwright
             </div>

@@ -1,16 +1,82 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LetterReveal } from './letter-reveal';
 import { GithubIcon } from './github-icon';
 
+// Static banner grid sitting behind the CTA — same vibe as the hero wall but
+// not animated. Each row is a flex of square-ish banner thumbnails; rows are
+// offset slightly so the seams aren't aligned.
+const ROW_A = [
+  '/landing/banners/01-maple-holiday-drop.png',
+  '/landing/banners/04-olivetto-summer-menu.png',
+  '/landing/banners/07-brushwork-academy-cohort.png',
+  '/landing/banners/02-makers-hour-podcast.png',
+  '/landing/banners/10-stillwater-studio.png',
+  '/landing/banners/09-northbrook-loft-listing.png',
+];
+const ROW_B = [
+  '/landing/banners/06-foundry-coffee-opening.png',
+  '/landing/banners/09-northbrook-loft-listing.png',
+  '/landing/banners/01-maple-holiday-drop.png',
+  '/landing/banners/04-olivetto-summer-menu.png',
+  '/landing/banners/07-brushwork-academy-cohort.png',
+  '/landing/banners/02-makers-hour-podcast.png',
+];
+
 export function FinalCTA() {
   return (
-    <section id="early-access" className="relative overflow-hidden px-6 py-28 md:py-40">
-      <div className="bw-hero-bg pointer-events-none absolute inset-0 -z-10 opacity-80" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <section
+      id="early-access"
+      className="relative overflow-hidden bg-[oklch(0.12_0.005_250)] px-6 py-28 md:py-40"
+    >
+      {/* Banner wall — two static rows of thumbnails, the second offset for variation */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20 flex flex-col gap-4 py-6 [mask-image:radial-gradient(ellipse_at_center,#000_30%,transparent_85%)]"
+      >
+        <div className="flex shrink-0 gap-4 px-[-2rem]">
+          {ROW_A.map((src, i) => (
+            <div
+              key={`a-${i}`}
+              className="relative aspect-square h-40 shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-xl shadow-black/40 md:h-48"
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 192px, 160px"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex shrink-0 -translate-x-16 gap-4">
+          {ROW_B.map((src, i) => (
+            <div
+              key={`b-${i}`}
+              className="relative aspect-square h-40 shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-xl shadow-black/40 md:h-48"
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 192px, 160px"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <div className="mx-auto max-w-3xl text-center">
+      {/* Dark scrim — heaviest behind the headline, fading to transparent at the rim */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.78)_0%,oklch(0.08_0.005_250_/_0.88)_55%,oklch(0.08_0.005_250)_90%)]" />
+
+      {/* Thin teal divider line at the top edge */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+      <div className="relative mx-auto max-w-3xl text-center">
         <LetterReveal
           as="h2"
           text="Build your first banner in 60 seconds."

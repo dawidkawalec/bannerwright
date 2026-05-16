@@ -16,7 +16,7 @@ export default function OpengraphImage() {
           justifyContent: 'space-between',
           padding: 80,
           background:
-            'radial-gradient(ellipse at top left, rgba(17,187,136,0.22), transparent 55%), radial-gradient(ellipse at bottom right, rgba(95,76,237,0.18), transparent 55%), linear-gradient(180deg, #0B1112 0%, #0A1A18 100%)',
+            'radial-gradient(ellipse at top left, rgba(6,193,103,0.22), transparent 55%), radial-gradient(ellipse at bottom right, rgba(95,76,237,0.18), transparent 55%), linear-gradient(180deg, #0B1112 0%, #0A1A18 100%)',
           color: '#F5F7F6',
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
@@ -81,7 +81,7 @@ export default function OpengraphImage() {
             style={{
               fontSize: 22,
               fontWeight: 500,
-              color: '#11BB88',
+              color: '#06C167',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
             }}
