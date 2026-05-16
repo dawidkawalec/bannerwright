@@ -34,7 +34,7 @@ export function FinalCTA() {
       {/* Banner wall — two static rows of thumbnails, the second offset for variation */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 flex flex-col gap-4 py-6 [mask-image:radial-gradient(ellipse_at_center,#000_30%,transparent_85%)]"
+        className="pointer-events-none absolute inset-0 -z-20 flex flex-col items-stretch justify-center gap-4 [mask-image:radial-gradient(ellipse_120%_70%_at_center,#000_50%,transparent_95%)]"
       >
         <div className="flex shrink-0 gap-4 px-[-2rem]">
           {ROW_A.map((src, i) => (
@@ -70,8 +70,8 @@ export function FinalCTA() {
         </div>
       </div>
 
-      {/* Dark scrim — heaviest behind the headline, fading to transparent at the rim */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.78)_0%,oklch(0.08_0.005_250_/_0.88)_55%,oklch(0.08_0.005_250)_90%)]" />
+      {/* Dark scrim — uniformly dim so banners read as accents behind the H1, never compete */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,oklch(0.08_0.005_250_/_0.68)_0%,oklch(0.08_0.005_250_/_0.82)_60%,oklch(0.08_0.005_250)_95%)]" />
 
       {/* Thin teal divider line at the top edge */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
