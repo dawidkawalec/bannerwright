@@ -18,9 +18,10 @@ const PUBLIC_PATH_PREFIXES = [
 ];
 
 // Static asset file extensions always reachable without auth.
-// Covers images, fonts, and common static resources served from `public/`.
+// Covers images, fonts, common static resources, and PWA / SEO routes
+// (sitemap.xml, robots.txt, manifest.webmanifest).
 const PUBLIC_FILE_EXTENSIONS =
-  /\.(?:png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|css|map|txt|xml|json)$/i;
+  /\.(?:png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|css|map|txt|xml|json|webmanifest)$/i;
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
