@@ -86,6 +86,16 @@ export async function runTreeGeneration(
 
   const inspirations = await loadAttachments(workspace.id, input.attachmentKeys);
 
+  let logo: { mimeType: string; bytes: Buffer } | undefined;
+  if (workspace.logoUrl) {
+    try {
+      const bytes = await storage.get(workspace.logoUrl);
+      logo = { mimeType: mimeFromKey(workspace.logoUrl), bytes };
+    } catch (err) {
+      logger.warn({ err, key: workspace.logoUrl }, 'logo missing for prompt');
+    }
+  }
+
   emit({ type: 'progress', step: 'generating_tree' });
 
   const tree = await generateValidatedTree({
@@ -98,8 +108,13 @@ export async function runTreeGeneration(
       kb: ready.map((s) => ({ title: s.title, url: s.url, contentText: s.contentText })),
       screenshots,
       inspirations,
+      logo,
     },
   });
+
+  if (logo) {
+    replaceLogoPlaceholder(tree, logo);
+  }
 
   const htmlCache = renderTreeToHtml(tree);
 
@@ -216,6 +231,52 @@ function appendRetryFeedback(contents: ReturnType<typeof buildGenerateTreeConten
       ],
     },
   ];
+}
+
+const LOGO_PLACEHOLDER = '__BW_LOGO__';
+
+function mimeFromKey(key: string): string {
+  const ext = key.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'image/png';
+  }
+}
+
+function replaceLogoPlaceholder(
+  tree: BannerTree,
+  logo: { mimeType: string; bytes: Buffer },
+): void {
+  const dataUri = `data:${logo.mimeType};base64,${logo.bytes.toString('base64')}`;
+  walkNodes(tree.root as unknown as MutableNode, (node) => {
+    if (node.type === 'image' && node.src === LOGO_PLACEHOLDER) {
+      node.src = dataUri;
+    }
+  });
+}
+
+type MutableNode = {
+  type: string;
+  src?: string;
+  children?: MutableNode[];
+};
+
+function walkNodes(node: MutableNode, fn: (n: MutableNode) => void): void {
+  fn(node);
+  if (Array.isArray(node.children)) {
+    for (const c of node.children) {
+      if (c && typeof c === 'object' && 'type' in c) {
+        walkNodes(c, fn);
+      }
+    }
+  }
 }
 
 function countTextLikeNodes(node: { type: string; children?: unknown[] }): number {

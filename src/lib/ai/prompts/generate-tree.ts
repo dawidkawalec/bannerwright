@@ -31,6 +31,7 @@ Hard rules — violations disqualify the output:
 9. Reply with ONLY the JSON document.
 10. **Required content: every banner MUST include at least one headline text, one supporting text or CTA button, plus the root frame. The root frame's "children" array MUST NOT be empty.** A blank canvas is a failed generation.
 11. **Soft node budget: aim for 5-10 total nodes (root frame + 4-9 children). Stay below 16 if you can — banners are minimalist, every element earns its place. Combine decorative repetition (don't make 30 separate dots when one shape will do).**
+12. **Logo reference:** when a "BRAND LOGO" image is attached, you MUST add a corresponding image node with "src" set to the literal string "__BW_LOGO__" (the server replaces it with the real logo data URI before render). NEVER copy logo bytes into the JSON output. NEVER recreate the logo from shapes or text.
 
 Quality bar:
 - Layouts should feel intentional, not generic. Pick a strong headline framing.
@@ -46,6 +47,8 @@ export type BuildGenerateTreePromptInput = {
   kb: Array<Pick<KbSource, 'title' | 'url' | 'contentText'>>;
   screenshots?: Array<{ mimeType: string; bytes: Buffer }>;
   inspirations?: Array<{ mimeType: string; bytes: Buffer }>;
+  /** Workspace brand logo — passed as a multimodal image part with placement hints. */
+  logo?: { mimeType: string; bytes: Buffer };
 };
 
 const MAX_KB_CHARS_PER_SOURCE = 6_000;
@@ -67,6 +70,23 @@ export function buildGenerateTreeContents(input: BuildGenerateTreePromptInput): 
       'Produce the BannerTree JSON now. Match the schema exactly.',
     ].join('\n'),
   });
+
+  if (input.logo) {
+    parts.push({
+      text:
+        '--- BRAND LOGO ---\n' +
+        'The next image is the brand logo. Include it in the banner as an image node ' +
+        '(top-left, top-center, or top-right depending on layout balance — never center-stage). ' +
+        'Keep it 80-160px wide for square 1080×1080 canvases (scale proportionally for other formats). ' +
+        'NEVER recreate the logo from shapes or text — always reference it as the image node.',
+    });
+    parts.push({
+      inlineData: {
+        mimeType: input.logo.mimeType,
+        data: input.logo.bytes.toString('base64'),
+      },
+    });
+  }
 
   for (const shot of input.screenshots ?? []) {
     parts.push({
