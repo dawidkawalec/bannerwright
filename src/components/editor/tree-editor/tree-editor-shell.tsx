@@ -223,7 +223,7 @@ export function TreeEditorShell({
   );
 
   return (
-    <div className="grid h-[calc(100vh-220px)] min-h-[600px] grid-cols-[minmax(0,1fr)_320px] gap-4">
+    <div className="grid h-[calc(100vh-220px)] min-h-[600px] grid-cols-[minmax(0,1fr)_300px] gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-h-0 flex-col rounded-lg border border-border bg-card">
         <Toolbar
           status={status}
@@ -232,7 +232,7 @@ export function TreeEditorShell({
           onUndo={() => store.temporal.getState().undo()}
           onRedo={() => store.temporal.getState().redo()}
         />
-        <div className="grid min-h-0 flex-1 grid-cols-[220px_minmax(0,1fr)_280px] divide-x divide-border overflow-hidden">
+        <div className="grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)_220px] divide-x divide-border overflow-hidden xl:grid-cols-[200px_minmax(0,1fr)_260px]">
           <div className="min-h-0 overflow-y-auto bg-card">
             <LayersPanel
               tree={tree}
