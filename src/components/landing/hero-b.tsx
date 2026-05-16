@@ -44,10 +44,10 @@ export function HeroB() {
         ))}
       </div>
 
-      {/* Inverted scrim: a soft dark wash sits behind the centred copy so the H1 stays
-          legible, while the edges keep most of the banner-wall colour visible.
-          Effect is intentionally light — about 55% wash in the middle, fading to ~15% at the rim. */}
-      <div className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(ellipse_55%_45%_at_center,oklch(0.12_0.005_250_/_0.6)_0%,oklch(0.12_0.005_250_/_0.42)_45%,oklch(0.12_0.005_250_/_0.18)_85%,oklch(0.12_0.005_250_/_0.1)_100%)]" />
+      {/* Soft horizontal dark band — a gentle wash behind the centred H1, no visible ring.
+          Vertical linear-gradient that's almost transparent at top/bottom and lifts to ~35% black
+          across the middle third of the hero, letting the banner wall keep its colour everywhere. */}
+      <div className="pointer-events-none absolute inset-0 -z-0 bg-[linear-gradient(to_bottom,transparent_0%,oklch(0.10_0.005_250_/_0.15)_18%,oklch(0.10_0.005_250_/_0.32)_42%,oklch(0.10_0.005_250_/_0.32)_58%,oklch(0.10_0.005_250_/_0.15)_82%,transparent_100%)]" />
 
       {/* Foreground */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
