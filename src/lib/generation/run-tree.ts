@@ -122,6 +122,7 @@ export async function runTreeGeneration(
   const preset = getPreset(input.style);
   const useImageFirst = (input.withBackground ?? preset.withBackground) && preset.id !== 'auto';
   let refImageCostUsd = 0;
+  let refImagePath: string | undefined;
   let tree: BannerTree;
 
   if (useImageFirst) {
@@ -151,6 +152,7 @@ export async function runTreeGeneration(
         const key = storageKeys.generated(workspace.id, filename);
         await storage.put(key, bytes, mimeType);
         refImage = { mimeType, bytes };
+        refImagePath = key;
       } catch (err) {
         logger.warn(
           { err, style: preset.id },
@@ -224,6 +226,7 @@ export async function runTreeGeneration(
     currentTree: tree,
     currentHtml: htmlCache,
     brief: input.brief,
+    referenceImagePath: refImagePath,
   });
   const version = await insertGenerationVersion({
     generationId: generation.id,

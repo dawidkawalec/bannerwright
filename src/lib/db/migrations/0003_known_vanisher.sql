@@ -1,0 +1,1 @@
+ALTER TABLE "generations" ADD COLUMN "reference_image_path" text;

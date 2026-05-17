@@ -167,6 +167,12 @@ export const generations = pgTable(
     isTemplate: boolean('is_template').notNull().default(false),
     templateName: text('template_name'),
     thumbnailPath: text('thumbnail_path'),
+    /**
+     * Storage key of the Nano Banana reference PNG that the Vision encoder
+     * transcribed into `currentTree`. Set for image-first generations only;
+     * null for Auto / text-only / legacy banners.
+     */
+    referenceImagePath: text('reference_image_path'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },

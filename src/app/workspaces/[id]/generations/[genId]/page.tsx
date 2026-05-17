@@ -112,6 +112,7 @@ export default async function GenerationEditorPage({ params }: Props) {
             triggeredBy: v.triggeredBy,
             createdAt: v.createdAt.toISOString(),
           }))}
+          referenceImagePath={generation.referenceImagePath}
         />
       ) : (
         <EditorShell

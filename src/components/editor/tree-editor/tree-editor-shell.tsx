@@ -19,6 +19,7 @@ import { bannerTreeSchema } from '@/lib/tree/schema';
 import type { BannerTree } from '@/lib/tree/types';
 import { BackgroundButton } from '../background-button';
 import { ChatPanel, type ChatRow, type ChatStage } from '../chat-panel';
+import { ReferenceImagePanel } from '../reference-image-panel';
 import { VersionsPanel, type VersionRow } from '../versions-panel';
 import { TreeCanvas } from './canvas';
 import { LayersPanel } from './layers-panel';
@@ -32,6 +33,7 @@ export type TreeEditorShellProps = {
   initialTree: BannerTree;
   initialChat: ChatRow[];
   versions: VersionRow[];
+  referenceImagePath?: string | null;
 };
 
 type SaveStatus =
@@ -46,6 +48,7 @@ export function TreeEditorShell({
   initialTree,
   initialChat,
   versions,
+  referenceImagePath,
 }: TreeEditorShellProps) {
   const router = useRouter();
   // Create the store once per editor instance. useState lazy init is the
@@ -298,6 +301,10 @@ export function TreeEditorShell({
             router.refresh();
           }}
           disabled={chatStage !== 'idle'}
+        />
+        <ReferenceImagePanel
+          workspaceId={workspaceId}
+          referenceImagePath={referenceImagePath}
         />
       </div>
     </div>
