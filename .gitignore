@@ -69,3 +69,9 @@ demo/
 
 # nano-banana raw outputs — keep curated banners in public/landing/banners/ instead
 generated_imgs/
+
+# Local nano-banana MCP config (contains personal Gemini API key)
+.nano-banana-config.json
+
+# Local NB test scratch dir (reference screenshots + experiments)
+nb-tests/

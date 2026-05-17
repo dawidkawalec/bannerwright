@@ -13,6 +13,9 @@ import {
   buildEncodeDesignContents,
   ENCODE_DESIGN_SYSTEM,
 } from '@/lib/ai/prompts/encode-design';
+import { detectTextZones } from '@/lib/ai/prompts/detect-text-zones';
+import { extractBriefStructure } from '@/lib/ai/extract-brief-structure';
+import { composeTreeFromZones } from '@/lib/generation/compose-tree-from-zones';
 import {
   insertGeneration,
   insertGenerationVersion,
@@ -25,6 +28,7 @@ import { getWorkspaceForUser } from '@/lib/db/queries/workspaces';
 import type { GenerationFormat } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
 import { renderHtmlToPng } from '@/lib/renderer/render-png';
+import { prepareReferences } from '@/lib/renderer/prepare-references';
 import { rasterizeSvgToPng } from '@/lib/renderer/rasterize-svg';
 import { getStorage, storageKeys } from '@/lib/storage';
 import { loadAttachments } from '@/lib/storage/attachments';
@@ -130,7 +134,16 @@ export async function runTreeGeneration(
   let tree: BannerTree;
 
   if (useImageFirst) {
-    // Step 1: Nano Banana renders the COMPLETE banner (text + composition).
+    // ── Opcja A: PURE-ART NB + HTML text overlay ─────────────────────────────
+    // 1. Extract structured copy (headline/subhead/cta) from the free-form brief.
+    // 2. Build pure-art NB prompt (zero text demand) and call NB with multimodal
+    //    reference images (logo + KB screens) pre-cropped to the target aspect.
+    // 3. Vision detects negative-space zones on the resulting artwork.
+    // 4. Server composes a BannerTree with the NB image as canvas.background and
+    //    real HTML text/button nodes placed inside the detected zones.
+    // Fallback chain: any step that fails routes back to the legacy Vision
+    // text-transcription path (encode-design), then text-only Gemini if even
+    // NB fails.
     const designPrompt = buildDesignPrompt({
       preset,
       brief: input.brief,
@@ -144,14 +157,18 @@ export async function runTreeGeneration(
     if (designPrompt) {
       emit({ type: 'progress', step: 'rendering_background' });
       try {
+        const refs = await prepareReferences(
+          [logo, ...screenshots.slice(0, 2)],
+          input.format,
+        );
         const { bytes, mimeType, costUsd } = await generateImage({
           model: 'gemini-3-pro-image-preview',
           operation: 'image_gen',
           workspaceId: workspace.id,
           prompt: designPrompt,
+          referenceImages: refs,
         });
         refImageCostUsd = costUsd;
-        // Persist as a reference artifact in /assets — user can review or re-use.
         const filename = `design-${Date.now()}.${mimeType === 'image/jpeg' ? 'jpg' : 'png'}`;
         const key = storageKeys.generated(workspace.id, filename);
         await storage.put(key, bytes, mimeType);
@@ -160,28 +177,38 @@ export async function runTreeGeneration(
       } catch (err) {
         logger.warn(
           { err, style: preset.id },
-          'Nano Banana full design failed — falling back to text-only Gemini',
+          'Nano Banana pure-art call failed — falling back to text-only Gemini',
         );
       }
     }
 
     if (refImage) {
-      // Step 2: Gemini Vision encodes the image into a BannerTree.
       emit({ type: 'progress', step: 'generating_tree' });
-      tree = await generateValidatedTree({
-        workspaceId: workspace.id,
-        systemInstruction: `${ENCODE_DESIGN_SYSTEM}${preset.typographyHint}`,
-        contents: buildEncodeDesignContents({
-          refImage,
-          format: input.format,
-          brief: input.brief,
-          brandColors: workspace.brandColors,
-          brandFonts: workspace.brandFonts,
-          preset,
-        }),
+      tree = await runPureArtOverlay({
+        refImage,
+        brief: input.brief,
+        format: input.format,
+        workspace,
+        preset,
+      }).catch(async (err) => {
+        logger.warn(
+          { err, style: preset.id },
+          'Pure-art overlay path failed — falling back to encode-design (Vision text transcription)',
+        );
+        return generateValidatedTree({
+          workspaceId: workspace.id,
+          systemInstruction: `${ENCODE_DESIGN_SYSTEM}${preset.typographyHint}`,
+          contents: buildEncodeDesignContents({
+            refImage,
+            format: input.format,
+            brief: input.brief,
+            brandColors: workspace.brandColors,
+            brandFonts: workspace.brandFonts,
+            preset,
+          }),
+        });
       });
     } else {
-      // Fallback: NB call failed → text-only Gemini.
       emit({ type: 'progress', step: 'generating_tree' });
       tree = await generateValidatedTree({
         workspaceId: workspace.id,
@@ -332,6 +359,52 @@ async function generateValidatedTree({
     }
   }
   throw new Error(`Tree generation failed after ${MAX_RETRIES + 1} attempts: ${lastError}`);
+}
+
+/**
+ * Pure-art overlay flow (Opcja A):
+ *   1. Vision detects negative-space zones on the Nano Banana artwork.
+ *   2. Flash extracts {headline, subhead, cta} from the free-form brief.
+ *   3. Server composes a BannerTree with the artwork as canvas.background and
+ *      real HTML text/button nodes positioned inside the detected zones.
+ *
+ * Throws on any failure — the caller decides whether to fall back to the
+ * legacy encode-design Vision-transcription path.
+ */
+async function runPureArtOverlay(args: {
+  refImage: { mimeType: string; bytes: Buffer };
+  brief: string;
+  format: GenerationFormat;
+  workspace: { id: string; brandColors?: unknown; brandFonts?: unknown };
+  preset: { id: string };
+}): Promise<BannerTree> {
+  // Detect zones + extract brief structure in parallel — they don't depend on
+  // each other and each costs a Gemini call.
+  const [structure, zones] = await Promise.all([
+    extractBriefStructure(args.brief, args.workspace.id),
+    detectTextZones({
+      refImage: args.refImage,
+      format: args.format,
+      brandColors: (args.workspace.brandColors ?? null) as Parameters<typeof detectTextZones>[0]['brandColors'],
+      workspaceId: args.workspace.id,
+      wantsSubhead: true,
+      wantsCta: true,
+    }),
+  ]);
+
+  const refImageDataUri = `data:${args.refImage.mimeType};base64,${args.refImage.bytes.toString('base64')}`;
+  const tree = composeTreeFromZones({
+    zones,
+    structure,
+    brandColors: (args.workspace.brandColors ?? null) as Parameters<typeof composeTreeFromZones>[0]['brandColors'],
+    brandFonts: (args.workspace.brandFonts ?? null) as Parameters<typeof composeTreeFromZones>[0]['brandFonts'],
+    format: args.format,
+    refImageDataUri,
+  });
+
+  // Validate through the same Zod schema we use for Gemini output so the rest
+  // of the pipeline can treat the tree uniformly.
+  return bannerTreeSchema.parse(applyTreeDefaults(tree));
 }
 
 function appendRetryFeedback(

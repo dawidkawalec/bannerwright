@@ -251,6 +251,8 @@ export type LlmOperation =
   | 'generate_html'
   | 'edit_html'
   | 'extract_brand'
+  | 'extract_brief'
+  | 'detect_zones'
   | 'image_gen'
   | 'summarise'
   | 'other';

@@ -79,8 +79,9 @@ Six phases, ~7 weeks total to OSS release. Each phase ends with a concrete deliv
 - [x] "Generate background" button works on tree banners — sets `canvas.background = image fill`, re-renders HTML, new version row, PNG refresh. Legacy HTML banners still use the `body[data-bw-bg]` style injection
 - [x] Image asset library per workspace — `/workspaces/[id]/assets` lists thumbnails, copy-filename + delete actions, served via `/api/workspaces/[id]/assets/[name]`
 - [x] Brand logo flows into generated banners via multimodal image part + `__BW_LOGO__` placeholder rewrite
+- [x] **Opcja A — pure-art NB + HTML text overlay (replaces v1 image-first pipeline).** `extractBriefStructure` (Flash, `extract_brief` op) → pure-art NB call with multimodal refs pre-cropped via `prepareReferences` → `detectTextZones` (Vision, `detect_zones` op) → server-side `composeTreeFromZones` builds a tree with the NB artwork as `canvas.background` and real HTML text/button nodes in detected zones. Fallback chain: NB fail → text-only Gemini; zones/compose fail → legacy `ENCODE_DESIGN_SYSTEM` Vision-transcription path. Polish diacritics now render pixel-perfect (HTML, not NB pixel render).
 
-**Deliverable hit:** save banner as template ✅, create new from template ✅, AI background works end-to-end on tree banners (verified live: $0.04 / image, 821 KB PNG, `canvas.background.kind = "image"`), asset library lists past backgrounds ✅, logo lands in fresh banners ✅.
+**Deliverable hit:** save banner as template ✅, create new from template ✅, AI background works end-to-end on tree banners (verified live: $0.04 / image, 821 KB PNG, `canvas.background.kind = "image"`), asset library lists past backgrounds ✅, logo lands in fresh banners ✅, pure-art overlay pipeline live ✅.
 
 ## Faza 5 — Polish + OSS Release 🟡 partial
 

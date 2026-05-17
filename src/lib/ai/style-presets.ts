@@ -52,11 +52,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   minimalist: {
     id: 'minimalist',
     label: 'Minimalist',
-    description: 'Lots of negative space, one accent colour, light typography.',
+    description: 'Architectural line-art + clean typography overlay.',
     bgPrompt:
       'Ultra-minimal background composition. Off-white or pale single-color surface with one subtle large geometric shape anchored to one corner. Lots of negative space. No text, no icons.',
     designPrompt:
-      'A complete minimalist social-media banner design. Off-white or pale tinted surface with ONE strong geometric accent shape (large circle, diagonal line, or gradient blob) anchored to a corner. The headline is rendered in a LIGHT-weight modern sans-serif (300-400 weight), 80-110px size, perfectly placed in the empty space — generous letter-spacing on caps. Below it a small supporting line in muted grey. A small minimal CTA "Learn more" or similar in the corner — could be a tiny pill button or underlined text. Tasteful, gallery-quality, museum-poster feel. Use the supplied headline and copy literally.',
+      'Architectural line-art composition with a brand-coloured gradient wash. ONE hairline geometric form (Bauhaus circle, golden-ratio diagonal, single-stroke spiral, or quiet right-angle) anchored OFF-CENTRE. Pale cream / off-white / pale tinted surface — museum-poster quality, gallery-print restraint. Treat the brand palette as one accent colour, no decorative gradients beyond a soft surface tint. The composition must read as fine-art print, not a marketing template.',
     typographyHint:
       '\n\nStyle preset: MINIMALIST. Light font weights (300-400). Headline ≥ 80px. Generous letter-spacing on caps. Single accent colour for emphasis. 4-6 nodes total.',
     withBackground: true,
@@ -64,11 +64,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   bold: {
     id: 'bold',
     label: 'Bold',
-    description: 'Vivid gradient, heavy typography, high contrast.',
+    description: 'Synthwave gradient mesh + heavy typography overlay.',
     bgPrompt:
       'Vibrant gradient mesh background — 2-3 saturated brand colors blending smoothly with soft organic blurred shapes. Slightly calmer in the centre for text overlay. No text, no icons.',
     designPrompt:
-      'A complete BOLD social-media banner design. Vivid gradient mesh in the brand colours fills the whole canvas. OVERSIZED headline in a heavy sans-serif (Inter Black, Montserrat 900, or similar) — 100-140px, ALL CAPS or sentence case, tight letter-spacing (-0.02em), placed prominently (often left-aligned, sometimes centred). Below it a supporting line in a lighter weight. A solid contrasting CTA button at the bottom (rounded rect with bold white text on dark fill, or vice versa). Optional 1-2 decorative geometric accents. Use the supplied headline and copy literally. High energy, scroll-stopping.',
+      'Synthwave-style gradient mesh composition built from the brand colours — vivid blends, organic blurred orbs, an asymmetric energy waveform or chromatic light leak. High-contrast saturation, scroll-stopping abstract shapes. Treat as album-cover or stage-visual art, NOT as a marketing template. The composition must be a single artistic piece with the brand palette dominant.',
     typographyHint:
       '\n\nStyle preset: BOLD. Heavy font weights (800-900). Headline ≥ 110px. Tight letter-spacing (-0.02em). High-contrast colour. CTA button solid bright fill. 5-8 nodes total.',
     withBackground: true,
@@ -76,11 +76,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   editorial: {
     id: 'editorial',
     label: 'Editorial',
-    description: 'Magazine-style, serif headline, warm muted tones.',
+    description: 'Painterly editorial composition + serif typography overlay.',
     bgPrompt:
       'Editorial magazine-style background. Subtle textured paper or gallery wall, warm muted tones (cream, taupe, sand), slight grain, soft directional shadow. No text overlays, no icons.',
     designPrompt:
-      'A complete EDITORIAL magazine-style social-media banner design. Subtle textured paper or warm gallery-wall background in muted brand-adjacent tones (cream, taupe, sand, ink). A serif headline (Playfair Display, Cormorant Garamond, or Libre Caslon) at 72-100px, possibly with one word in italic — quietly luxurious. A small sans-serif sub-line beneath. Optional small editorial flourishes: a thin horizontal rule, a small page-number-style label, a tiny serif quote mark. CTA is text-only with an underline ("Read more →") or a quiet pill button. Use the supplied headline and copy literally. Sophisticated, fashion-magazine feel.',
+      'Painterly editorial composition — oil-paint or gouache texture in warm muted tones (cream, taupe, sand, ink, with brand colour as the accent). A single subject hint OFF-CENTRE (silhouette, abstract still-life, draped fabric, soft botanical, hand). Renaissance / mid-century gallery quality, fine grain. Read as a museum monograph cover, not as a social-media template.',
     typographyHint:
       '\n\nStyle preset: EDITORIAL. Serif headline (Playfair Display, Cormorant). Body sans-serif. Headline ≥ 72px. Warm muted text. 5-8 nodes total.',
     withBackground: true,
@@ -88,11 +88,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   photographic: {
     id: 'photographic',
     label: 'Photographic',
-    description: 'Cinematic full-bleed photo with text overlay.',
+    description: 'Cinematic on-brand photograph + typography overlay.',
     bgPrompt:
       'Photorealistic on-brand environment shot, cinematic lighting, depth-of-field. Balanced negative space for typography. No text, no icons.',
     designPrompt:
-      'A complete PHOTOGRAPHIC social-media banner design. A photorealistic on-brand environment or product shot fills the canvas with cinematic lighting and shallow depth-of-field. A semi-transparent dark scrim (rect at ~50% opacity) sits under the text area for legibility. Bold sans-serif WHITE headline at 90-130px placed against the scrim. A small white supporting line below. A solid CTA button (rounded rect, bright brand colour) at the bottom. Use the supplied headline and copy literally. Magazine-cover quality.',
+      'Cinematic lifestyle photograph on-brand environment — shallow depth-of-field, golden-hour or moody-overcast lighting, naturalistic colour grading. Compose with a naturally darker scrim region (deep shadow, dark wall, road surface, low-key fabric) where typography will sit. Magazine-cover quality, editorial photography aesthetic — never stock-photography composite.',
     typographyHint:
       '\n\nStyle preset: PHOTOGRAPHIC. Add a semi-transparent dark rect under the text for legibility. Bold white headline ≥ 90px. Minimal text. 3-5 nodes total.',
     withBackground: true,
@@ -100,11 +100,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   glassmorphic: {
     id: 'glassmorphic',
     label: 'Glassmorphic',
-    description: 'Frosted glass panels over a brand gradient mesh.',
+    description: 'Glassmorphic data-viz + crisp typography overlay.',
     bgPrompt:
       'Modern fintech glassmorphic background. Frosted glass panels over a soft gradient mesh of brand colors. Subtle light leaks, blurred orbs. No text, no icons.',
     designPrompt:
-      'A complete GLASSMORPHIC social-media banner design. A soft gradient mesh of brand colours with blurred orbs and light leaks fills the background. A rounded frosted-glass panel (semi-transparent white with subtle border and shadow) sits centred over the gradient and contains the text. Medium-weight white sans-serif headline (Inter, Plus Jakarta Sans) at 80-110px on the glass panel. A small lighter sub-line beneath. A bright solid CTA button at the bottom of the panel. Optional small icon accent. Use the supplied headline and copy literally. Modern fintech aesthetic.',
+      'Glassmorphic data-visualization composition — frosted translucent panels, floating UI chips, abstract chart fragments, blurred orbs and soft light leaks, layered over a gentle brand-colour gradient mesh. Dieter-Rams + Apple-keynote aesthetic, deep dark base or pristine light base. Treat as a product-keynote visual, NOT as a marketing template.',
     typographyHint:
       '\n\nStyle preset: GLASSMORPHIC. Medium weights, white text on a translucent rect. Headline ≥ 80px. 5-8 nodes total.',
     withBackground: true,
@@ -112,11 +112,11 @@ export const STYLE_PRESETS: Record<StylePresetId, StylePreset> = {
   brutalist: {
     id: 'brutalist',
     label: 'Brutalist',
-    description: 'Raw geometric blocks, oversized monospace.',
+    description: 'Riso-print collage + monospace typography overlay.',
     bgPrompt:
       'Raw brutalist design background. Bold geometric blocks of brand colors, asymmetric, sharp edges. Concrete texture. No text, no icons.',
     designPrompt:
-      'A complete BRUTALIST social-media banner design. Two or three bold geometric blocks of brand colour (rectangles, sharp 90° edges) fill the canvas asymmetrically — concrete or coarse-paper texture. The headline is OVERSIZED monospace (Space Mono, JetBrains Mono, or Fira Code) at 130-170px, either lowercase or ALL-CAPS, broken across multiple lines, placed across the colour blocks. A small monospace sub-line in a contrasting block. Replace any CTA button with an underlined text link ("→ get started"). Use the supplied headline and copy literally. Industrial poster, anti-design feel.',
+      'Riso-print collage with bold geometric blocks of brand colour — coarse paper grain, slight mis-registration, two- or three-colour spot-ink palette, asymmetric layout, sharp 90° edges. Anti-design / DIY-zine / Wim-Crouwel quality. Read as a screen-printed art print, not as a marketing template.',
     typographyHint:
       '\n\nStyle preset: BRUTALIST. Space Mono / JetBrains Mono headline ≥ 130px. Monospace body. High contrast. Underlined text link instead of button. 3-5 nodes total.',
     withBackground: true,
@@ -152,10 +152,13 @@ export function buildBackgroundPrompt(
 }
 
 /**
- * Compose the full-design Nano Banana prompt for the image-first pipeline.
- * Includes the brief, brand context, preset design spec, and optional KB
- * voice/positioning hints. The output is a COMPLETE banner image (text + visual
- * + decorations) that Gemini Vision will then encode into an editable tree.
+ * Compose the pure-art Nano Banana prompt for the image-first pipeline.
+ *
+ * **Important contract change (Opcja A):** the model MUST NOT render any text,
+ * headline copy, CTA pill, or label. The output is a single artistic
+ * composition with intentional negative space; the server overlays editable
+ * HTML text on top after Vision identifies the reserved zones. This avoids
+ * NB's stock-template register and its broken Polish/diacritic rendering.
  */
 export function buildDesignPrompt(args: {
   preset: StylePreset;
@@ -169,9 +172,12 @@ export function buildDesignPrompt(args: {
   if (!preset.withBackground) return null;
   const { width, height } = dimensionsFor(format);
   const aspect = aspectLabel(format);
+  const reservedZone = reservedZoneFor(format);
   const lines: string[] = [preset.designPrompt];
 
-  lines.push(`\n--- CREATIVE BRIEF ---\n${brief.trim()}`);
+  lines.push(
+    `\n--- CREATIVE BRIEF (for THEME only — do NOT render any of this text) ---\n${brief.trim()}`,
+  );
 
   const palette: string[] = [];
   if (brandColors?.primary) palette.push(`primary ${brandColors.primary}`);
@@ -180,21 +186,53 @@ export function buildDesignPrompt(args: {
   if (brandColors?.background) palette.push(`background ${brandColors.background}`);
   if (brandColors?.text) palette.push(`text ${brandColors.text}`);
   if (palette.length > 0) {
-    lines.push(`\nBrand palette: ${palette.join(', ')}. Use these colours faithfully — they should dominate the design.`);
+    lines.push(
+      `\nBrand palette: ${palette.join(', ')}. These colours must dominate the artwork.`,
+    );
   }
   if (brandFonts?.headline || brandFonts?.body) {
     lines.push(
-      `Brand fonts: headline ${brandFonts.headline ?? 'sans-serif'}, body ${brandFonts.body ?? 'sans-serif'}. Match the family character (geometric / humanist / serif / mono) even if the exact font is unavailable.`,
+      `Brand typographic character (informational only — do NOT render any letters): headline family character ${brandFonts.headline ?? 'sans-serif'}, body ${brandFonts.body ?? 'sans-serif'}.`,
     );
   }
   if (kbSnippet) {
-    lines.push(`\nBrand voice & context (from knowledge base):\n${kbSnippet.slice(0, 600)}`);
+    lines.push(
+      `\nBrand voice & positioning (theme guidance only):\n${kbSnippet.slice(0, 600)}`,
+    );
+  }
+  if (args.preset && palette.length === 0) {
+    // No brand palette set yet — give the model an explicit pivot so it doesn't
+    // default to grey/stock colours.
+    lines.push(
+      '\nNo brand palette supplied — invent a confident artistic palette (3-4 colours) that suits the theme.',
+    );
   }
   lines.push(
-    `\nOutput a single ${width}×${height}px ${aspect} image — composition MUST fit this exact aspect ratio (do NOT render a square if the target is vertical or landscape). The banner is COMPLETE — render all text from the brief literally (headline, subhead, CTA copy). Do NOT add a logo placeholder unless the brief asks for it; leave the top-left corner clean for the user to place a logo later.`,
+    `\nOutput a single ${width}×${height}px ${aspect} image — the composition MUST fill this exact aspect ratio (do not return a square crop if the target is vertical or landscape).`,
   );
   lines.push(
-    'If the brief or copy contains Polish diacritics (ą ę ć ł ó ś ż ź ń, plus uppercase) or any other non-Latin glyphs (Cyrillic, accented Romance, etc.), render them precisely with correct accent marks — never substitute a base letter.',
+    `NEGATIVE SPACE: at least 30-40% of the canvas MUST be visually quiet (single-tone, softly textured, or smoothly graduated) so the server can compose HTML typography on top later. Reserve the ${reservedZone} region for typography.`,
+  );
+  lines.push(
+    'HARD PROHIBITIONS — violations make the output unusable: NO rendered text of any kind (no headline, no subhead, no CTA button, no caption, no watermark, no signature, no logo, no glyphs, no numbers, no letterforms anywhere). NO Canva-style template framing. NO photo-stock collage. NO clip-art icons. NO pill buttons. NO arrow CTAs. This is a piece of art, not a banner template.',
   );
   return lines.join(' ');
+}
+
+/**
+ * Human hint for which canvas region should stay quiet for typography overlay.
+ * Format-aware so vertical / landscape compositions don't all reserve the same
+ * spot.
+ */
+function reservedZoneFor(format: GenerationFormat): string {
+  switch (format) {
+    case 'square_1080':
+      return 'LEFT-CENTER or CENTER';
+    case 'story_1080_1920':
+      return 'LOWER-THIRD (bottom 35% of the canvas)';
+    case 'landscape_1200_628':
+      return 'RIGHT-COLUMN (right 40% of the canvas)';
+    case 'portrait_1200_1500':
+      return 'CENTER vertically, with the bottom 25% kept clean for a CTA';
+  }
 }

@@ -193,6 +193,13 @@ export type GenerateImageInput = {
   generationId?: string;
   /** Free-form description of the image to generate. */
   prompt: string;
+  /**
+   * Optional reference images for multimodal grounding (logo, KB screenshots,
+   * mood-board). Must be pre-cropped to the target aspect ratio — Nano Banana
+   * inherits the output aspect from the supplied references, not from the
+   * prompt's dimension text. Use `prepareReferences` from `lib/renderer/`.
+   */
+  referenceImages?: Array<{ mimeType: string; bytes: Buffer }>;
 };
 
 export type GenerateImageResult = {
@@ -209,10 +216,19 @@ export type GenerateImageResult = {
 export async function generateImage(input: GenerateImageInput): Promise<GenerateImageResult> {
   const started = Date.now();
   try {
+    const parts: NonNullable<Content['parts']> = [{ text: input.prompt }];
+    for (const ref of input.referenceImages ?? []) {
+      parts.push({
+        inlineData: {
+          mimeType: ref.mimeType,
+          data: ref.bytes.toString('base64'),
+        },
+      });
+    }
     const response = await withRetry('generateImage', () =>
       client().models.generateContent({
         model: input.model,
-        contents: [{ role: 'user', parts: [{ text: input.prompt }] }],
+        contents: [{ role: 'user', parts }],
       }),
     );
 
