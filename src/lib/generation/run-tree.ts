@@ -132,6 +132,7 @@ export async function runTreeGeneration(
       brandColors: workspace.brandColors,
       brandFonts: workspace.brandFonts,
       kbSnippet: ready[0]?.contentText ?? undefined,
+      format: input.format,
     });
 
     let refImage: { mimeType: string; bytes: Buffer } | undefined;

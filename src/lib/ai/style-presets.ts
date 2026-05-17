@@ -6,7 +6,8 @@
  * instruction so the typography choices match the visual register.
  */
 
-import type { BrandColors } from '@/lib/db/schema';
+import type { BrandColors, GenerationFormat } from '@/lib/db/schema';
+import { aspectLabel, dimensionsFor } from '@/lib/renderer/formats';
 
 export const STYLE_PRESET_IDS = [
   'auto',
@@ -162,9 +163,12 @@ export function buildDesignPrompt(args: {
   brandColors?: BrandColors | null;
   brandFonts?: { headline?: string; body?: string } | null;
   kbSnippet?: string;
+  format: GenerationFormat;
 }): string | null {
-  const { preset, brief, brandColors, brandFonts, kbSnippet } = args;
+  const { preset, brief, brandColors, brandFonts, kbSnippet, format } = args;
   if (!preset.withBackground) return null;
+  const { width, height } = dimensionsFor(format);
+  const aspect = aspectLabel(format);
   const lines: string[] = [preset.designPrompt];
 
   lines.push(`\n--- CREATIVE BRIEF ---\n${brief.trim()}`);
@@ -187,7 +191,10 @@ export function buildDesignPrompt(args: {
     lines.push(`\nBrand voice & context (from knowledge base):\n${kbSnippet.slice(0, 600)}`);
   }
   lines.push(
-    '\nOutput a single 1:1 square image (1080×1080). The banner is COMPLETE — render all text from the brief literally (headline, subhead, CTA copy). Do NOT add a logo placeholder unless the brief asks for it; leave the top-left corner clean for the user to place a logo later. Polish-language copy is OK — render glyphs accurately.',
+    `\nOutput a single ${width}×${height}px ${aspect} image — composition MUST fit this exact aspect ratio (do NOT render a square if the target is vertical or landscape). The banner is COMPLETE — render all text from the brief literally (headline, subhead, CTA copy). Do NOT add a logo placeholder unless the brief asks for it; leave the top-left corner clean for the user to place a logo later.`,
+  );
+  lines.push(
+    'If the brief or copy contains Polish diacritics (ą ę ć ł ó ś ż ź ń, plus uppercase) or any other non-Latin glyphs (Cyrillic, accented Romance, etc.), render them precisely with correct accent marks — never substitute a base letter.',
   );
   return lines.join(' ');
 }
