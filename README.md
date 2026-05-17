@@ -2,7 +2,19 @@
 
 > A workshop for makers of banners. Self-hostable, open-source AI graphics generator that turns a brief + brand context into editable HTML banners (PNG export).
 
-**Status:** Fazy 0-3 live in prod at [bannerwright.com](https://bannerwright.com). Auth, workspaces, brand knowledge base with URL → screenshot + auto-detect, brief → tree-based banner generation, tree editor (Layers / Canvas / Inspector + AI chat), templates with parent lineage, Nano Banana background generation, PNG export. Faza 4 polish + Faza 5 release (GHCR image, GitHub Actions, v0.1.0 tag) in progress.
+![Bannerwright hero](public/landing/readme-shots/00-hero.png)
+
+**Status:** [v0.1.0](https://github.com/dawidkawalec/bannerwright/releases/tag/v0.1.0) live in prod at [bannerwright.com](https://bannerwright.com). Image-first generation pipeline (Nano Banana paints the complete banner → Gemini 3 Pro Vision transcribes it into an editable BannerTree), seven style presets, four formats (square / story / landscape / portrait), brand knowledge base with URL → screenshot + auto-detect, tree editor with layers + chat + version history + mobile sheets, templates with parent lineage, generated-assets library, per-banner cost tracking, Polish/Latin diacritics handled in the prompt.
+
+## What it looks like
+
+| Generation form | Tree editor | Asset library |
+|---|---|---|
+| ![Form](public/landing/readme-shots/01-generation-form.png) | ![Editor](public/landing/readme-shots/02-tree-editor.png) | ![Assets](public/landing/readme-shots/03-assets-library.png) |
+
+| Dashboard | Knowledge base |
+|---|---|
+| ![Dashboard](public/landing/readme-shots/04-dashboard.png) | ![KB](public/landing/readme-shots/05-knowledge-base.png) |
 
 ## Quickstart (self-hosted, prebuilt image)
 
