@@ -1,6 +1,6 @@
 'use client';
 
-import { Check } from 'lucide-react';
+import { Check, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STYLE_PRESETS, type StylePresetId } from '@/lib/ai/style-presets';
 
@@ -53,6 +53,15 @@ export function StyleSelector({
       <p className="text-xs text-muted-foreground">
         {STYLE_PRESETS[value].description}
       </p>
+      {value === 'auto' && (
+        <p className="flex items-start gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-700 dark:text-amber-300">
+          <Zap className="mt-0.5 size-3 shrink-0" />
+          <span>
+            <span className="font-medium">Skips Nano Banana.</span>{' '}
+            Cheaper (~$0.02) and faster (~25 s) but plainer output. Pick another preset for design-quality results.
+          </span>
+        </p>
+      )}
     </div>
   );
 }

@@ -87,8 +87,8 @@ function StatTile({ stat, index }: { stat: StatCard; index: number }) {
               <Icon className="size-5" />
             </div>
             {data.length > 1 && (
-              <div className="h-12 w-32">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-12 w-32 min-w-[128px] flex-shrink-0">
+                <ResponsiveContainer width="100%" height="100%" minWidth={128} minHeight={48}>
                   <AreaChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`spark-${index}`} x1="0" y1="0" x2="0" y2="1">
