@@ -257,9 +257,9 @@ export function TreeEditorShell({
           mobileLayers={layersNode}
           mobileInspector={inspectorNode}
         />
-        {/* Desktop: three-column split. Mobile (< md): canvas only — Layers/Inspector live in Sheets. */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 divide-x divide-border overflow-hidden md:grid-cols-[180px_minmax(0,1fr)_220px] xl:grid-cols-[200px_minmax(0,1fr)_260px]">
-          <div className="hidden min-h-0 overflow-y-auto bg-card md:block">{layersNode}</div>
+        {/* Desktop (lg+): three-column split. Tablet + mobile (< lg): canvas only — Layers/Inspector live in Sheets. */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 divide-x divide-border overflow-hidden lg:grid-cols-[180px_minmax(0,1fr)_220px] xl:grid-cols-[200px_minmax(0,1fr)_260px]">
+          <div className="hidden min-h-0 overflow-y-auto bg-card lg:block">{layersNode}</div>
           <div className="min-h-0 overflow-hidden">
             <TreeCanvas
               tree={tree}
@@ -271,7 +271,7 @@ export function TreeEditorShell({
               onPatchText={(id, text) => patchNode(id, { text })}
             />
           </div>
-          <div className="hidden min-h-0 overflow-y-auto bg-card md:block">{inspectorNode}</div>
+          <div className="hidden min-h-0 overflow-y-auto bg-card lg:block">{inspectorNode}</div>
         </div>
       </div>
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
@@ -337,7 +337,7 @@ function Toolbar({
               variant="ghost"
               size="sm"
               aria-label="Open layers"
-              className="md:hidden"
+              className="lg:hidden"
             >
               <LayersIcon className="size-4" />
             </Button>
@@ -376,7 +376,7 @@ function Toolbar({
               variant="ghost"
               size="sm"
               aria-label="Open inspector"
-              className="md:hidden"
+              className="lg:hidden"
             >
               <Settings2 className="size-4" />
             </Button>
