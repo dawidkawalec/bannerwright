@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, History, LayoutTemplate, Sparkles } from 'lucide-react';
+import { ArrowLeft, DollarSign, History, LayoutTemplate, Sparkles } from 'lucide-react';
 import { requireUser } from '@/lib/auth/current-user';
 import {
+  getGenerationCostUsd,
   getGenerationForWorkspace,
   listChatMessages,
   listVersionsByGeneration,
@@ -35,9 +36,10 @@ export default async function GenerationEditorPage({ params }: Props) {
   const generation = await getGenerationForWorkspace(genId, workspace.id);
   if (!generation) notFound();
 
-  const [versions, chat] = await Promise.all([
+  const [versions, chat, costUsd] = await Promise.all([
     listVersionsByGeneration(generation.id),
     listChatMessages(generation.id),
+    getGenerationCostUsd(generation.id),
   ]);
 
   return (
@@ -62,6 +64,16 @@ export default async function GenerationEditorPage({ params }: Props) {
               <History className="size-3" />
               {versions.length} version{versions.length === 1 ? '' : 's'}
             </Badge>
+            {costUsd > 0 && (
+              <Badge
+                variant="secondary"
+                className="gap-1"
+                title="Total AI cost across all calls (Nano Banana + Gemini Vision + edits) for this generation."
+              >
+                <DollarSign className="size-3" />
+                {formatCost(costUsd)}
+              </Badge>
+            )}
             {generation.isTemplate && (
               <Badge className="bg-amber-500 text-amber-50">
                 <LayoutTemplate className="size-3" />
@@ -136,4 +148,9 @@ export default async function GenerationEditorPage({ params }: Props) {
       )}
     </div>
   );
+}
+
+function formatCost(usd: number): string {
+  // 4 decimals so Nano Banana ($0.04) + small Vision spend stays visible.
+  return `$${usd.toFixed(4)}`;
 }

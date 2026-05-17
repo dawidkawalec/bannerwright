@@ -16,6 +16,7 @@ import {
 import {
   insertGeneration,
   insertGenerationVersion,
+  linkLlmUsageToGeneration,
   recordChatMessage,
   updateGenerationCurrentTree,
 } from '@/lib/db/queries/generations';
@@ -74,6 +75,9 @@ export async function runTreeGeneration(
   input: RunTreeInput,
   emit: (e: RunTreeEvent) => void,
 ): Promise<void> {
+  // Track when this run started so we can back-link any llm_usage rows logged
+  // before the generations row exists (Nano Banana fires before insert).
+  const runStartedMs = Date.now();
   const workspace = await getWorkspaceForUser(input.workspaceId, input.userId);
   if (!workspace) throw new Error('Workspace not found');
 
@@ -228,6 +232,15 @@ export async function runTreeGeneration(
     brief: input.brief,
     referenceImagePath: refImagePath,
   });
+  // Back-link Nano Banana + Vision usage rows that were logged before this
+  // row existed so SUM(cost_usd) per generation_id is complete.
+  await linkLlmUsageToGeneration({
+    workspaceId: workspace.id,
+    generationId: generation.id,
+    sinceMs: runStartedMs,
+  }).catch((err) =>
+    logger.warn({ err, generationId: generation.id }, 'failed to link llm_usage rows'),
+  );
   const version = await insertGenerationVersion({
     generationId: generation.id,
     versionNumber: 1,

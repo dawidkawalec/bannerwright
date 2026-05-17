@@ -1,9 +1,10 @@
-import { and, asc, desc, eq, max } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, isNull, max, sql } from 'drizzle-orm';
 import { db } from '../client';
 import {
   chatMessages,
   generations,
   generationVersions,
+  llmUsage,
   type ChatMessage,
   type Generation,
   type GenerationVersion,
@@ -169,4 +170,42 @@ export async function deleteGenerationById(
     .where(and(eq(generations.id, id), eq(generations.workspaceId, workspaceId)))
     .returning({ id: generations.id });
   return result.length > 0;
+}
+
+/**
+ * Sum every llm_usage row tied to a generation. Used to display the total AI
+ * spend per banner in the editor header.
+ */
+export async function getGenerationCostUsd(generationId: string): Promise<number> {
+  const [row] = await db
+    .select({ total: sql<string>`coalesce(sum(${llmUsage.costUsd}), 0)::text` })
+    .from(llmUsage)
+    .where(eq(llmUsage.generationId, generationId));
+  return Number(row?.total ?? 0);
+}
+
+/**
+ * Backfill llm_usage rows that were logged BEFORE the generations row existed
+ * (Nano Banana fires before insertGeneration). Matches rows by workspace +
+ * recent timestamp + null generation_id; sets generation_id so subsequent
+ * cost queries roll them in.
+ */
+export async function linkLlmUsageToGeneration(args: {
+  workspaceId: string;
+  generationId: string;
+  sinceMs: number;
+}): Promise<number> {
+  const since = new Date(args.sinceMs);
+  const result = await db
+    .update(llmUsage)
+    .set({ generationId: args.generationId })
+    .where(
+      and(
+        eq(llmUsage.workspaceId, args.workspaceId),
+        isNull(llmUsage.generationId),
+        gte(llmUsage.createdAt, since),
+      ),
+    )
+    .returning({ id: llmUsage.id });
+  return result.length;
 }
